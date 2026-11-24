@@ -79,7 +79,7 @@
       },
       "recordStatus": "active",
       "connectionStatus": "Engaged",
-      "email": "bob.hayes@example.org",
+      "email": "bobandlinda.hayes@example.org",
       "emailIsActive": true,
       "phones": {
         "mobile": "6025550185"
@@ -108,7 +108,7 @@
       },
       "recordStatus": "active",
       "connectionStatus": "Engaged",
-      "email": "linda.hayes@example.org",
+      "email": "bobandlinda.hayes@example.org",
       "emailIsActive": true,
       "phones": {
         "mobile": "6235550142"

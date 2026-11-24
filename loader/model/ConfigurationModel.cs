@@ -169,7 +169,7 @@ namespace RockSampleData.Loader.Model
     /// <summary>
     /// The contents of checkin.json.
     /// </summary>
-    internal sealed class CheckInConfiguration
+    internal sealed partial class CheckInConfiguration
     {
         public List<CheckInArea> Areas { get; set; } = new List<CheckInArea>();
 
@@ -187,7 +187,7 @@ namespace RockSampleData.Loader.Model
     /// <summary>
     /// A check-in area (group type) and the keys of its groups.
     /// </summary>
-    internal sealed class CheckInArea
+    internal sealed partial class CheckInArea
     {
         public string Name { get; set; }
 
@@ -199,7 +199,7 @@ namespace RockSampleData.Loader.Model
     /// <summary>
     /// A check-in group, its room name, and which services it meets at ("weekend" or "student").
     /// </summary>
-    internal sealed class CheckInGroupDefinition
+    internal sealed partial class CheckInGroupDefinition
     {
         public string Key { get; set; }
 

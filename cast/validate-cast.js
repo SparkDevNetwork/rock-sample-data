@@ -63,6 +63,88 @@ if ( [ ...schemaEthnicities ].sort().join() !== [ ...PHOTO_ETHNICITIES ].sort().
     errors.push( "household.schema.json photo.ethnicity values do not match photos/ethnicities.json." );
 }
 
+// Known relationships (decision 365). A Cast line names the role the other person holds in this
+// person's Known Relationships group, and the loader writes Rock's inverse role in the other person's group. So each
+// pair is stated once, on one side. The loader maps exactly these types, and the schema enum must list the same ones.
+const RELATIONSHIP_INVERSES = {
+    "business": null,
+    "can-check-in": "allow-check-in-by",
+    "allow-check-in-by": "can-check-in",
+    "parent": "child",
+    "child": "parent",
+    "grandparent": "grandchild",
+    "grandchild": "grandparent",
+    "step-parent": "step-child",
+    "step-child": "step-parent"
+};
+// Rock marks these roles Can Check-in, so this person's phone search at a kiosk shows the other person.
+const CHECKS_IN_TYPES = new Set( [ "can-check-in", "grandchild" ] );
+const OLDER_TYPES = new Set( [ "parent", "grandparent", "step-parent" ] );
+const YOUNGER_TYPES = new Set( [ "child", "grandchild", "step-child" ] );
+const schemaRelationshipTypes = JSON.parse( fs.readFileSync( path.join( castDir, "household.schema.json" ), "utf8" ) ).$defs.person.properties.relationships.items.properties.type.enum;
+if ( [ ...schemaRelationshipTypes ].sort().join() !== Object.keys( RELATIONSHIP_INVERSES ).sort().join() ) {
+    errors.push( "household.schema.json relationship types do not match the types validate-cast.js and the loader map." );
+}
+
+/**
+ * The household keys a person belongs to: their own, and each household that lists them as a shared member.
+ */
+function familiesOf( guid ) {
+    const families = new Set( [ people.get( guid ).household.key ] );
+    for ( const { data: h } of households ) {
+        if ( ( h.sharedMembers || [] ).some( s => s.guid === guid ) ) {
+            families.add( h.key );
+        }
+    }
+    return families;
+}
+
+/**
+ * The problems with one known relationship line that points at another Cast person (not a business).
+ */
+function relationshipProblems( owner, h, p, r ) {
+    const problems = [];
+    const other = people.get( r.with );
+    const name = `${other.person.nickName || other.person.firstName} ${other.person.lastName}`;
+    if ( !( r.type in RELATIONSHIP_INVERSES ) ) {
+        return [ `${owner}: relationship type "${r.type}" is not one the loader maps (${Object.keys( RELATIONSHIP_INVERSES ).join( ", " )}).` ];
+    }
+    if ( r.with === p.guid ) {
+        return [ `${owner}: relationship "${r.type}" points to the same person.` ];
+    }
+    if ( ( p.relationships || [] ).filter( x => x.with === r.with ).length > 1 && p.relationships.findIndex( x => x.with === r.with ) === p.relationships.indexOf( r ) ) {
+        problems.push( `${owner}: has more than one relationship with ${name}. A pair has one role on each side.` );
+    }
+    const inverse = RELATIONSHIP_INVERSES[ r.type ];
+    if ( ( other.person.relationships || [] ).some( x => x.with === p.guid ) && p.guid < r.with ) {
+        problems.push( `${owner}: the relationship with ${name} is stated on both people. State it once; the loader writes ${inverse ? `"${inverse}"` : "the other half"} on ${name}.` );
+    }
+    if ( other.household.campusSlot !== h.campusSlot ) {
+        problems.push( `${owner}: relationship "${r.type}" points to ${name} on another campus, who does not load in every dataset this person does.` );
+    }
+    const age = p.birth?.age;
+    const otherAge = other.person.birth?.age;
+    if ( age !== undefined && otherAge !== undefined && ( ( OLDER_TYPES.has( r.type ) && otherAge <= age ) || ( YOUNGER_TYPES.has( r.type ) && otherAge >= age ) ) ) {
+        problems.push( `${owner}: "${r.type}" ${name} is ${otherAge}, which does not fit this person's age of ${age}.` );
+    }
+    const isCheckIn = CHECKS_IN_TYPES.has( r.type ) || r.type === "allow-check-in-by";
+    if ( isCheckIn && [ ...familiesOf( p.guid ) ].some( f => familiesOf( r.with ).has( f ) ) ) {
+        problems.push( `${owner}: "${r.type}" ${name} is in the same family, who checks in with this person anyway.` );
+    }
+    if ( r.bringsPercent !== undefined ) {
+        if ( !CHECKS_IN_TYPES.has( r.type ) ) {
+            problems.push( `${owner}: bringsPercent needs a relationship that lets this person check the other in (${[ ...CHECKS_IN_TYPES ].join( ", " )}).` );
+        }
+        if ( other.person.familyRole !== "child" || !( otherAge < 13 ) ) {
+            problems.push( `${owner}: bringsPercent is for a child under 13 who checks in to a kids room, and ${name} is not one.` );
+        }
+        if ( !( h.attendance?.percentAttended > 0 ) || !( other.household.attendance?.percentAttended >= 0 ) ) {
+            problems.push( `${owner}: bringsPercent needs a household that attends and a child's household with an attendance pattern, whose start the visits wait for.` );
+        }
+    }
+    return problems;
+}
+
 // Giving expectations: the allowed values come from the schema, and alert keys from the alert type configuration.
 const expectSchema = JSON.parse( fs.readFileSync( path.join( castDir, "household.schema.json" ), "utf8" ) ).$defs.giving.properties.expect.properties;
 const EXPECT_VALUES = { frequency: expectSchema.frequency.enum, journeyStage: expectSchema.journeyStage.enum };
@@ -273,6 +355,10 @@ for ( const h of households.map( x => x.data ) ) {
             const tags = JSON.parse( fs.readFileSync( file, "utf8" ) );
             text = JSON.stringify( { ...tags, tags: tags.tags.map( t => ( { ...t, owner: undefined } ) ) } ).toUpperCase();
         }
+        // A check-in supervisor loads only with their campus, which the supervisor check below holds them to.
+        if ( path.basename( file ) === "checkin.json" ) {
+            text = JSON.stringify( { ...JSON.parse( fs.readFileSync( file, "utf8" ) ), supervisors: undefined } ).toUpperCase();
+        }
         for ( const [ guid, who ] of campusPeople ) {
             if ( text.includes( guid ) ) {
                 errors.push( `${path.relative( root, file ).replace( /\\/g, "/" )} names ${who}, who lives on another campus and is missing from datasets without it.` );
@@ -367,6 +453,37 @@ for ( const h of households.map( x => x.data ) ) {
         if ( e.linkedToRequest && requests.length !== 1 ) {
             errors.push( `configuration/background-checks.json: expects ${e.name}'s check linked to a request, but their file has ${requests.length} active requests in the Background Check status.` );
         }
+    }
+}
+
+// Check-in supervisors (configuration/checkin.json, decision 367): one PIN per campus, unique digits,
+// and a named supervisor is a Cast person who lives on the campus they supervise. A campus without one uses the
+// leader of its supervisorTeam, a serving team in configuration/serving.json.
+{
+    const checkin = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "checkin.json" ), "utf8" ) );
+    const campuses = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "campuses.json" ), "utf8" ) ).campuses;
+    const mainKey = campuses.find( c => c.rockDefault ).key;
+    const supervisors = checkin.supervisors || [];
+    const pins = new Set();
+    for ( const s of supervisors ) {
+        const owner = `configuration/checkin.json supervisor for ${s.campus}`;
+        if ( !campuses.some( c => c.key === s.campus ) || supervisors.filter( x => x.campus === s.campus ).length > 1 ) {
+            errors.push( `${owner}: needs a campus key from configuration/campuses.json, once.` );
+        }
+        if ( !/^[0-9]{4,8}$/.test( s.pin || "" ) || pins.has( s.pin ) ) {
+            errors.push( `${owner}: needs its own PIN of 4 to 8 digits, which the kiosk's keypad can enter.` );
+        }
+        pins.add( s.pin );
+        if ( s.person !== undefined ) {
+            const p = people.get( s.person );
+            const campus = p && ( p.household.campusSlot === "main" ? mainKey : p.household.campusSlot );
+            if ( campus !== s.campus ) {
+                errors.push( `${owner}: ${p ? `${p.person.firstName} ${p.person.lastName} lives on ${campus}` : `${s.person} is not a Cast person`}, so they do not load with this campus.` );
+            }
+        }
+    }
+    if ( supervisors.some( s => s.person === undefined ) && !serving.teams.some( t => t.key === checkin.supervisorTeam ) ) {
+        errors.push( `configuration/checkin.json supervisorTeam "${checkin.supervisorTeam}" is not a team in configuration/serving.json.` );
     }
 }
 
@@ -1272,6 +1389,9 @@ for ( const { file, data: h } of households ) {
             }
             else if ( r.type === "business" && people.get( r.with ).person.recordType !== "business" ) {
                 errors.push( `${owner}: relationship "business" points to ${r.with}, which is not a business record.` );
+            }
+            else {
+                errors.push( ...relationshipProblems( owner, h, p, r ) );
             }
         }
         for ( const f of p.follows || [] ) {
@@ -2181,6 +2301,233 @@ if ( fs.existsSync( duplicatesFile ) ) {
     }
 }
 
+/*
+    Pass 9: the Data Integrity stories (configuration/data-integrity.json, docs/data-integrity.md). Every person is a
+    Cast person with that name, and staff where a staff member acts. The Pending records are exactly the Cast's Pending
+    people. A self-inactivation inactivates its whole household with the same reason. A status history ends at each
+    person's status. A couple who shares an email both have it. A shared number is on its households' records. A
+    failed address is a Cast home. An NCOA move is a Cast household with a home, inactive with the run's reason only
+    when it moved away.
+*/
+const integrityFile = path.join( castDir, "..", "configuration", "data-integrity.json" );
+let integrityStoryCount = 0;
+if ( fs.existsSync( integrityFile ) ) {
+    const integrity = JSON.parse( fs.readFileSync( integrityFile, "utf8" ) );
+    const owner = "configuration/data-integrity.json";
+    const RECORD_SOURCES = [ "External Website", "Prayer", "Event Registration", "Workflow", "Group Registration", "Giving", "Pledge", "Sign-up", "Check-in", "Family Registration", "Mobile App" ];
+    const SELF_INACTIVATION_REASONS = [ "No Longer Attending", "Moved" ];
+    const STATUSES = [ "Prospect", "Participant", "Known", "Connected", "Engaged", "Leading" ];
+    const nameOf = p => `${p.nickName || p.firstName} ${p.lastName}`;
+    const person = ( where, guid, name, mustBeStaff ) => {
+        const entry = people.get( guid );
+        if ( !entry ) {
+            errors.push( `${owner} ${where}: ${guid} is not a Cast person.` );
+            return null;
+        }
+        if ( name !== undefined && name !== nameOf( entry.person ) ) {
+            errors.push( `${owner} ${where}: ${guid} is ${nameOf( entry.person )}, not ${name}.` );
+        }
+        if ( mustBeStaff && !STAFF_GUIDS.has( guid ) ) {
+            errors.push( `${owner} ${where}: ${nameOf( entry.person )} is not on staff in configuration/staff.json.` );
+        }
+        return entry;
+    };
+    const date = ( where, d, needsTime ) => {
+        const isDaysAgo = d && Number.isInteger( d.daysAgo ) && d.daysAgo >= 0;
+        const isYearsAgo = d && Number.isInteger( d.yearsAgo ) && d.yearsAgo >= 1 && Number.isInteger( d.month ) && Number.isInteger( d.day );
+        if ( isDaysAgo === isYearsAgo || ( d.time === undefined ? needsTime : !/^[0-2][0-9]:[0-5][0-9]$/.test( d.time ) ) ) {
+            errors.push( `${owner} ${where}: a date is daysAgo, or yearsAgo (1 or more) with a month and day, ${needsTime ? "and an HH:mm time" : "and an optional HH:mm time"}.` );
+        }
+    };
+    const text = ( where, value, max ) => {
+        if ( typeof value !== "string" || !value.trim() || value.length > max || !isPlainText( value ) ) {
+            errors.push( `${owner} ${where}: plain text of 1 to ${max} characters.` );
+        }
+    };
+    const householdOf = guid => households.find( h => h.data.members.some( m => m.guid === guid ) );
+
+    for ( const key of Object.keys( ( integrity.recordDates || {} ).households || {} ) ) {
+        if ( !households.some( h => h.data.key === key ) ) {
+            errors.push( `${owner} recordDates: ${key} is not a Cast household.` );
+        }
+        date( `recordDates ${key}`, integrity.recordDates.households[key], false );
+    }
+
+    const pendingRecords = ( integrity.pending || {} ).records || [];
+    const pendingPeople = [ ...people.values() ].filter( e => e.person.recordStatus === "pending" ).map( e => e.person.guid );
+    for ( const guid of pendingPeople.filter( g => !pendingRecords.some( r => r.person === g ) ) ) {
+        errors.push( `${owner} pending: ${nameOf( people.get( guid ).person )} is Pending, so name the form that made the record.` );
+    }
+    for ( const record of pendingRecords ) {
+        integrityStoryCount++;
+        const entry = person( `pending ${record.name}`, record.person, record.name, false );
+        if ( entry && entry.person.recordStatus !== "pending" ) {
+            errors.push( `${owner} pending: ${record.name} is not Pending in their household file.` );
+        }
+        if ( record.source !== undefined && !RECORD_SOURCES.includes( record.source ) ) {
+            errors.push( `${owner} pending ${record.name}: source must be one of Rock's Record Sources: ${RECORD_SOURCES.join( ", " )}.` );
+        }
+        if ( ( record.source === undefined ) !== ( record.created === undefined ) || ( record.source !== undefined && !STATUSES.includes( record.connectionStatus ) ) ) {
+            errors.push( `${owner} pending ${record.name}: a record made by a form names its source, when it was made, and the connection status it gave.` );
+        }
+        if ( record.created !== undefined ) {
+            date( `pending ${record.name}`, record.created, true );
+        }
+    }
+
+    for ( const record of ( integrity.selfInactivations || {} ).records || [] ) {
+        integrityStoryCount++;
+        const where = `self-inactivation ${record.name}`;
+        const entry = person( where, record.person, record.name, false );
+        if ( !SELF_INACTIVATION_REASONS.includes( record.reason ) ) {
+            errors.push( `${owner} ${where}: reason must be one Rock's Email Preferences page offers: ${SELF_INACTIVATION_REASONS.join( ", " )}.` );
+        }
+        text( where, record.note, 500 );
+        date( where, record.inactivated, true );
+        const household = entry && householdOf( record.person );
+        const targets = entry && entry.person.familyRole !== "child" ? household.data.members : entry ? [ entry.person ] : [];
+        for ( const t of targets.filter( t => t.recordStatus !== "inactive" || t.recordStatusReason !== record.reason ) ) {
+            errors.push( `${owner} ${where}: ${nameOf( t )} is inactivated with the household, so their file must say inactive with the reason ${record.reason}.` );
+        }
+    }
+
+    for ( const entry of ( integrity.connectionStatusHistory || {} ).people || [] ) {
+        integrityStoryCount++;
+        const changes = entry.changes || [];
+        changes.forEach( ( c, i ) => {
+            const where = `status history ${( entry.people || [] ).map( p => p.name ).join( ", " )}`;
+            if ( !STATUSES.includes( c.from ) || !STATUSES.includes( c.to ) || c.from === c.to || ( i > 0 && changes[i - 1].to !== c.from ) ) {
+                errors.push( `${owner} ${where}: each change runs from one of the church's statuses to another, from where the last one ended.` );
+            }
+            date( where, c.changed, true );
+            person( where, c.by, undefined, true );
+        } );
+        for ( const p of entry.people || [] ) {
+            const found = person( `status history ${p.name}`, p.person, p.name, false );
+            if ( found && changes.length && found.person.connectionStatus !== changes[changes.length - 1].to ) {
+                errors.push( `${owner} status history ${p.name}: the last change ends at ${changes[changes.length - 1].to}, but their file says ${found.person.connectionStatus}.` );
+            }
+        }
+    }
+
+    const reportKeys = new Set();
+    for ( const report of ( integrity.dataErrors || {} ).reports || [] ) {
+        integrityStoryCount++;
+        const where = `data error ${report.key}`;
+        if ( !KEY.test( report.key || "" ) || reportKeys.has( report.key ) ) {
+            errors.push( `${owner} ${where}: key must be unique and lowercase with hyphens.` );
+        }
+        reportKeys.add( report.key );
+        person( where, report.person, report.name, false );
+        person( where, report.reportedBy, undefined, true );
+        date( where, report.reported, true );
+        text( where, report.details, 1000 );
+        if ( ( report.resolved === undefined ) !== ( report.resolution === undefined ) ) {
+            errors.push( `${owner} ${where}: a resolved report has both resolved and resolution, and an open one neither.` );
+        }
+        if ( report.resolved !== undefined ) {
+            date( where, report.resolved, true );
+            text( where, report.resolution, 1000 );
+        }
+        if ( report.fix !== undefined && ( report.resolved === undefined || !report.fix.valueName || !report.fix.newValue ) ) {
+            errors.push( `${owner} ${where}: a fix belongs to a resolved report and names the value and its new text.` );
+        }
+    }
+
+    const photo = integrity.photoRequests || {};
+    if ( photo.requests && photo.requests.length ) {
+        person( "photo requests sender", photo.sender, undefined, true );
+        text( "photo requests message", photo.message, 1000 );
+    }
+    for ( const request of photo.requests || [] ) {
+        integrityStoryCount++;
+        const where = `photo request ${request.name}`;
+        const entry = person( where, request.person, request.name, false );
+        if ( entry && ( !entry.person.email || entry.person.isDeceased || entry.person.recordStatus === "inactive" ) ) {
+            errors.push( `${owner} ${where}: a photo request is an email, so the person is active and has one.` );
+        }
+        date( where, request.sent, true );
+        [ "uploaded", "verified", "optedOut" ].filter( k => request[k] !== undefined ).forEach( k => date( where, request[k], true ) );
+        if ( ( request.uploaded && request.optedOut ) || ( request.verified && !request.uploaded ) ) {
+            errors.push( `${owner} ${where}: a reply is an upload, which may be verified, or an opt-out.` );
+        }
+        if ( entry && request.uploaded && entry.person.photo && entry.person.photo.isOmitted ) {
+            errors.push( `${owner} ${where}: an upload is the person's Cast photo, and they have none.` );
+        }
+    }
+
+    for ( const shared of ( integrity.sharedEmails || {} ).households || [] ) {
+        integrityStoryCount++;
+        const household = households.find( h => h.data.key === shared.household );
+        const adults = household ? household.data.members.filter( m => m.familyRole !== "child" ) : [];
+        if ( adults.length < 2 || adults.some( a => a.email !== shared.email ) || !/@example\.org$/.test( shared.email || "" ) ) {
+            errors.push( `${owner} shared email ${shared.household}: every adult in a Cast household has ${shared.email}, on example.org.` );
+        }
+    }
+
+    // A shared number is on at least two Cast records in its households. Across households, all but one household is
+    // inactive: a number the phone company gave a new family after the old one dropped it.
+    for ( const shared of ( integrity.sharedPhones || {} ).numbers || [] ) {
+        integrityStoryCount++;
+        const listed = ( shared.households || [] ).map( key => households.find( h => h.data.key === key ) );
+        const carriers = listed.filter( Boolean ).flatMap( h => h.data.members.filter( m => m.phones && Object.values( m.phones ).includes( shared.number ) ).map( m => ( { household: h, member: m } ) ) );
+        const activeHouseholds = listed.filter( h => h && h.data.members.some( m => m.recordStatus !== "inactive" ) );
+        if ( listed.some( h => !h ) || carriers.length < 2 || listed.some( h => !carriers.some( c => c.household === h ) ) || activeHouseholds.length > 1 ) {
+            errors.push( `${owner} shared phone ${shared.number}: at least two records in the listed Cast households carry it, and only one of those households is active.` );
+        }
+    }
+
+    // The NCOA run: a staff member imported it, and each Cast move is a household with a home. A family that moved away
+    // is inactive with the run's reason in its file. An individual move is one adult in a family of two or more.
+    const ncoa = integrity.ncoa;
+    if ( ncoa ) {
+        date( "ncoa run", ncoa.run, true );
+        person( "ncoa processedBy", ncoa.processedBy, undefined, true );
+        for ( const move of ncoa.cast || [] ) {
+            integrityStoryCount++;
+            const where = `ncoa ${move.household}`;
+            const household = households.find( h => h.data.key === move.household );
+            text( where, move.story, 500 );
+            if ( !household || ![ "nearby", "away", "individual" ].includes( move.move ) || !household.data.address ) {
+                errors.push( `${owner} ${where}: a move is nearby, away, or individual, for a Cast household with a home address.` );
+                continue;
+            }
+            const members = household.data.members;
+            if ( move.move === "away" && members.some( m => m.recordStatus !== "inactive" || m.recordStatusReason !== ncoa.inactiveReason ) ) {
+                errors.push( `${owner} ${where}: a family that moved away is inactive with the reason ${ncoa.inactiveReason} in its file.` );
+            }
+            if ( move.move !== "away" && members.some( m => m.recordStatus === "inactive" ) ) {
+                errors.push( `${owner} ${where}: a family that moved nearby, or one adult who moved out, stays active.` );
+            }
+            if ( move.move === "individual" ) {
+                const entry = person( where, move.person, undefined, false );
+                if ( !entry || members.length < 2 || !members.some( m => m.guid === move.person && m.familyRole === "adult" ) ) {
+                    errors.push( `${owner} ${where}: an individual move is one adult of the household, in a family of two or more.` );
+                }
+            }
+        }
+    }
+
+    for ( const failed of ( integrity.failedAddresses || {} ).households || [] ) {
+        integrityStoryCount++;
+        const household = households.find( h => h.data.key === failed.household );
+        if ( !household || !household.data.address || household.data.address.type !== "home" ) {
+            errors.push( `${owner} failed address ${failed.household}: a failed address is a Cast household's home.` );
+        }
+    }
+    if ( ( integrity.failedAddresses || {} ).households && integrity.failedAddresses.households.length ) {
+        person( "failed addresses lockedBy", integrity.failedAddresses.lockedBy, undefined, true );
+    }
+
+    const RULE_KEYS = [ "core_DataAutomationReactivatePeople", "core_DataAutomationInactivatePeople", "core_DataAutomationUpdateFamilyCampus", "core_DataAutomationAdultChildren",
+        "core_DataAutomationUpdatePersonConnectionStatus", "core_DataAutomationUpdateFamilyStatus" ];
+    for ( const [ key, rule ] of Object.entries( ( integrity.settings || {} ).rules || {} ) ) {
+        if ( !RULE_KEYS.includes( key ) || typeof rule.IsEnabled !== "boolean" ) {
+            errors.push( `${owner} settings ${key}: a rule is one of Rock's six Data Automation settings, with IsEnabled.` );
+        }
+    }
+}
+
 // One line instead of one per person, since photo ethnicity is filled in household by household.
 if ( adultsWithoutPhotoEthnicity.length ) {
     warnings.push( `${adultsWithoutPhotoEthnicity.length} adults have no photo.ethnicity yet (needed before their photos are generated).` );
@@ -2193,5 +2540,5 @@ for ( const e of errors ) {
     console.log( `ERROR   ${e}` );
 }
 console.log( `
-${households.length} households, ${people.size} people, ${groups.length} groups, ${prayerRequestCount} prayer requests, ${noteCount} notes in ${noteFiles.length} note files, ${smsThreadCount} text threads with ${smsMessageCount} texts, ${staffEmailCount} staff emails, ${duplicatePairCount} duplicate pairs. ${errors.length} errors, ${warnings.length} warnings.` );
+${households.length} households, ${people.size} people, ${groups.length} groups, ${prayerRequestCount} prayer requests, ${noteCount} notes in ${noteFiles.length} note files, ${smsThreadCount} text threads with ${smsMessageCount} texts, ${staffEmailCount} staff emails, ${duplicatePairCount} duplicate pairs, ${integrityStoryCount} data integrity stories. ${errors.length} errors, ${warnings.length} warnings.` );
 process.exit( errors.length ? 1 : 0 );

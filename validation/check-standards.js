@@ -105,7 +105,8 @@ const LOCAL_TEXT = LOCAL_AREA_CODES.length > 1
     : LOCAL_AREA_CODES.join( "" );
 
 // Rule 2: phones use the reserved range, and a number is shared only when the story says so:
-// within one household, as an office's main line (work phones only), or between duplicate records.
+// within one household, as an office's main line (work phones only), between duplicate records, or by one active
+// household and inactive ones: a number the phone company gave a new family after the old one dropped it.
 const households = readJson( "cast/households" ).filter( h => h.data.key );
 // A duplicate record points at the original with duplicateOf, so records of one person share the original's key.
 const original = new Map( households.map( h => [ h.data.key, h.data.duplicateOf || h.data.key ] ) );
@@ -120,7 +121,7 @@ for ( const { file, data: h } of households ) {
             if ( !phones.has( number ) ) {
                 phones.set( number, [] );
             }
-            phones.get( number ).push( { household: h.key, person: p.key, type } );
+            phones.get( number ).push( { household: h.key, person: p.key, type, isInactive: ( h.members || [] ).every( m => m.recordStatus === "inactive" ) } );
         }
     }
 }
@@ -128,8 +129,9 @@ for ( const [ number, uses ] of phones ) {
     const others = uses.filter( u => u.household !== uses[0].household );
     const isOfficeLine = uses.every( u => u.type === "work" );
     const isDuplicateStory = uses.every( u => original.get( u.household ) === original.get( uses[0].household ) );
-    if ( others.length && !isOfficeLine && !isDuplicateStory ) {
-        problems.push( `Rule 2: ${number} is used by ${uses.map( u => `${u.household}/${u.person} (${u.type})` ).join( ", " )}. Share a number only within a household, as an office line, or between duplicate records.` );
+    const isReassigned = new Set( uses.filter( u => !u.isInactive ).map( u => u.household ) ).size <= 1;
+    if ( others.length && !isOfficeLine && !isDuplicateStory && !isReassigned ) {
+        problems.push( `Rule 2: ${number} is used by ${uses.map( u => `${u.household}/${u.person} (${u.type})` ).join( ", " )}. Share a number only within a household, as an office line, between duplicate records, or with inactive households.` );
     }
 }
 

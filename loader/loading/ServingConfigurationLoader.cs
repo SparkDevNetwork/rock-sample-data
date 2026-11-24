@@ -92,7 +92,7 @@ namespace RockSampleData.Loader.Loading
                     var positionOrder = 0;
                     foreach ( var position in team.Positions )
                     {
-                        var roomId = position.CheckInGroup != null ? plan.RoomIds[position.CheckInGroup] : plan.ServingRoomIds[position.Room];
+                        var roomId = position.CheckInGroup == null ? plan.ServingRoomIds[position.Room] : position.SecondRoom ? plan.SecondRoomIds[position.CheckInGroup] : plan.RoomIds[position.CheckInGroup];
                         var groupLocationId = ConfigurationLoader.EnsureGroupLocation( _db, _foreignKey, groupId, roomId );
                         _db.Execute( "UPDATE [GroupLocation] SET [Order] = @Order WHERE [Id] = @Id", P( "@Order", positionOrder++ ), P( "@Id", groupLocationId ) );
                         ConfigurationLoader.SetGroupLocationSchedules( _db, groupLocationId, services.Select( s => s.ScheduleId ).ToList() );

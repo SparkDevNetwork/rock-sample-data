@@ -246,6 +246,7 @@ namespace RockSampleData.Loader.Loading
                     */
                     var fileGraduationYear = _dates.Resolve( person.Graduation )?.Year;
                     loaded.BirthDate = birthDate;
+                    loaded.IsBirthDateRecorded = person.Birth?.IsUnrecorded != true;
                     loaded.GraduationYear = isAdult ? fileGraduationYear : grade.HasValue ? _dates.GraduationYear( grade.Value ) : fileGraduationYear;
                     loaded.IsAdult = isAdult;
                     loaded.CanAttend = !isBusiness && !person.IsDeceased && person.RecordStatus != "inactive" && household.DuplicateOf == null;
@@ -254,15 +255,15 @@ namespace RockSampleData.Loader.Loading
                         loaded.PersonId, false,
                         lookups.RecordType( isBusiness ? BusinessRecordTypeGuid : PersonRecordTypeGuid ),
                         lookups.RecordStatus( person.RecordStatus ),
-                        person.IsDeceased ? lookups.Id( DeceasedReasonGuid ) : ( object ) DBNull.Value,
+                        Value( lookups.RecordStatusReason( person ) ),
                         lookups.ConnectionStatus( person.ConnectionStatus ),
                         person.IsDeceased,
                         person.FirstName, person.NickName ?? person.FirstName, person.MiddleName ?? ( object ) DBNull.Value, person.LastName,
-                        Value( birthDate?.Day ), Value( birthDate?.Month ), Value( birthDate?.Year ), Value( birthDate ),
-                        birthDate.HasValue ? ( object ) int.Parse( birthDate.Value.ToString( "yyyyMMdd" ) ) : DBNull.Value,
-                        Value( age ), AnchorDates.AgeBracket( age ),
+                        Value( loaded.RecordedBirthDate?.Day ), Value( loaded.RecordedBirthDate?.Month ), Value( loaded.RecordedBirthDate?.Year ), Value( loaded.RecordedBirthDate ),
+                        loaded.RecordedBirthDate.HasValue ? ( object ) int.Parse( loaded.RecordedBirthDate.Value.ToString( "yyyyMMdd" ) ) : DBNull.Value,
+                        Value( loaded.RecordedBirthDate.HasValue ? age : null ), AnchorDates.AgeBracket( loaded.RecordedBirthDate.HasValue ? age : null ),
                         person.Gender == "male" ? 1 : person.Gender == "female" ? 2 : 0,
-                        Value( lookups.MaritalStatus( person.MaritalStatus ) ),
+                        Value( person.IsMaritalStatusUnrecorded ? null : lookups.MaritalStatus( person.MaritalStatus ) ),
                         Value( _dates.Resolve( person.Anniversary ) ),
                         Value( isAdult ? fileGraduationYear : loaded.GraduationYear ),
                         Value( givingGroupId ),
@@ -299,7 +300,7 @@ namespace RockSampleData.Loader.Loading
                     familySalutationMembers.Add( SalutationMemberFor( loaded.Cast, isSharedAdult, loaded.Cast.Birth == null ? null : _dates.AgeOn( _dates.BirthDate( loaded.Cast.Birth ) ) ) );
                 }
 
-                if ( household.Address != null )
+                if ( household.Address != null && !household.Address.IsUnrecorded )
                 {
                     /*
                         11/19/26 - CLAUDE
@@ -837,6 +838,38 @@ ORDER BY [GroupId]", P( "@Id", AdminPersonId ), P( "@TypeId", relationshipTypeId
                 _ => ActiveStatusGuid
             } );
 
+            /*
+                11/23/26 - CLAUDE
+
+                Only a deceased person's reason was written, so the Murphys showed inactive with no reason, though their
+                file says Moved. Rock's person profile and its Self Inactivated Individuals report show the reason.
+
+                Reason: An inactive record carries the reason its story gives (issue 2).
+            */
+
+            /// <summary>
+            /// The Record Status Reason value for an inactive person: Deceased for a deceased person, or else their file's
+            /// reason, found by name among Rock's reasons. Null for anyone else.
+            /// </summary>
+            public int? RecordStatusReason( CastPerson person )
+            {
+                if ( person.IsDeceased )
+                {
+                    return Id( DeceasedReasonGuid );
+                }
+
+                if ( person.RecordStatus != "inactive" || string.IsNullOrEmpty( person.RecordStatusReason ) )
+                {
+                    return null;
+                }
+
+                var found = _db.Scalar( "SELECT TOP 1 [Id] FROM [DefinedValue] WHERE [Value] = @Name AND [DefinedTypeId] = ( SELECT [DefinedTypeId] FROM [DefinedValue] WHERE [Guid] = @Deceased )",
+                    P( "@Name", person.RecordStatusReason ), P( "@Deceased", DeceasedReasonGuid ) );
+                return found == null
+                    ? throw new InvalidDataException( $"{person.FirstName} {person.LastName}'s record status reason \"{person.RecordStatusReason}\" is not one of Rock's Record Status Reasons." )
+                    : Convert.ToInt32( found );
+            }
+
             public int ConnectionStatus( string name )
             {
                 var status = _source.ConnectionStatuses.Statuses.Single( s => string.Equals( s.Name, name, StringComparison.OrdinalIgnoreCase ) );
@@ -894,7 +927,18 @@ ORDER BY [GroupId]", P( "@Id", AdminPersonId ), P( "@TypeId", relationshipTypeId
         /// </summary>
         public string GivingId { get; set; }
 
+        /// <summary>
+        /// The person's birth date, which planning reads. Rock has it only when <see cref="IsBirthDateRecorded"/>.
+        /// </summary>
         public DateTime? BirthDate { get; set; }
+
+        public bool IsBirthDateRecorded { get; set; } = true;
+
+        /// <summary>
+        /// The birth date Rock has: null when the church never recorded it. Anything Rock checks against a birth date,
+        /// such as an event's age limits, reads this.
+        /// </summary>
+        public DateTime? RecordedBirthDate => IsBirthDateRecorded ? BirthDate : null;
 
         public int? GraduationYear { get; set; }
 

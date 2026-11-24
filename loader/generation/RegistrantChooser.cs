@@ -214,9 +214,10 @@ namespace RockSampleData.Loader.Generation
         /// </summary>
         private List<RegistrationDraft> Couples( PlannedRegistrationInstance instance, RegistrantEligibility eligibility, ISet<int> pinned )
         {
+            // An event for married couples registers couples Rock has as married (decision 396).
             var couples = Households( instance )
                 .Select( h => (Household: h, Couple: Couple( h )) )
-                .Where( c => c.Couple != null && c.Couple.All( p => eligibility.Fits( p, instance ) && !pinned.Contains( p.PersonId ) ) )
+                .Where( c => c.Couple != null && c.Couple.All( p => !p.Cast.IsMaritalStatusUnrecorded && eligibility.Fits( p, instance ) && !pinned.Contains( p.PersonId ) ) )
                 .ToList();
             var chosen = Share( instance, Stream( instance, "couples" ), couples, c => c.Household, c => Status( c.Couple ), instance.Rule.Registrants.Couples.Statuses );
             return chosen.Select( c => new RegistrationDraft( c.Couple, null, null, false ) { Registrar = c.Couple[0] } ).ToList();
@@ -412,7 +413,7 @@ namespace RockSampleData.Loader.Generation
         }
 
         private static bool IsInAges( LoadedPerson person, List<int> ages, DateTime day ) => ages == null
-            || person.BirthDate.HasValue && RegistrantEligibility.AgeOn( person.BirthDate.Value, day ) is var age && age >= ages[0] && age <= ages[1];
+            || person.RecordedBirthDate.HasValue && RegistrantEligibility.AgeOn( person.RecordedBirthDate.Value, day ) is var age && age >= ages[0] && age <= ages[1];
 
         /// <summary>
         /// True when the small group had started and had not ended on the day.
@@ -580,12 +581,13 @@ namespace RockSampleData.Loader.Generation
 
             if ( Ages != null )
             {
-                if ( !person.BirthDate.HasValue )
+                // Rock checks an event's ages against the birth date it has.
+                if ( !person.RecordedBirthDate.HasValue )
                 {
                     return false;
                 }
 
-                var age = AgeOn( person.BirthDate.Value, day );
+                var age = AgeOn( person.RecordedBirthDate.Value, day );
                 if ( age < Ages.Min || age > Ages.Max )
                 {
                     return false;

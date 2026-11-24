@@ -76,7 +76,9 @@ namespace RockSampleData.Loader
             ("Personal links", null),
             ("Tags", null),
             ("Logins", null),
+            ("Data integrity", null),
             ("Duplicates", null),
+            ("Rock metrics", null),
             (CastExpectationsStep, null),
             ("Check images", SampleDataPart.CheckImages)
         };
@@ -302,8 +304,14 @@ namespace RockSampleData.Loader
             steps.Begin( "Configuration" );
             var configuration = new ConfigurationLoader( db, source, dataset, foreignKey ) { Today = dates.Anchor.Date };
             configuration.Load();
+
+            // Check-in set up on purpose: settings, labels, room limits, second rooms, and test check-in at every campus.
+            // Serving's positions read the second rooms, so it runs first.
+            var checkInSetup = new CheckInSetupLoader( db, source, foreignKey, configuration );
+            checkInSetup.Load();
             var smallGroupSetup = new SmallGroupConfigurationLoader( db, source, foreignKey, configuration.CampusIds ).Load();
             var servingSetup = new ServingConfigurationLoader( db, source, foreignKey, configuration.CampusPlans ).Load();
+            checkInSetup.LoadVolunteerTest( servingSetup );
             var connectionSetup = new ConnectionConfigurationLoader( db, source, foreignKey, configuration.CampusIds, servingSetup ).Load();
             LeaderRequirementSetup.Load( db, source.BackgroundChecks, dates, foreignKey );
             new CampaignLoader( db, source, dates, foreignKey ).Load();
@@ -433,11 +441,18 @@ namespace RockSampleData.Loader
 
             var people = new PeopleLoader( db, source, dates, foreignKey, configuration.CampusIds, mainCampusKey );
             SecurityRolesLoader securityRoles;
+            CheckInRelatives relatives;
             using ( log.TimePart( "Write people" ) )
             {
                 people.Load( households, duplicates.Merges );
-                var contactCount = new RelationshipsLoader( db, foreignKey ).Load( people.People );
-                log.Write( $"  Business contacts: {contactCount:N0}" );
+
+                // Known relationships, both halves: the Cast's lines and the Crowd's check-in adults, who the attendance
+                // plan follows (decisions 365, 366, and 372).
+                relatives = CheckInRelatives.Plan( source.CheckIn.Relationships, people.Households, castHouseholdKeys, dates.Anchor, seed );
+                var relationships = new RelationshipsLoader( db, foreignKey );
+                var statedRelationships = RelationshipsLoader.Stated( people.People );
+                var generatedRelationships = relationships.Load( relatives.GeneratedRelationships );
+                log.Write( $"  Known relationships: {relationships.Load( statedRelationships ):N0} stated ({statedRelationships.Count( r => r.Type == "business" ):N0} business contacts), {generatedRelationships:N0} generated Can check in pairs" );
 
                 // Cast staff join the security roles their stories give them, all roles Rock ships.
                 securityRoles = new SecurityRolesLoader( db, foreignKey );
@@ -491,7 +506,7 @@ namespace RockSampleData.Loader
 
             // Each campus's kiosks and label printers, given every room check-in set up (decision 360).
             var devices = new CheckInDevicesLoader( db, source, configuration, foreignKey ).Load();
-            var attendance = new AttendanceLoader( db, calendar, dates, configuration, devices, foreignKey, seed );
+            var attendance = new AttendanceLoader( db, calendar, dates, configuration, devices, foreignKey, seed ) { Relatives = relatives };
             using ( log.TimePart( "Plan attendance" ) )
             {
                 attendance.Plan( people.Households, castHouseholdKeys );
@@ -866,10 +881,27 @@ namespace RockSampleData.Loader
                 var castPeople = people.Households.Where( h => castHouseholdKeys.Contains( h.Cast.Key ) ).SelectMany( h => h.Members ).Select( m => m.PersonId ).ToHashSet();
                 var castLogins = plannedLogins.Count( l => castPeople.Contains( l.Person.PersonId ) );
                 log.Write( $"  Logins: {plannedLogins.Count:N0} ({castLogins:N0} Cast, {plannedLogins.Count( l => !l.IsConfirmed ):N0} unconfirmed)" );
+
+                // Each campus's kids check-in supervisor PIN, a PIN Authentication login (decision 367).
+                var pins = checkInSetup.PlanSupervisors( people, servingPlans, dates.Anchor );
+                logins.WritePins( pins );
+                log.Write( $"  Check-in supervisor PINs: {pins.Count:N0}" );
             }
 
             log.Write( $"  Account protection profiles set: {logins.UpdateAccountProtection():N0}" );
             db.RebuildDeferredIndexes( "History" );
+
+            // The Data Integrity pages' designed problems come after every part that writes people, gifts, groups, and notes,
+            // since a Cast record's date must come before them, and before the attribute value save hook, which fills the
+            // workflow values' person columns.
+            steps.Begin( "Data integrity" );
+            foreach ( var line in new DataIntegrityLoader( db, source, dates, foreignKey, profile, calendar.HistoryStart ).Load( people, castHouseholdKeys, parts.Contains( SampleDataPart.Photos ) ) )
+            {
+                log.Write( line );
+            }
+
+            // Rock's visit dates procedure reads each record's date, so it runs once every record has one (decision 393).
+            log.Write( familyAnalytics.WriteVisitDates() );
 
             // Every part has written its attribute values, so Rock's save hook runs over them once (decision 249).
             log.Write( $"  Attribute value columns Rock's save hook fills: {AttributeValueHook.Apply( db, foreignKey, dates.Anchor, familyAnalytics.ProcedureAttributeIds ):N0} values set" );
@@ -878,6 +910,24 @@ namespace RockSampleData.Loader
             // job finds nothing new on its first night. The Cast's merges, decisions, and merge requests come with it.
             steps.Begin( "Duplicates" );
             new DuplicatesLoader( db, dates, foreignKey ).Load( people, duplicates );
+
+            // The history of Rock's own metrics. Each value reads the rows the load wrote, the duplicate records and the
+            // attribute values Rock's save hook filled among them, so it comes after every data step and always runs.
+            steps.Begin( "Rock metrics" );
+            var rockMetrics = source.ReadRockMetrics();
+            if ( rockMetrics == null )
+            {
+                log.Write( "  Skipped (this package has no configuration/rock-metrics.json)" );
+            }
+            else
+            {
+                var rockMetricsLoader = new RockMetricsLoader( db, source, rockMetrics, dates.Anchor.Date.Add( DateTime.Now.TimeOfDay ), foreignKey, seed );
+                var (rockMetricCount, rockValueCount) = rockMetricsLoader.Load();
+                log.Write( $"  Rock metrics: {rockMetricCount} with {rockValueCount:N0} values" );
+
+                // Rock Cleanup's nightly campus average weekend attendance, from the Total Weekend Attendance values.
+                log.Write( $"  Campus average weekend attendance: {rockMetricsLoader.UpdateCampusAverageWeekendAttendance()}" );
+            }
 
             /*
                 10/30/26 - CLAUDE
