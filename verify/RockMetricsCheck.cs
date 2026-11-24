@@ -45,6 +45,49 @@ namespace RockSampleData.Verify
     {
         private const string SqlSourceGuid = "6A1E1A1B-A636-4E12-B90C-D7FD1BDAE764";
         private const string WorshipAreaGuid = "235BAE2B-5760-4763-AADF-3938F34BA100";
+        private const string PersonAnalyticsCategoryGuid = "C1524D2E-3E8F-3D83-45F8-526B749D79F0";
+        private const string PersonEntityTypeGuid = "72657ED8-D16E-492E-AC12-144C5E7567E7";
+        private const string IsEraGuid = "CE5739C5-2156-E2AB-48E5-1337C38B935E";
+        private const string EraStartDateGuid = "A106610C-A7A1-469E-4097-9DE6400FDFC2";
+        private const string EraEndDateGuid = "4711D67E-7526-9582-4A8E-1CD7BBE1B3A2";
+
+        /*
+            11/24/26 - CLAUDE
+
+            Rock's eRA SQL reads each person's Currently an eRA, eRA Start Date, and eRA End Date as they are when it
+            runs. Rock's eRA job sets them on the day it moves a person and writes a history line that says so: entering
+            sets Currently an eRA and the Start Date and deletes the End Date, and exiting deletes Currently an eRA and
+            sets the End Date, keeping the Start Date (Rock/Jobs/CalculateFamilyAnalytics.cs). So the history lines give
+            each person's three values at any moment. The check first holds today's values to the lines, then sets the
+            values back to each run with them, as it hides the rows dated after the run.
+
+            Reason: A person who left eRA, or came back, after a run would otherwise drop out of Rock's SQL for that run.
+            On Full 7, a run a quarter back lost up to 8 of a campus's 20 wins that way.
+        */
+
+        /// <summary>
+        /// Fills #RockMetricsEra with each person's eRA values at @At, from the history lines Rock's eRA job wrote by then.
+        /// </summary>
+        private const string EraStateSql = @"
+CREATE TABLE #RockMetricsEra ( [PersonId] INT NOT NULL PRIMARY KEY, [IsEra] BIT NOT NULL, [StartDate] DATE NULL, [EndDate] DATE NULL );
+WITH [Lines] AS (
+    SELECT [h].[EntityId] AS [PersonId], [h].[Verb], CAST( [h].[CreatedDateTime] AS date ) AS [Day],
+        ROW_NUMBER() OVER ( PARTITION BY [h].[EntityId] ORDER BY [h].[CreatedDateTime] DESC, [h].[Id] DESC ) AS [FromLast]
+    FROM [History] AS [h]
+    WHERE [h].[CategoryId] = ( SELECT [Id] FROM [Category] WHERE [Guid] = @PersonAnalytics )
+        AND [h].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Guid] = @PersonEntity )
+        AND [h].[Verb] IN ( 'ENTERED', 'EXITED' ) AND [h].[CreatedDateTime] <= @At
+)
+INSERT INTO #RockMetricsEra ( [PersonId], [IsEra], [StartDate], [EndDate] )
+SELECT [PersonId],
+    MAX( CASE WHEN [FromLast] = 1 AND [Verb] = 'ENTERED' THEN 1 ELSE 0 END ),
+    MAX( CASE WHEN [Verb] = 'ENTERED' THEN [Day] END ),
+    MAX( CASE WHEN [FromLast] = 1 AND [Verb] = 'EXITED' THEN [Day] END )
+FROM [Lines]
+GROUP BY [PersonId];
+DECLARE @IsEra INT = ( SELECT [Id] FROM [Attribute] WHERE [Guid] = @IsEraGuid );
+DECLARE @EraStart INT = ( SELECT [Id] FROM [Attribute] WHERE [Guid] = @EraStartGuid );
+DECLARE @EraEnd INT = ( SELECT [Id] FROM [Attribute] WHERE [Guid] = @EraEndGuid );";
 
         /// <summary>
         /// Each SQL metric's newest values equal Rock's own SQL run as of that moment, and each typed metric's adult
@@ -84,6 +127,9 @@ WHERE [m].[SourceValueTypeId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] =
                     .Where( r => r != null ).Select( r => (Metric: m, Run: r.Value) ) )
                 .ToList();
 
+            var (eraPeople, eraProblems) = EraValuesMatchHistory( sql, database );
+            problems.AddRange( eraProblems );
+
             var values = 0;
             foreach ( var run in judged.GroupBy( j => j.Run ) )
             {
@@ -105,7 +151,7 @@ WHERE [m].[SourceValueTypeId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] =
 
             problems.AddRange( AdultCounts( sql, database, configuration ) );
             return CheckResult.From( "rock-metrics", problems.Count == 0
-                ? $"Rock's own SQL, run as of {judged.Count} runs of the {metrics.Count} metrics (each one's newest, and one a quarter before), gives all {values:N0} of their values, and every typed adult count is the people in its service"
+                ? $"Rock's own SQL, run as of {judged.Count} runs of the {metrics.Count} metrics (each one's newest, and one a quarter before), gives all {values:N0} of their values, every typed adult count is the people in its service, and the eRA job's history gives all {eraPeople:N0} people's eRA values"
                 : "A Rock metric's history does not match Rock's own SQL", problems );
         }
 
@@ -139,7 +185,8 @@ FROM [MetricValue] AS [v] INNER JOIN [Metric] AS [m] ON [m].[Id] = [v].[MetricId
 
         /// <summary>
         /// Sets the loaded database back to a moment: Rock's metric queries no longer see the check-ins, prayer requests,
-        /// prayers, or gifts dated after it, and the people are as they were then. Call it inside a transaction.
+        /// prayers, or gifts dated after it, the people are as they were then, and so are their eRA values. Call it
+        /// inside a transaction.
         /// </summary>
         private static void SetDatabaseAsOf( RockDatabase db, DateTime run )
         {
@@ -152,7 +199,59 @@ UPDATE [PrayerRequest] SET [IsActive] = 0 WHERE [IsActive] = 1 AND [CreatedDateT
 UPDATE [Interaction] SET [Operation] = 'Later' WHERE [Operation] = 'Prayed' AND [InteractionDateTime] > @Run;
 UPDATE [FinancialTransaction] SET [TransactionDateKey] = NULL WHERE [TransactionDateTime] > @Run;", new SqlParameter( "@Run", run ) );
             RockMetricsLoader.SetPeopleAsOf( db, run, "#RockMetricsFamily" );
+
+            // Each person's eRA values, as Rock's eRA job had left them by the run. The values Rock saves are text, with
+            // the typed copies Rock's SQL reads beside them.
+            db.Execute( EraStateSql + @"
+DELETE FROM [AttributeValue] WHERE [AttributeId] IN ( @IsEra, @EraStart, @EraEnd );
+INSERT INTO [AttributeValue] ( [IsSystem], [AttributeId], [EntityId], [Value], [ValueAsBoolean], [ValueAsDateTime], [Guid], [CreatedDateTime], [ModifiedDateTime] )
+SELECT 0, @IsEra, [PersonId], 'True', 1, NULL, NEWID(), @At, @At FROM #RockMetricsEra WHERE [IsEra] = 1
+UNION ALL
+SELECT 0, @EraStart, [PersonId], CONVERT( varchar(10), [StartDate], 23 ), NULL, [StartDate], NEWID(), @At, @At FROM #RockMetricsEra WHERE [StartDate] IS NOT NULL
+UNION ALL
+SELECT 0, @EraEnd, [PersonId], CONVERT( varchar(10), [EndDate], 23 ), NULL, [EndDate], NEWID(), @At, @At FROM #RockMetricsEra WHERE [EndDate] IS NOT NULL;", EraParameters( run ) );
         }
+
+        /// <summary>
+        /// Today's eRA values must be the ones the eRA job's history lines give, so setting them back to a run rests on
+        /// Rock's own record. Returns a line for each person whose values differ, up to five, and how many in all.
+        /// </summary>
+        private static (int People, List<string> Problems) EraValuesMatchHistory( SqlServer sql, string database )
+        {
+            using var db = new RockDatabase( sql.ConnectionString( database ) );
+            var rows = db.Query( EraStateSql + @"
+SELECT [p].[Id], [e].[IsEra], [e].[StartDate], [e].[EndDate],
+    [i].[ValueAsBoolean] AS [IsEraNow], CAST( [s].[ValueAsDateTime] AS date ) AS [StartNow], CAST( [x].[ValueAsDateTime] AS date ) AS [EndNow]
+FROM [Person] AS [p]
+LEFT JOIN #RockMetricsEra AS [e] ON [e].[PersonId] = [p].[Id]
+LEFT JOIN [AttributeValue] AS [i] ON [i].[EntityId] = [p].[Id] AND [i].[AttributeId] = @IsEra
+LEFT JOIN [AttributeValue] AS [s] ON [s].[EntityId] = [p].[Id] AND [s].[AttributeId] = @EraStart
+LEFT JOIN [AttributeValue] AS [x] ON [x].[EntityId] = [p].[Id] AND [x].[AttributeId] = @EraEnd
+WHERE [e].[PersonId] IS NOT NULL OR [i].[Id] IS NOT NULL OR [s].[Id] IS NOT NULL OR [x].[Id] IS NOT NULL;", EraParameters( new DateTime( 9999, 12, 31 ) ) );
+
+            static string Text( object isEra, object start, object end ) =>
+                $"{( isEra is true ? "an eRA" : "not an eRA" )}, started {( start as DateTime? )?.ToString( "d", CultureInfo.InvariantCulture ) ?? "never"}, ended {( end as DateTime? )?.ToString( "d", CultureInfo.InvariantCulture ) ?? "never"}";
+            var differ = rows.Where( r => Text( r["IsEraNow"], r["StartNow"], r["EndNow"] ) != Text( r["IsEra"], r["StartDate"], r["EndDate"] ) ).ToList();
+            var problems = differ.Take( 5 )
+                .Select( r => $"Person {r["Id"]}'s eRA values are {Text( r["IsEraNow"], r["StartNow"], r["EndNow"] )}, and the eRA job's history says {Text( r["IsEra"], r["StartDate"], r["EndDate"] )}." )
+                .ToList();
+            if ( differ.Count > 5 )
+            {
+                problems.Add( $"And {differ.Count - 5} more people whose eRA values are not what the eRA job's history says." );
+            }
+
+            return (rows.Count, problems);
+        }
+
+        private static SqlParameter[] EraParameters( DateTime at ) => new[]
+        {
+            new SqlParameter( "@At", at ),
+            new SqlParameter( "@PersonAnalytics", PersonAnalyticsCategoryGuid ),
+            new SqlParameter( "@PersonEntity", PersonEntityTypeGuid ),
+            new SqlParameter( "@IsEraGuid", IsEraGuid ),
+            new SqlParameter( "@EraStartGuid", EraStartDateGuid ),
+            new SqlParameter( "@EraEndGuid", EraEndDateGuid )
+        };
 
         /// <summary>
         /// Compares one metric's loaded values at a run with Rock's own SQL. Returns how many values it compared.
