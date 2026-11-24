@@ -263,7 +263,8 @@ namespace RockSampleData.Loader.Generation
             pair like this at 12 or more out of 29, a confidence of at least 64, so the Duplicate Finder lists it until
             staff decide. A person who goes by their first name but whose name has a usual nickname sometimes writes
             the nickname, which Rock does not match as a first name, so that record shares both the email and the mobile
-            and still scores 13. Staff have merged some records, set some aside with Ignore, and left the rest open.
+            and still scores 13. Staff have merged some records, set some aside with Ignore, and left the rest open. The
+            duplicates step dates each record, decision, and merge once every record has its date.
             Each person's draws come from their own stream, and the records come after every plan, so nothing else
             about the Crowd changes.
 
@@ -335,7 +336,6 @@ namespace RockSampleData.Loader.Generation
                         Person = original,
                         Record = new CastMergedRecord { Guid = record.Guid, FirstName = record.FirstName, LastName = record.LastName },
                         MergedBy = rules.DecidedBy,
-                        Merged = WorkdayAgo( random, rules.MergedDaysAgo ),
                         RecordCameLater = true
                     } );
                     continue;
@@ -360,23 +360,11 @@ namespace RockSampleData.Loader.Generation
                     People = new List<CastPersonReference> { original, new CastPersonReference { Guid = record.Guid, Name = FullName( record.FirstName, record.LastName ) } },
                     Decision = isIgnored ? "ignored" : "open",
                     DecidedBy = isIgnored ? rules.DecidedBy : null,
-                    Decided = isIgnored ? WorkdayAgo( random, rules.DecidedDaysAgo ) : null
+                    IsGenerated = true
                 } );
             }
 
             return duplicates;
-        }
-
-        /// <summary>
-        /// A weekday office-hours moment the given number of days before install, from the range's first number to its last.
-        /// </summary>
-        private RelativeDate WorkdayAgo( SeededRandom random, int[] daysAgo )
-        {
-            var days = random.Between( daysAgo[0], daysAgo[1] );
-            var day = _anchor.Date.AddDays( -days ).DayOfWeek;
-            days += day == DayOfWeek.Saturday ? 1 : day == DayOfWeek.Sunday ? 2 : 0;
-            var minutes = random.Between( 8 * 60 + 30, 16 * 60 + 30 );
-            return new RelativeDate { DaysAgo = days, Time = $"{minutes / 60:D2}:{minutes % 60:D2}" };
         }
 
         /// <summary>

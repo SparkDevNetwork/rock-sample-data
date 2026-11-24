@@ -293,7 +293,7 @@ The numbers were measured with the CLI: the default seed, 3 years of history, an
 |---|---|---|---|---|
 | Core 1 | 206 | 96 | 1 | 13 seconds (14.0, 12.8, 13.3) |
 | Core 3 | 437 | 253 | 3 | 17 seconds (17.5, 15.5, 16.6) |
-| Full 7 | 25,295 | 16,985 | 7 | 173 seconds (175.4, 173.2, 172.4) |
+| Full 7 | 25,445 | 17,134 | 7 | 173 seconds (175.4, 173.2, 172.4) |
 
 Communications are most of Full 7's load, about 106 seconds: two years of email to 1.3 million recipients with their opens and clicks, texts, one-to-one email, and pushes. Full 7 draws check images only for the last 12 months of check gifts: 3,620 checks and 7,240 images (277 MB), about 12 seconds of its load. Every load of the same package, seed, and anchor has the same people and households, so the three runs agree exactly. Before communications joined, the three loaded in 10, 12, and 55 seconds. Before the Crowd joined, Full 7 had only the Cast (185 people in 87 households) and loaded in about 11 seconds.
 

@@ -26,7 +26,7 @@ The load runs Rock's procedure itself, as its last step, after every person, pho
 |---|---|---|---|
 | Core 1 | under a second | 9 | 3, all the Cast's |
 | Core 3 | about a second | 16 | 3, all the Cast's |
-| Full 7 | about 11 seconds | about 14,700 | 112: the Cast's 3 and 109 Crowd duplicates |
+| Full 7 | about 5 seconds | about 14,800 | 113: the Cast's 3 and 110 Crowd duplicates |
 
 Most of Full 7's pairs are different Crowd people who share a last name and the first two letters of a first name, sometimes the whole name. The Crowd's names follow real name data (decision 357), so these pairs are as common as in a real church of that size. They score 37 to 58, below the Duplicate Finder's 60, and Rock flags them the same way in a real database. Every generated email is one person's (decision 313), so no two strangers share an address. The pairs above 60 are the real duplicates.
 
@@ -98,16 +98,16 @@ One shared contact and the name the person goes by score 12 or 13, a confidence 
 | State | Share | What Rock shows |
 |---|---|---|
 | Open | 50% | The Duplicate Finder lists the person. |
-| Set aside | 15% | Alisha Marble clicked Ignore on a weekday in the last year. Rock shows the pair again if its score changes. |
-| Merged | 35% | Alisha merged the record in the last two years. Its alias is on the person, with the Id just after theirs, since the record was made later, and their History has a Merged line. |
+| Set aside | 15% | Alisha Marble clicked Ignore on a weekday in the last year, after the duplicate came. Rock shows the pair again if its score changes. |
+| Merged | 35% | Alisha merged the record on a weekday in the last two years, after the person's record was made. Its alias is on the person, with the Id just after theirs, since the record was made later, and their History has a Merged line. |
 
 | Dataset | Duplicate records | Open | Set aside | Merged |
 |---|---|---|---|---|
 | Core 1 | none, since it has no Crowd | | | |
 | Core 3 | 1 | 0 | 0 | 1 |
-| Full 7 | 249 | 109 | 40 | 100 |
+| Full 7 | 248 | 110 | 39 | 99 |
 
-Counts are at the default seed. Core 3's companions are about 225 people, so 1% is about 2, and the draw gave 1.
+Each duplicate record was made on a day after its person's record, and each decision and merge after the records it follows (decision D-crowd-names-5). The Data Integrity step dates every record first, so the duplicates step reads those dates and fits these to them. Counts are at the default seed. Core 3's companions are about 225 people, so 1% is about 2, and the draw gave 1.
 
 ## How it is checked
 

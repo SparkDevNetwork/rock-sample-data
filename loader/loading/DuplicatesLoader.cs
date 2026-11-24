@@ -18,6 +18,7 @@
 using System.Diagnostics;
 
 using RockSampleData.Loader.Database;
+using RockSampleData.Loader.Generation;
 using RockSampleData.Loader.Model;
 
 using static RockSampleData.Loader.Database.RockDatabase;
@@ -85,11 +86,12 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
-        /// Writes the finished merges, runs Rock's duplicate finder, then writes the decisions and merge requests: the
-        /// Cast's from cast/duplicates.json, and the Crowd's generated duplicates.
+        /// Dates the Crowd's duplicates, writes the finished merges, runs Rock's duplicate finder, then writes the decisions
+        /// and merge requests: the Cast's from cast/duplicates.json, and the Crowd's generated duplicates.
         /// </summary>
         public void Load( PeopleLoader people, CastDuplicatesFile duplicates )
         {
+            DateCrowdDuplicates( duplicates, people );
             WriteMerges( duplicates.Merges, people );
             RunFinder();
             WriteDecisions( duplicates.Pairs, people );
@@ -98,6 +100,97 @@ namespace RockSampleData.Loader.Loading
             var listed = Convert.ToInt32( _db.Scalar( "SELECT COUNT(*) FROM [PersonDuplicate] WHERE [ConfidenceScore] > @Minimum AND [IsConfirmedAsNotDuplicate] = 0 AND [IgnoreUntilScoreChanges] = 0", P( "@Minimum", FinderListMinimum ) ) );
             _db.Log.Write( $"  Pairs the Duplicate Finder lists (confidence above {FinderListMinimum:N0}, not decided): {listed:N0}" );
         }
+
+        /*
+            11/24/26 - CLAUDE
+
+            The Data Integrity step has dated every record by the time this runs. A Crowd duplicate came from a form after
+            its person's record was made, so its record and its family are made on a day between the person's record and
+            install. Alisha set a pair aside after its duplicate came, and merged a record after the person's was made:
+            Rock's Merged line is one of the person's first records, which their record must come before (decision 383).
+            Each decision and merge falls in the rules' window when the records leave room, on a weekday in office hours,
+            and a duplicate that must be set aside comes early enough to leave room for it.
+
+            Reason: The Crowd's duplicates, decisions, and merges happen in the order Rock would see them (decision
+            D-crowd-names-5).
+        */
+
+        /// <summary>
+        /// Dates each Crowd duplicate record after its person's record, and each decision and merge after the records it follows.
+        /// </summary>
+        private void DateCrowdDuplicates( CastDuplicatesFile duplicates, PeopleLoader people )
+        {
+            var rules = duplicates.Crowd;
+            var pairs = duplicates.Pairs.Where( p => p.IsGenerated ).ToList();
+            var merges = duplicates.Merges.Where( m => m.RecordCameLater ).ToList();
+            if ( rules == null || pairs.Count + merges.Count == 0 )
+            {
+                return;
+            }
+
+            var created = _db.Query( "SELECT [Id], [CreatedDateTime] FROM [Person] WHERE [ForeignKey] = @ForeignKey", P( "@ForeignKey", _foreignKey ) )
+                .ToDictionary( r => ( int ) r["Id"], r => ( DateTime ) r["CreatedDateTime"] );
+            var today = _dates.Anchor.Date;
+            foreach ( var pair in pairs )
+            {
+                var personMade = created[people.People[pair.People[0].Guid].PersonId];
+                var record = people.People[pair.People[1].Guid];
+                var random = new SeededRandom( $"duplicate-dates:{record.Cast.Guid}" );
+                var isIgnored = pair.DecisionValue == DuplicateDecision.Ignored;
+
+                // A record to set aside comes before the window's last decision day, so a decision fits after it.
+                var made = OfficeHours( random, personMade.Date.AddDays( 1 ), today.AddDays( isIgnored ? -rules.DecidedDaysAgo[0] - 1 : -1 ) )
+                    ?? personMade.AddMinutes( 1 );
+                _db.Execute( @"
+UPDATE [Person] SET [CreatedDateTime] = @Made WHERE [Id] = @PersonId;
+UPDATE [Group] SET [CreatedDateTime] = @Made WHERE [Id] = @FamilyId;",
+                    P( "@Made", made ), P( "@PersonId", record.PersonId ), P( "@FamilyId", record.FamilyId ) );
+
+                if ( isIgnored )
+                {
+                    var decided = OfficeHours( random, Later( made.Date.AddDays( 1 ), today.AddDays( -rules.DecidedDaysAgo[1] ) ), today.AddDays( -rules.DecidedDaysAgo[0] ) )
+                        ?? made.AddMinutes( 1 );
+                    pair.Decided = Relative( decided );
+                }
+            }
+
+            foreach ( var merge in merges )
+            {
+                var personMade = created[people.People[merge.Person.Guid].PersonId];
+                var random = new SeededRandom( $"duplicate-dates:{merge.Record.Guid}" );
+                var merged = OfficeHours( random, Later( personMade.Date.AddDays( 1 ), today.AddDays( -rules.MergedDaysAgo[1] ) ), today.AddDays( -rules.MergedDaysAgo[0] ) )
+                    ?? OfficeHours( random, personMade.Date.AddDays( 1 ), today.AddDays( -1 ) )
+                    ?? personMade.AddMinutes( 1 );
+                merge.Merged = Relative( merged );
+            }
+
+            _db.Log.Write( $"  Crowd duplicate dates: {pairs.Count:N0} records made after their people, {pairs.Count( p => p.DecisionValue == DuplicateDecision.Ignored ):N0} set aside after them, {merges.Count:N0} merges after their people" );
+        }
+
+        private static DateTime Later( DateTime a, DateTime b ) => a > b ? a : b;
+
+        /// <summary>
+        /// A moment in office hours, 8:30 to 4:30, on a day from the first to the last, on a weekday when the range has one. Null when the range is empty.
+        /// </summary>
+        private static DateTime? OfficeHours( SeededRandom random, DateTime first, DateTime last )
+        {
+            if ( first.Date > last.Date )
+            {
+                return null;
+            }
+
+            var day = first.Date.AddDays( random.Between( 0, ( int ) ( last.Date - first.Date ).TotalDays ) );
+            var weekdays = Enumerable.Range( -2, 5 ).Select( d => day.AddDays( d ) )
+                .Where( d => d >= first.Date && d <= last.Date && d.DayOfWeek != DayOfWeek.Saturday && d.DayOfWeek != DayOfWeek.Sunday )
+                .OrderBy( d => Math.Abs( ( d - day ).TotalDays ) )
+                .ToList();
+            return ( weekdays.Count > 0 ? weekdays[0] : day ).AddMinutes( random.Between( 8 * 60 + 30, 16 * 60 + 30 ) );
+        }
+
+        /// <summary>
+        /// A moment as a date that counts back from install day.
+        /// </summary>
+        private RelativeDate Relative( DateTime at ) => new RelativeDate { DaysAgo = ( int ) ( _dates.Anchor.Date - at.Date ).TotalDays, Time = at.ToString( "HH:mm", System.Globalization.CultureInfo.InvariantCulture ) };
 
         /*
             11/19/26 - CLAUDE

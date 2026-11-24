@@ -12,11 +12,11 @@ Every page is under Tools > Reporting > Data Integrity.
 
 | Page | What it shows | Filled by |
 |---|---|---|
-| Duplicate Finder, Merge Requests | Possible duplicate people, and merges asked for | The Cast's duplicates ([Duplicates](duplicates.md)) |
-| Reports: Pending Individuals | People whose record is Pending, with the day it was made | Pending records (decisions 383 and 390) |
+| Duplicate Finder, Merge Requests | Possible duplicate people, and merges asked for | The Cast's duplicates and merge request, and the Crowd's duplicate records ([Duplicates](duplicates.md)) |
+| Reports: Pending Individuals | People whose record is Pending, with the day it was made | Pending records (decisions 383 and 390), and the Crowd's duplicate records (decision D-crowd-names-4) |
 | Reports: Self Inactivated Individuals | Inactive people marked Self Inactivated, with their reason and notes | Self-inactivations (decision 385) |
-| Reports: Individuals with Duplicate Emails | People who share an email with someone else | Couples who share an email (decision 391), and the Cast's duplicates |
-| Reports: Individuals with Duplicate Phone Numbers | People who share a phone number with someone else | Families who share a home phone, the Cast's duplicates, and three designed shared numbers (decision 394) |
+| Reports: Individuals with Duplicate Emails | People who share an email with someone else | Couples who share an email (decision 391), and the Cast's and the Crowd's duplicates |
+| Reports: Individuals with Duplicate Phone Numbers | People who share a phone number with someone else | Families who share a home phone, the Cast's and the Crowd's duplicates, and three designed shared numbers (decision 394) |
 | Workflows | Rock's Data Integrity workflows: Person Data Error, Photo Request, DISC Request, and Request Assessment | Person Data Error and Photo Request (decisions 387 and 388) |
 | Location Editor | Addresses by street or city, or every address with no map point (Not Geocoded) | Failed addresses (decision 386) |
 | Photo Requests | The Photo Request group, and Verify Photos for uploads that wait | Photo requests (decision 388) |
@@ -34,7 +34,8 @@ Now every record has the date it was made (decisions 383 and 392):
 2. A Pending record has the date of the form that made it (see below).
 3. A Cast household with no first visit takes the date in `recordDates.households`, or else its first record. A first record in the history window's first eight weeks shows the household was already coming, so its record was made in the years before. So was the record of a household with nothing written for it, as in a load that leaves parts out.
 4. A generated household with no first visit fills a month of the history window. Each month, latest first, takes households until its new records reach source-1's rate of 1.17% of active people, in source-1's busier and quieter months. It takes households whose first record falls in that month first, made by that record, such as a first gift. Then it takes households with no record at all, and then households whose first record comes later. Every household left over was made in the 12 years before the window, more often recently.
-5. No record is made after its person's first record: a check-in, gift, group membership, request, registration, note, login, workflow, or History line Rock writes as it happens.
+5. A Crowd duplicate record was made on a day after its person's record. A pair set aside, or a record merged, was decided after the records it follows (decision D-crowd-names-5).
+6. No record is made after its person's first record: a check-in, gift, group membership, request, registration, note, login, workflow, or History line Rock writes as it happens.
 
 Each family takes its first member's date. Rock's admin person, Alisha Marble, keeps the time Rock made it (decision 177).
 

@@ -116,6 +116,12 @@ namespace RockSampleData.Loader.Model
 
         public string Story { get; set; }
 
+        /// <summary>
+        /// True for a Crowd pair, whose duplicate record the load generated and whose decision is dated during the load.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonIgnore]
+        public bool IsGenerated { get; set; }
+
         public DuplicateDecision DecisionValue => Decision switch
         {
             "open" => DuplicateDecision.Open,
