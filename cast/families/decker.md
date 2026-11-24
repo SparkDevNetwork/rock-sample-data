@@ -36,7 +36,7 @@ Noah is ten and checks in to the Grades 4-6 room most weekends. He is the older 
 
 ### Alex (Alexis) Decker
 
-Alex (Alexis) is seven and has a peanut allergy that prints on her check-in label. She is the example to use for allergy and label testing.
+Alex (Alexis) is seven and has a peanut allergy that prints on her check-in label. The family always checks in at Phoenix Kids 1, so her label prints on Phoenix Kids Printer 1. She is the example to use for allergy and label testing.
 
 - Age 7 · single · no email · allergy: Allergic to peanuts
 - Person Guid `27919690-3CCE-4FA6-95C4-CD21419EB51F`
@@ -56,6 +56,7 @@ Alex (Alexis) is seven and has a peanut allergy that prints on her check-in labe
 ## Activity
 
 - **Attendance:** core, 80% of Sundays, 88% at their usual service, since 11 years ago.
+- **Kids check-in:** always at kids kiosk 1 at their campus.
 - **Giving:** **monthly** by Ted Decker: $300 General Fund per gift, by card, gives in 100% of periods, grows 3% every 52 weeks, 50% chance of a year-end gift, started 10 years ago, and Rock shows a monthly gift frequency and the consistent journey stage.
 - **Giving units:** the couple gives together as one giving unit.
 - **Built on the Rock:** Ted Decker pledged $6,000 monthly in the quiet phase, and the pledge is **on pace**.

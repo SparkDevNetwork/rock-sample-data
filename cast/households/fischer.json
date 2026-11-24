@@ -11,7 +11,8 @@
   "testPurposes": [
     "High school students, including a senior about to graduate.",
     "Monthly scheduled giver.",
-    "Open request to serve that Alisha Marble connects (In Progress)."
+    "Open request to serve that Alisha Marble connects (In Progress).",
+    "A student at Wednesday Student Night most weeks, whose Wednesday check-ins count toward her Century Club."
   ],
   "address": {
     "type": "home",
@@ -140,12 +141,13 @@
       },
       "recordStatus": "active",
       "connectionStatus": "Connected",
+      "studentNight": {
+        "percentAttended": 80
+      },
       "expect": {
         "achievements": {
           "earned": [
-            "half-century"
-          ],
-          "inProgress": [
+            "half-century",
             "century-club"
           ]
         }
