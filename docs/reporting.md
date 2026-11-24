@@ -732,6 +732,7 @@ Each Ministry System has an owner at the center and one at each campus, and each
 | System | Metric | Counts | Source |
 |---|---|---|---|
 | First Contact (Notice) | First-Time Guests | People whose first visit to a weekend service came that week | SQL |
+| First Contact (Notice) | Second-Time Guests | People whose Second Visit, from Rock's visit dates, came that week | SQL, Wednesday |
 | Connection (Belong) | Ready to Belong | Regular attenders not in a small group | Ready to Belong view |
 | Connection (Belong) | Group Connection Rate | The percent of regular attending adults in a small group | SQL |
 | Discipleship (Equip) | Ready to Grow | Adults who belong but have no Equip step | Ready to Grow view |
@@ -742,7 +743,7 @@ Each Ministry System has an owner at the center and one at each campus, and each
 | Retention (Re-engage) | Back in the Last 30 Days | Adults who came back after 90 or more days away | SQL |
 | Pastoral Care (Care) | Benevolence Requests | New requests for help in the month that just ended | SQL, monthly |
 
-Second-Time Guests, the eleventh, waits for visit dates. A regular attender came to worship 4 or more times in the 12 weeks before the run. Each SQL metric keeps the church's SQL on the metric, so Rock's job runs it after install, and every active campus gets a value each run.
+Second-Time Guests reads the Second Visit that Rock's Family Analytics job sets on Tuesday night, so it runs on Wednesday morning (decision D-mbd-5). A regular attender came to worship 4 or more times in the 12 weeks before the run. Each SQL metric keeps the church's SQL on the metric, so Rock's job runs it after install, and every active campus gets a value each run.
 
 Each metric has history on install day. A data view metric replays its view as it was at each run: attendance windows end on the run's day, steps count once completed, group membership comes from Rock's group member history, and a person's fields are today's. A SQL metric's past values are what its SQL gives at each run (decision D-mbd-2). Verify replays each view today and holds it to Rock's own count, and runs each SQL metric's SQL as of past runs (decision D-mbd-3).
 

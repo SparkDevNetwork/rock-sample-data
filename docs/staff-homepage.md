@@ -46,7 +46,7 @@ The church adds four links after Rock's own: Church Calendar, My Connection Requ
 ## How it loads
 
 1. **Content** (a part), after Adaptive messages. The loader plans the 52 Mondays, picks each one's feature and articles, stores the images once each, then writes the items, their global keys and slugs by Rock's own rules, their attribute values, and an article matrix per item.
-2. **Staff homepage** (always), after Content. The metric history, the path metrics on the block, and the Quick Links. They read whatever rows the load wrote, as the path metrics do, so they run in every load.
+2. **Staff homepage** (always), after Content. The metric history and the Quick Links. They read whatever rows the load wrote, so they run in every load. The path metrics join the block in the Rock metrics step, once they are written.
 
 The settings are in [configuration/staff-homepage.json](../configuration/staff-homepage.json).
 
@@ -55,7 +55,7 @@ The settings are in [configuration/staff-homepage.json](../configuration/staff-h
 - **`check-news.js`** checks the text and the settings without a database: keys, occasions, approved images, staff authors with photos, lengths, and plain characters.
 - **The package self-check** refuses a feature image or an article author the package does not have.
 - **`staff-updates-are-complete` (invariant).** Every update has its feature, a stored image, one to three articles with a title and content, a global key, and one slug.
-- **`staff-homepage` (verify).** The load wrote an update on each of 52 Mondays in a row. The item Rock's block picks is this week's update, and Rock's own Lava engine renders it with the block's Body Template, showing its feature title and image. Each metric's newest value is its last run, a daily metric's newest value equals Rock's own SQL when that run was today, and no campus's Active Families value is above Rock's count today. The block lists the path metrics, and the Quick Links hold the church's links. Rock 21's article list builds its image links from the web request, which verify does not have, so there the invariant checks the articles.
+- **`staff-homepage` (verify).** The load wrote an update on each of 52 Mondays in a row. The item Rock's block picks is this week's update, and Rock's own Lava engine renders it with the block's Body Template, showing its feature title and image. Each metric's newest value is its last run, a daily metric's newest value equals Rock's own SQL when that run was today, and no campus's Active Families value is above Rock's count today. The block lists the path metrics and no other church metric, and the Quick Links hold the church's links. Rock 21's article list builds its image links from the web request, which verify does not have, so there the invariant checks the articles.
 
 ## What comes next
 
