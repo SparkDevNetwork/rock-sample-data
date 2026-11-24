@@ -554,7 +554,7 @@ namespace RockSampleData.Loader.Loading
     /// <summary>
     /// What later steps need about one campus.
     /// </summary>
-    internal sealed class CampusPlan
+    internal sealed partial class CampusPlan
     {
         public string Key { get; set; }
 

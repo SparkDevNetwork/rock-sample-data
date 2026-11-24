@@ -2,7 +2,7 @@
 
 **Featured** · New household · 3 people · Phoenix campus · [source](../households/kelly.json)
 
-Ashley Kelly is a single mom of two. She asked the benevolence team for help with rent last winter and comes when work allows.
+Ashley Kelly is a single mom of two. She asked the benevolence team for help with rent last winter and comes when work allows. On Sundays she works, her mom, Karen Morgan, often brings Mason and Chloe and checks them in.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -14,7 +14,7 @@ Ashley Kelly is a single mom of two. She asked the benevolence team for help wit
 
 ### Ashley Kelly
 
-Ashley is a single mom of two who asked the benevolence team for help with rent last winter. She comes when her work schedule allows.
+Ashley is a single mom of two who asked the benevolence team for help with rent last winter. She comes when her work schedule allows. Her mom, Karen Morgan, brings the kids on many Sundays she works.
 
 - Age 33 · divorced · email ashley.kelly@example.org · groups: Women of the Bible
 - Person Guid `6E6B8CBF-9946-4DCE-B3D6-80A7F2F5B171`
@@ -23,7 +23,7 @@ Ashley is a single mom of two who asked the benevolence team for help with rent 
 
 Mason is seven and in the Grades 2-3 room.
 
-- Age 7 · no email · Rock shows High Five earned, 25 Club in progress
+- Age 7 · no email · Rock shows High Five earned, 25 Club earned, Half Century in progress
 - Person Guid `CF641196-EDF3-40D0-AA66-93029C8CC727`
 
 ### Chloe Kelly
@@ -39,10 +39,11 @@ Chloe is four and in the preschool room.
 - Registered for the next Money Matters class after her benevolence request.
 - Single mom with preschool and Grades 2-3 check-in.
 - Known status, no giving.
+- Kids their grandparents in another family check in, through Rock's Grandchild relationship.
 
 ## Activity
 
-- **Attendance:** occasional, 30% of Sundays, since a year ago.
+- **Attendance:** occasional, 30% of Sundays, since about 17 months ago.
 - **Giving:** none.
 
 ## Prayer requests

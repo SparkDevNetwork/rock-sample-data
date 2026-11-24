@@ -76,10 +76,10 @@ This is what we kept from the legacy sample data (`Documentation/sampledata_1_14
 | [hernandez](households/hernandez.json) | Gabe (Engaged) | Young single volunteer (worship team in Phase 1). |
 | [hughes](households/hughes.json) | Matt (Engaged), Jess (Engaged), Henry 5 (Engaged), Charlotte 3 (Engaged), Jack 1 (Engaged) | Three kids in three check-in rooms, from nursery to kindergarten. |
 | [jenkins](households/jenkins.json) | Gary (Engaged), Barb (Engaged), Austin 11 (Engaged) | Grandparents raising a grandchild. |
-| [kelly](households/kelly.json) | Ashley (Known), Mason 7 (Known), Chloe 4 (Known) | Benevolence request: one month's rent, paid to her landlord. Registered for Money Matters. |
+| [kelly](households/kelly.json) | Ashley (Known), Mason 7 (Known), Chloe 4 (Known) | Benevolence request: one month's rent, paid to her landlord. Registered for Money Matters. Her mom, Karen Morgan, brings the kids on Sundays she works. |
 | [kim](households/kim.json) | David (Connected), Susan (Connected), Drew (Connected) | Adult child living at home (adult role in the family). |
 | [lee](households/lee.json) | James (Engaged), Sarah (Engaged), Ben 16 (Engaged), Abby 14 (Engaged), Sam 11 (Engaged), Libby 8 (Engaged), Joey 5 (Engaged), Ruth 2 (Engaged) | Family of eight with kids in every check-in area. |
-| [morgan](households/morgan.json) | Steve (Engaged), Karen (Engaged) | Quarterly giver with a year-end gift. |
+| [morgan](households/morgan.json) | Steve (Engaged), Karen (Engaged) | Quarterly giver with a year-end gift. Grandparents who check in Mason and Chloe Kelly. |
 | [murphy](households/murphy.json) | Patrick (Engaged), Erin (Engaged), Liam 12 (Engaged) | Inactive record with the Moved reason. |
 | [nguyen](households/nguyen.json) | Michelle (Engaged) | Single adult who gives weekly online by card. |
 | [ortiz](households/ortiz.json) | Luis (Connected), Teresa (Connected), Diego 13 (Connected) | Lapsed family: attendance and giving stopped about six months ago. |
