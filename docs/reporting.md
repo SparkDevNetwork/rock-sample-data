@@ -189,7 +189,7 @@ Active People (F1)
 │   ├── Already Leading (N6)                            = F2 + leads an active group or team
 │   ├── Guests Coming Back (C1)
 │   ├── First Visit Last Week (C4)                      = F2 + F6 + first visit
-│   ├── Drifting Adults (C3)
+│   ├── Drifting Adults (C3)  [persisted nightly]
 │   │   └── Newly Missed (C5)                           = C3 + F6 + last visit 90 to 120 days ago
 │   ├── Unbaptized Regular Attenders (C7)               = F2 + F5 − Baptism step
 │   ├── Baptized Regular Attenders (C8)                 = F2 + F5 + Baptism step
@@ -282,6 +282,8 @@ Why the church has its own Church Family view instead of using Rock's shipped "M
 - **What stays.** Rock's other two shipped categories, Group Requirements (2 views, used by the background check requirement) and Communication Segments (4 views), are left as they are. Rock features use them, so they are not just examples.
 
 Why F5 is persisted: it counts attendance rows, and Full 7 has millions of them. Several views build on it. Who counts as a regular attender does not change within a day. Its consumers turn on the filter's "Use Persisted" option.
+
+Why C3 is persisted: it counts 18 months of worship attendance for every adult, which takes Rock close to its 30-second query limit on Full 7. The Drifting Adults metric runs Mondays at 3 AM, after the 2 AM refresh, so Rock's Calculate Metrics job reads the saved list. Newly Missed reads it too (decision D-mbd-4).
 
 Why F10 uses Rock's Last Gave attribute and not a Finance data view: "gave in the last year" through Givers in the Last 12 Months (FN2) would make F10 a finance consumer, and it would have to live in Finance (design rule 4). Rock already shows Last Gave to Staff Workers and Staff Like Workers (its attribute security in the trusted base), so using it reveals nothing Rock does not already show staff.
 

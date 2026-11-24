@@ -878,9 +878,12 @@
     {
       "key": "drifting-adults",
       "name": "Drifting Adults",
-      "description": "Adults who came to worship 10 or more times in the last 18 months and not at all in the last 90 days.",
+      "description": "Adults who came to worship 10 or more times in the last 18 months and not at all in the last 90 days. Persisted nightly, since it counts 18 months of attendance and the Drifting Adults metric and Newly Missed read it.",
       "category": "reengage-data-views",
       "guid": "76245C8F-4191-48BD-BA56-E64C72530FF5",
+      "persisted": {
+        "schedule": "nightly"
+      },
       "filter": {
         "all": [
           {
