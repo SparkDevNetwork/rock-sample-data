@@ -31,10 +31,12 @@ Valeria Torres comes to the student service and midweek student night with frien
 
 - Teen who is more engaged than her parents.
 - Participant parents with holiday-only attendance.
+- A student who comes to Wednesday Student Night on her own, though her parents seldom come.
 
 ## Activity
 
 - **Attendance:** holiday-only, 8% of Sundays, since 2 years ago.
+- **Student Night:** Valeria checks in on 75% of Wednesdays.
 - **Giving units:** the couple gives together as one giving unit.
 - **Giving:** none.
 
@@ -44,7 +46,7 @@ Valeria Torres comes to the student service and midweek student night with frien
 
 ## Open questions
 
-- Attendance is per household today, so Valeria's weekly student attendance cannot differ from her parents' yet. Per-person attendance is a later builder feature.
+- Valeria comes to Student Night on most Wednesdays on her own (studentNight). Her Sundays still follow her parents', because only Engaged and Leading students come to the student service without their family.
 
 ---
 

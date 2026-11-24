@@ -90,6 +90,7 @@ SELECT
     [pa].[PersonId],
     [p].[AgeClassification],
     [p].[PrimaryFamilyId],
+    [p].[GraduationYear],
     [ao].[SundayDate],
     [a].[StartDateTime],
     [g].[GroupTypeId],
@@ -212,6 +213,21 @@ DECLARE @JCheckInTimes NVARCHAR(MAX) = (
     ) AS [t]
     WHERE [t].[pctCheckIns] >= 0.1
     ORDER BY [t].[dayOfWeek], [t].[hour]
+    FOR JSON PATH
+);
+
+-- Student check-ins by day of week (0 = Sunday): check-ins by people in grades 7 to 12 on the day, from their
+-- graduation year, moving up the day after June 1 as Rock does by default. A church with a midweek student night
+-- shows its share here, apart from midweek kids programs.
+DECLARE @JStudentCheckInDays NVARCHAR(MAX) = (
+    SELECT
+        DATEDIFF( DAY, '19000107', [a].[StartDateTime] ) % 7 AS [dayOfWeek],
+        CAST( COUNT( * ) * 100.0 / SUM( COUNT( * ) ) OVER () AS DECIMAL(5,1) ) AS [pctCheckIns]
+    FROM #Att AS [a]
+    WHERE [a].[DidAttend] = 1 AND [a].[IsCheckIn] = 1 AND [a].[StartDateTime] >= @Start12
+        AND 12 - ( [a].[GraduationYear] - CASE WHEN CAST( [a].[StartDateTime] AS DATE ) > DATEFROMPARTS( YEAR( [a].[StartDateTime] ), 6, 1 ) THEN YEAR( [a].[StartDateTime] ) + 1 ELSE YEAR( [a].[StartDateTime] ) END ) BETWEEN 7 AND 12
+    GROUP BY DATEDIFF( DAY, '19000107', [a].[StartDateTime] ) % 7
+    ORDER BY [dayOfWeek]
     FOR JSON PATH
 );
 
@@ -385,6 +401,7 @@ FROM ( VALUES
     ( 3, 'checkInFrequency', @JCheckInFrequency ),
     ( 4, 'checkInTimes', @JCheckInTimes ),
     ( 5, 'kidsPerFamilyCheckIn', @JKidsPerFamilyCheckIn ),
+    ( 5, 'studentCheckInDays', @JStudentCheckInDays ),
     ( 6, 'groupTypes', @JGroupTypes ),
     ( 7, 'groupsPerAdult', @JGroupsPerAdult ),
     ( 8, 'engagement', @JEngagement ),

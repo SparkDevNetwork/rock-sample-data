@@ -8,6 +8,7 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 - **The rest of the Data Integrity area** (issue 2): record completeness, where Crowd adults leave some details blank at the shares a real church has. The Cast's stories, record dates and sources for everyone, visit dates, shared phone numbers, one NCOA run, and the Data Automation rules are built (see [Data Integrity](data-integrity.md)).
 - **Check-in relationships,** such as a grandparent who may check in a grandchild, loaded from the Cast's known relationships.
 - **More Cast families** whenever a test or demo needs a case the Cast does not cover yet.
+- **Student Night volunteers,** so the Student Ministry team serves at Wednesday Student Night as it does on Sundays.
 
 
 ## Other Rock features

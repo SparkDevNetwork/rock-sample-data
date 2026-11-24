@@ -53,9 +53,9 @@
   ],
   "$skipReasons": {
     "attendance.sundayHourMix": "Service times come from configuration/schedules.json, not the profile.",
-    "attendance.adultCheckInsPerChildCheckIn": "Adults in the sample church check in only to serve. It has no midweek programs, adult classes, or events where adults check in (see the midweek item in the roadmap).",
+    "attendance.adultCheckInsPerChildCheckIn": "Adults in the sample church check in only to serve. Its only midweek program is Student Night, and it has no adult classes or events where adults check in.",
     "attendance.adultFrequencyMixOf26Weeks": "Measured from adult check-ins; see attendance.adultCheckInsPerChildCheckIn. Volunteers check in on their rotation, and there are no one-time adult check-ins.",
-    "attendance.checkInDayMix": "Midweek check-in is a Phase 1 feature.",
+    "attendance.checkInDayMix": "The only midweek check-in is Wednesday Student Night, graded by attendance.studentCheckInDayMix. This share counts every check-in, kids included, and the sample church has no midweek kids programs.",
     "groups.smallGroups.groupTypes": "The sample church has one small group type by design; the source church has several.",
     "prayer.avgTextLength": "The measured mean is pulled up by a few very long requests. Generated requests stop near 500 characters (decision 67), so the length percentiles are graded instead.",
     "prayer.categories.categoriesUsed": "The sample church uses every prayer category Rock ships, so demos show each one (decision 67).",

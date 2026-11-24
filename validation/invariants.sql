@@ -788,6 +788,90 @@ FROM [Attendance] AS [a]
 WHERE [a].[ForeignKey] = @ForeignKey
     AND [a].[CheckInStatus] <> CASE WHEN [a].[EndDateTime] IS NOT NULL THEN 4 WHEN [a].[PresentDateTime] IS NOT NULL THEN 3 ELSE 2 END;
 
+-- check: kiosk-and-printer-addresses-are-reserved
+-- why: Decision 360. Every check-in kiosk and label printer, Rock's renamed ones included, has its own address in 192.0.2.0/24, which is reserved for documentation, so a label never reaches a real printer. Each kiosk prints on a printer with such an address.
+SELECT ( SELECT COUNT(*)
+        FROM [Device] AS [d]
+        INNER JOIN [DefinedValue] AS [t] ON [t].[Id] = [d].[DeviceTypeValueId]
+        LEFT JOIN [Device] AS [p] ON [p].[Id] = [d].[PrinterDeviceId]
+        WHERE [t].[Guid] IN ( 'BC809626-1389-4543-B8BB-6FAC79C27AFD', '8284B128-E73B-4863-9FC2-43E6827B65E6' )
+            AND ( ISNULL( [d].[IPAddress], '' ) NOT LIKE '192.0.2.%'
+                OR ( [t].[Guid] = 'BC809626-1389-4543-B8BB-6FAC79C27AFD' AND ISNULL( [p].[IPAddress], '' ) NOT LIKE '192.0.2.%' ) ) )
+    + ( SELECT COUNT(*) FROM ( SELECT [IPAddress] FROM [Device] WHERE [IPAddress] LIKE '192.0.2.%' GROUP BY [IPAddress] HAVING COUNT(*) > 1 ) AS [x] );
+
+-- check: check-in-kiosk-is-at-its-campus
+-- why: Decision 360. Each campus has its own kiosks, and every room a kiosk offers is at its campus. Every check-in names a check-in kiosk at the campus of the check-in, so a campus's check-in history lists only its own kiosks.
+WITH [CampusLocation] AS (
+    SELECT [c].[Id] AS [CampusId], [c].[LocationId]
+    FROM [Campus] AS [c]
+    WHERE [c].[LocationId] IS NOT NULL
+    UNION ALL
+    SELECT [cl].[CampusId], [l].[Id]
+    FROM [Location] AS [l]
+    INNER JOIN [CampusLocation] AS [cl] ON [l].[ParentLocationId] = [cl].[LocationId]
+), [KioskCampus] AS (
+    SELECT [dl].[DeviceId], MIN( [cl].[CampusId] ) AS [CampusId], MAX( [cl].[CampusId] ) AS [LastCampusId], COUNT(*) AS [Locations], COUNT( [cl].[CampusId] ) AS [AtACampus]
+    FROM [DeviceLocation] AS [dl]
+    LEFT JOIN [CampusLocation] AS [cl] ON [cl].[LocationId] = [dl].[LocationId]
+    GROUP BY [dl].[DeviceId]
+)
+SELECT COUNT(*)
+FROM [Attendance] AS [a]
+LEFT JOIN [Device] AS [d] ON [d].[Id] = [a].[DeviceId]
+LEFT JOIN [DefinedValue] AS [t] ON [t].[Id] = [d].[DeviceTypeValueId]
+LEFT JOIN [KioskCampus] AS [k] ON [k].[DeviceId] = [a].[DeviceId]
+WHERE [a].[ForeignKey] = @ForeignKey AND [a].[DeviceId] IS NOT NULL
+    AND ( [t].[Guid] IS NULL OR [t].[Guid] <> 'BC809626-1389-4543-B8BB-6FAC79C27AFD' OR [k].[DeviceId] IS NULL
+        OR [k].[AtACampus] <> [k].[Locations] OR [k].[CampusId] <> [k].[LastCampusId] OR [k].[CampusId] <> [a].[CampusId] );
+
+-- check: check-in-has-its-session
+-- why: Decision 361. Rock saves a session with every kiosk check-in. Every row checked in at a kiosk points at a session at that kiosk, with the kiosk's address. A security code and its session go together, so a family's kids are one check-in. The search found the family of the person who checked in.
+SELECT ( SELECT COUNT(*)
+        FROM [Attendance] AS [a]
+        LEFT JOIN [AttendanceCheckInSession] AS [s] ON [s].[Id] = [a].[AttendanceCheckInSessionId]
+        LEFT JOIN [Device] AS [d] ON [d].[Id] = [a].[DeviceId]
+        WHERE [a].[ForeignKey] = @ForeignKey AND [a].[DeviceId] IS NOT NULL
+            AND ( [s].[Id] IS NULL OR [s].[DeviceId] <> [a].[DeviceId] OR ISNULL( [s].[ClientIpAddress], '' ) <> ISNULL( [d].[IPAddress], '' )
+                OR NOT EXISTS (
+                    SELECT 1
+                    FROM [GroupMember] AS [gm]
+                    INNER JOIN [PersonAlias] AS [pa] ON [pa].[PersonId] = [gm].[PersonId]
+                    WHERE [gm].[GroupId] = [a].[SearchResultGroupId] AND [pa].[Id] = [a].[CheckedInByPersonAliasId] ) ) )
+    + ( SELECT COUNT(*) FROM ( SELECT [AttendanceCodeId] FROM [Attendance] WHERE [ForeignKey] = @ForeignKey AND [AttendanceCodeId] IS NOT NULL GROUP BY [AttendanceCodeId] HAVING COUNT( DISTINCT ISNULL( [AttendanceCheckInSessionId], 0 ) ) > 1 ) AS [x] )
+    + ( SELECT COUNT(*) FROM ( SELECT [AttendanceCheckInSessionId] FROM [Attendance] WHERE [ForeignKey] = @ForeignKey AND [AttendanceCheckInSessionId] IS NOT NULL GROUP BY [AttendanceCheckInSessionId] HAVING COUNT( DISTINCT ISNULL( [AttendanceCodeId], 0 ) ) > 1 ) AS [y] )
+    + ( SELECT COUNT(*) FROM [AttendanceCheckInSession] AS [s] WHERE [s].[ForeignKey] = @ForeignKey AND NOT EXISTS ( SELECT 1 FROM [Attendance] AS [a] WHERE [a].[AttendanceCheckInSessionId] = [s].[Id] ) );
+
+-- check: student-night-is-for-students
+-- why: Decisions 363 and 364. The only weekday check-in is Wednesday Student Night, in the Grades 7-8 and Grades 9-12 rooms, on the Student Night schedule. Each student checks in on their own at a student kiosk, and the week of every Student Night has ended by install day.
+SELECT COUNT(*)
+FROM [Attendance] AS [a]
+INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [o].[GroupId]
+INNER JOIN [Schedule] AS [s] ON [s].[Id] = [o].[ScheduleId]
+LEFT JOIN [Device] AS [d] ON [d].[Id] = [a].[DeviceId]
+WHERE [a].[ForeignKey] = @ForeignKey AND [a].[AttendanceCodeId] IS NOT NULL AND DATEDIFF( DAY, '19000107', [o].[OccurrenceDate] ) % 7 <> 0
+    AND ( DATEDIFF( DAY, '19000107', [o].[OccurrenceDate] ) % 7 <> 3
+        OR [s].[Guid] <> 'B4A37356-1D92-47F5-A08F-838E4AC53684'
+        OR [g].[Name] NOT IN ( 'Grades 7-8', 'Grades 9-12' )
+        OR [g].[GroupTypeId] NOT IN ( SELECT [Id] FROM [GroupType] WHERE [Guid] IN ( '7A17235B-69AD-439B-BAB0-1A0A472DB96F', '9A88743B-F336-4404-B877-2A623689195D' ) )
+        OR [a].[CheckedInByPersonAliasId] <> [a].[PersonAliasId]
+        OR ISNULL( [d].[Name], '' ) NOT LIKE '% Students'
+        OR [o].[SundayDate] > CAST( GETDATE() AS DATE ) );
+
+-- check: young-kid-is-checked-out-by-who-brought-them
+-- why: Decision 362. Kids from the nursery through 6th grade are checked out after their service, the same day, by the adult who checked them in. Students, adults, and volunteers are never checked out, and a kid who checked in on their own has no one to check them out.
+SELECT COUNT(*)
+FROM [Attendance] AS [a]
+INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [o].[GroupId]
+WHERE [a].[ForeignKey] = @ForeignKey
+    AND 1 = CASE
+        WHEN [a].[AttendanceCodeId] IS NOT NULL AND [a].[CheckedInByPersonAliasId] <> [a].[PersonAliasId]
+            AND [g].[GroupTypeId] IN ( SELECT [Id] FROM [GroupType] WHERE [Guid] IN ( 'CADB2D12-7836-44BC-8EEA-3C6AB22FD5E8', 'E3C8F7D6-5CEB-43BB-802F-66C3E734049E' ) )
+            THEN CASE WHEN [a].[CheckedOutByPersonAliasId] = [a].[CheckedInByPersonAliasId] AND DATEDIFF( MINUTE, [a].[StartDateTime], [a].[EndDateTime] ) BETWEEN 30 AND 180 THEN 0 ELSE 1 END
+        ELSE CASE WHEN [a].[EndDateTime] IS NULL AND [a].[CheckedOutByPersonAliasId] IS NULL THEN 0 ELSE 1 END
+    END;
+
 -- check: young-kid-checks-in-with-the-family
 -- why: Kids from the nursery through 6th grade come only with their family (decision 146). Each of their check-ins is made by an adult of one of their families who was in the worship service that Sunday. A child whose families have no living, active adult checks in on their own, as before.
 SELECT COUNT(*)
