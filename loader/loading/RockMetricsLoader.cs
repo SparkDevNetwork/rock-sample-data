@@ -232,6 +232,52 @@ WHERE [m].[Guid] = @Guid", P( "@Guid", guid ) ).SingleOrDefault();
             return values.Rows.Count;
         }
 
+        /*
+            11/24/26 - CLAUDE
+
+            Rock Cleanup sets each campus's average weekend attendance every night: the average of the Total
+            Weekend Attendance metric's campus values whose week's Sunday falls in the last 4 weeks, rounded to a
+            whole number. Rock finds the metric by its measurement classification, so this does too. Once the
+            metric has history, the first Rock Cleanup would set the field, so the load sets it the same way. The
+            window ends on the install day, which is the day Rock Cleanup would see. Weeks to check back is the
+            job's setting, and 4 is its default.
+
+            Reason: Mirrors RockCleanup.UpdateCampusAverageWeekendAttendance (see validation/rock-lock.json).
+        */
+
+        /// <summary>
+        /// Rock Cleanup's default for how many past weeks a campus's average weekend attendance covers.
+        /// </summary>
+        private const int AverageWeekendAttendanceWeeks = 4;
+
+        /// <summary>
+        /// Sets each campus's average weekend attendance as Rock Cleanup would, and returns how many campuses got one.
+        /// </summary>
+        public int UpdateCampusAverageWeekendAttendance()
+        {
+            return _db.Execute( @"
+DECLARE @TotalWeekendAttendanceMetricId INT = ( SELECT TOP 1 [m].[Id] FROM [Metric] AS [m] INNER JOIN [DefinedValue] AS [dv] ON [dv].[Id] = [m].[MeasurementClassificationValueId] WHERE [dv].[Guid] = 'b24acb41-8b75-41dc-9b47-f289d8c9f04f' );
+DECLARE @CampusEntityTypeId INT = ( SELECT TOP 1 [Id] FROM [EntityType] WHERE [Guid] = '00096bed-9587-415e-8ad4-4e076ae8fbf0' );
+
+WITH [AverageAttendance] AS (
+    SELECT [mvp].[EntityId] AS [CampusId]
+        , CAST( ROUND( AVG( [mv].[YValue] ), 0 ) AS INT ) AS [WeekendAttendance]
+    FROM [MetricValue] AS [mv]
+    INNER JOIN [MetricValuePartition] AS [mvp] ON [mvp].[MetricValueId] = [mv].[Id]
+    INNER JOIN [MetricPartition] AS [mp] ON [mp].[Id] = [mvp].[MetricPartitionId]
+    INNER JOIN [AnalyticsSourceDate] AS [asd] ON [asd].[DateKey] = [mv].[MetricValueDateKey]
+    WHERE [mv].[MetricId] = @TotalWeekendAttendanceMetricId
+        AND [mp].[EntityTypeId] = @CampusEntityTypeId
+        AND [asd].[SundayDate] >= @StartDate
+    GROUP BY [mvp].[EntityId]
+)
+UPDATE [c]
+SET [c].[AverageWeekendAttendance] = [aa].[WeekendAttendance]
+FROM [Campus] AS [c]
+INNER JOIN [AverageAttendance] AS [aa] ON [aa].[CampusId] = [c].[Id];",
+                P( "@StartDate", _installed.Date.AddDays( -7 * AverageWeekendAttendanceWeeks ) ) );
+        }
+
         /// <summary>
         /// The job saves a value a few seconds after the run's scheduled time.
         /// </summary>

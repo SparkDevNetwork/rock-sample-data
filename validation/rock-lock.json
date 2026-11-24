@@ -745,6 +745,17 @@
       "sha256": "9e722007d417a6a56761d42f1284b2f618493c14a708662a32cde3ead2280d46"
     },
     {
+      "path": "Rock/Jobs/RockCleanup.cs",
+      "section": "UpdateCampusAverageWeekendAttendance",
+      "from": "private int UpdateCampusAverageWeekendAttendance()",
+      "to": "/// Removes all installed versions of Chrome that do not match the default browser version",
+      "why": "Each campus's average weekend attendance, which Rock Cleanup sets every night from the Total Weekend Attendance metric's last 4 weeks.",
+      "mirroredBy": [
+        "loader/loading/RockMetricsLoader.cs"
+      ],
+      "sha256": "4918fdcf7e5d73944c8899636bf288a8cf4cf5019b3f77a156ca1fac77879135"
+    },
+    {
       "path": "Rock/Model/Core/SignatureDocument/SignatureDocumentService.cs",
       "section": "CalculateSignatureVerificationHash",
       "from": "public static string CalculateSignatureVerificationHash( SignatureDocument document )",

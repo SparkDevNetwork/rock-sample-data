@@ -31,13 +31,13 @@ All of this runs when the data is made, never when a church installs it. The one
 | [Load](#load) | Verify tool | The package loads into this Rock. |
 | [Cast expectations](#cast-expectations) | Verify tool, and every CLI load | The Cast givers that docs and tests rely on still show what their stories say. |
 | [Invariants](#invariants) | Verify tool | Rules Rock relies on hold in the loaded data. |
+| [Rock metrics](#rock-metrics) | Verify tool | Rock's own metric SQL, run as of a past run, gives every value the load wrote for Rock's shipped metrics. |
 | [Rock Cleanup referee](#rock-cleanup-referee) | Verify tool | Rock's own repair job finds nothing to fix. |
 | [Address services](#address-services) | Verify tool | Rock's Location Services Verify job would send no loaded address to an address service, on any night. |
 | [Person duplicates](#person-duplicates) | Verify tool | Rock's own Calculate Person Duplicates job finds no new pair and keeps every decision. |
 | [Sign-in](#sign-in) | Verify tool | Rock's own Database login accepts the sample logins' password and refuses a wrong one. |
 | [Data views](#data-views) | Verify tool | Rock's own engine runs every data view in the load without an error. |
 | [Metrics](#metrics) | Verify tool | Each path metric's newest values, by campus, match Rock's count of its stage view. |
-| [Rock metrics](#rock-metrics) | Verify tool | Rock's own metric SQL, run as of a past run, gives every value the load wrote for Rock's shipped metrics. |
 | [Access](#access) | Verify tool | Rock's own security check gives every answer in the security walkthroughs, tags included. |
 | [Reports](#reports) | Verify tool | Rock reads every report column and renders every Lava column. |
 | [Assessment scores](#assessment-scores) | Verify tool | Rock's own scoring gives every saved answer set the answer data and person attribute values the load wrote. |
@@ -343,6 +343,12 @@ It runs the checks below for every dataset. A full run takes about 8 minutes, ab
 
 To add a rule, add a `-- check:` block with a `-- why:` line that returns how many rows break it.
 
+### Rock metrics
+
+**What it does.** Checks the history of the metrics Rock ships, from `configuration/rock-metrics.json`. For each SQL metric's newest run, and its newest run at least 90 days before that, it sets the loaded database back to that moment inside a transaction it rolls back: check-ins, prayer requests, prayers, and gifts dated after it are hidden from Rock's queries, and the people are as they were then, by the loader's rule for who was here and how old they were. Then it runs the metric's SQL from Rock's Metric table, with Rock's clock set to the run, and every value must match the load, campus by campus. It also checks that every typed Total Adult Attendance value is the people the load has in that service, and that each such service has a Salvations value. It runs before the [Rock Cleanup referee](#rock-cleanup-referee), so it judges the database as loaded: Rock Cleanup's first-night fixes to Rock's own records, such as a primary campus or an age bracket, would move Rock's Insights counts by a person.
+
+**Why it's there.** The loader works out each metric's past values itself, because running Rock's SQL once per run would be slow on Full 7. Rock's own SQL is the proof that each value is the one Rock's job would have saved, and setting the database back makes it work on any day, not only a metric's run day (decision D-metrics-9).
+
 ### Rock Cleanup referee
 
 **What it does.** Rock's nightly Rock Cleanup job repairs what Rock's save hooks would have set: aliases, ages, salutations, search keys, and more. After a load, the tool takes a SQL Server snapshot, runs Rock's real job through `verify/rock-runner` (with Rock's message bus started first, as in a running Rock, so the job's cache messages never log bus errors), and compares every table with the snapshot, column by column, as bytes. It runs the same job on a plain copy of the trusted base too. Both databases start from the same base, so base rows have the same Ids in both. A change Rock makes to exactly the same base rows on the plain copy is background. A change to any row the load added is a finding. A change accepted on purpose goes in `validation/cleanup-accepted.json` with a reason. Two of the job's tasks need a web server, so they are noted, not failed. Any other task error fails.
@@ -479,12 +485,6 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 **What it does.** For each path metric in `configuration/reporting.json`, reads its newest values, one for each campus, and when they were taken. It counts, in SQL, the active people with a completed step of the stage, and how many of them first reached the stage after that value, by the campus Rock's job counts each person under. The SQL count must equal Rock's count of the stage view from the data views check, the newest values must add up to Rock's count less the later ones, and each campus's value must be its own people less its own later ones.
 
 **Why it's there.** Rock counts a view only as it is today, so the loader reads each week's value back from the steps. Tying the newest values to Rock's own count proves the loader used the view's rule and Rock's campus split (decisions 234 and D-metrics-7).
-
-### Rock metrics
-
-**What it does.** Checks the history of the metrics Rock ships, from `configuration/rock-metrics.json`. For each SQL metric's newest run, and its newest run at least 90 days before that, it sets the loaded database back to that moment inside a transaction it rolls back: check-ins, prayer requests, prayers, and gifts dated after it are hidden from Rock's queries, and the people are as they were then, by the loader's rule for who was here and how old they were. Then it runs the metric's SQL from Rock's Metric table, with Rock's clock set to the run, and every value must match the load, campus by campus. It also checks that every typed Total Adult Attendance value is the people the load has in that service, and that each such service has a Salvations value.
-
-**Why it's there.** The loader works out each metric's past values itself, because running Rock's SQL once per run would be slow on Full 7. Rock's own SQL is the proof that each value is the one Rock's job would have saved, and setting the database back makes it work on any day, not only a metric's run day (decision D-metrics-9).
 
 ### Access
 
