@@ -80,13 +80,7 @@
       "emailIsActive": true,
       "attributes": {
         "LegalNotes": "Frank Lowe (uncle) is not allowed to have contact."
-      },
-      "relationships": [
-        {
-          "type": "allow-check-in-by",
-          "with": "B701E5D2-ADBD-4C66-91E8-3D6CD298D9A0"
-        }
-      ]
+      }
     }
   ]
 }

@@ -7,12 +7,13 @@
   "kind": "family",
   "origin": "new",
   "campusSlot": "main",
-  "story": "Ashley Kelly is a single mom of two. She asked the benevolence team for help with rent last winter and comes when work allows.",
+  "story": "Ashley Kelly is a single mom of two. She asked the benevolence team for help with rent last winter and comes when work allows. On Sundays she works, her mom, Karen Morgan, often brings Mason and Chloe and checks them in.",
   "testPurposes": [
     "Benevolence request: one month's rent, paid to her landlord.",
     "Registered for the next Money Matters class after her benevolence request.",
     "Single mom with preschool and Grades 2-3 check-in.",
-    "Known status, no giving."
+    "Known status, no giving.",
+    "Kids their grandparents in another family check in, through Rock's Grandchild relationship."
   ],
   "address": {
     "type": "home",
@@ -27,9 +28,7 @@
     "persona": "occasional",
     "percentAttended": 30,
     "started": {
-      "yearsAgo": 1,
-      "month": 7,
-      "day": 2
+      "daysAgo": 510
     }
   },
   "members": [
@@ -38,7 +37,7 @@
       "guid": "6E6B8CBF-9946-4DCE-B3D6-80A7F2F5B171",
       "firstName": "Ashley",
       "lastName": "Kelly",
-      "bio": "Ashley is a single mom of two who asked the benevolence team for help with rent last winter. She comes when her work schedule allows.",
+      "bio": "Ashley is a single mom of two who asked the benevolence team for help with rent last winter. She comes when her work schedule allows. Her mom, Karen Morgan, brings the kids on many Sundays she works.",
       "gender": "female",
       "familyRole": "adult",
       "birth": {
@@ -76,13 +75,14 @@
       "expect": {
         "achievements": {
           "earned": [
-            "high-five"
+            "high-five",
+            "25-club"
           ],
           "inProgress": [
-            "25-club"
+            "half-century"
           ],
           "notEarned": [
-            "25-club"
+            "half-century"
           ]
         }
       }

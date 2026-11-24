@@ -2,7 +2,7 @@
 
 New household · 2 people · Phoenix campus · [source](../households/morgan.json)
 
-Steve and Karen Morgan are empty nesters. Steve gives once a quarter after his business closes its books, plus a year-end gift. Steve keeps his own giving records, so he asked the church not to send him a giving statement.
+Steve and Karen Morgan are empty nesters. Steve gives once a quarter after his business closes its books, plus a year-end gift. Steve keeps his own giving records, so he asked the church not to send him a giving statement. Their daughter, Ashley Kelly, moved back to town last year with her two kids. On Sundays Ashley works, Karen often brings Mason and Chloe and checks them in.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -26,6 +26,7 @@ Steve and Karen Morgan are empty nesters. Steve gives once a quarter after his b
 - Quarterly giver with a year-end gift.
 - Empty nesters.
 - Do Not Send Giving Statement is set on Steve, so a statement run skips him.
+- Grandparents who check in grandchildren from another family: a phone search for the Morgans shows Mason and Chloe Kelly.
 
 ## Activity
 

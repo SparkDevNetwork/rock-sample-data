@@ -553,6 +553,12 @@ namespace RockSampleData.Loader.Model
         /// The Guid of the other person or business.
         /// </summary>
         public Guid With { get; set; }
+
+        /// <summary>
+        /// On this share of the Sundays this person came and the child's family did not, this person brings the
+        /// child and checks them in (decision 366). Null for none.
+        /// </summary>
+        public int? BringsPercent { get; set; }
     }
 
     /// <summary>

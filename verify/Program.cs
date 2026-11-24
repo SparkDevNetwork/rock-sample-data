@@ -408,7 +408,13 @@ static CheckResult ClockCheck( SqlServer sql, DateTime anchor )
 /// </summary>
 static CheckResult SignIn( RockRelease rock, SqlServer sql, string database, string foreignKey, string password )
 {
-    var newest = sql.Scalar( database, "SELECT TOP 1 [UserName] FROM [UserLogin] WHERE [ForeignKey] = @ForeignKey AND [IsConfirmed] = 1 AND [UserName] <> 'tdecker' ORDER BY [Id] DESC",
+    // A check-in supervisor's PIN is a PIN Authentication login, which a kiosk checks, not the login page (decision 367).
+    var newest = sql.Scalar( database, @"
+SELECT TOP 1 [u].[UserName]
+FROM [UserLogin] AS [u]
+INNER JOIN [EntityType] AS [et] ON [et].[Id] = [u].[EntityTypeId]
+WHERE [u].[ForeignKey] = @ForeignKey AND [u].[IsConfirmed] = 1 AND [u].[UserName] <> 'tdecker' AND [et].[Name] = 'Rock.Security.Authentication.Database'
+ORDER BY [u].[Id] DESC",
         new SqlParameter( "@ForeignKey", foreignKey ) ) as string;
     var tries = new List<(string UserName, string Password, bool IsAccepted)> { ("tdecker", password, true) };
     if ( newest != null )
