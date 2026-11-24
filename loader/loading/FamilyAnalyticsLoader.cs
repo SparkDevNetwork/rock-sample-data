@@ -493,6 +493,11 @@ WHERE NOT EXISTS ( SELECT 1 FROM [AttributeValue] AS [av] WHERE [av].[AttributeI
                 P( "@HistoryStart", _historyStart ), P( "@FirstId", firstId.Value ), P( "@SecondId", secondId.Value ), P( "@Now", _finalRun ), P( "@ForeignKey", _foreignKey ) );
 
             RunPinned( VisitDatesProcedure, _finalRun );
+
+            // The procedure writes an empty First Visit for an adult whose family has no child's check-in, and Rock
+            // Cleanup deletes every empty attribute value each night (CleanupEmptyAttributeValues), so none is left.
+            _db.Execute( "DELETE FROM [AttributeValue] WHERE [AttributeId] IN ( @FirstId, @SecondId ) AND ( [Value] IS NULL OR LEN( [Value] ) = 0 )",
+                P( "@FirstId", firstId.Value ), P( "@SecondId", secondId.Value ) );
             _db.Execute( $@"
 UPDATE [av] SET [av].[ForeignKey] = @ForeignKey
 FROM [AttributeValue] AS [av]

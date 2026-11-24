@@ -73,6 +73,16 @@ WHERE [j].[Guid] = '{FamilyAnalyticsJobGuid}'" ).FirstOrDefault();
                 problems.Add( "Rock's Family Analytics job must be on with Set Visit Dates on (decisions 325 and D-integrity-11)." );
             }
 
+            /*
+                11/24/26 - CLAUDE
+
+                Rock's visit dates procedure writes an empty First Visit for an adult whose family has no child's
+                check-in, every time it runs, and Rock Cleanup deletes every empty attribute value each night. So the
+                load leaves none, and each replay writes them again. Rock reads an empty value as no value, so the
+                comparison does too: a value counts as changed only when its text, date, or number differs.
+
+                Reason: The replay reports what Rock would change, not Rock's own nightly churn (decision D-integrity-11).
+            */
             var guids = string.Join( ", ", FamilyAnalyticsAttributeGuids.Select( g => $"'{g}'" ) );
             var rows = sql.Query( database, $@"
 SET NOCOUNT ON;
@@ -104,8 +114,7 @@ FROM @Before AS [b]
 FULL OUTER JOIN @After AS [n] ON [n].[AttributeId] = [b].[AttributeId] AND [n].[EntityId] = [b].[EntityId]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = COALESCE( [b].[AttributeId], [n].[AttributeId] )
 LEFT JOIN [Person] AS [p] ON [p].[Id] = COALESCE( [b].[EntityId], [n].[EntityId] )
-WHERE [b].[EntityId] IS NULL OR [n].[EntityId] IS NULL
-    OR ISNULL( [b].[Value], '' ) <> ISNULL( [n].[Value], '' )
+WHERE ISNULL( [b].[Value], '' ) <> ISNULL( [n].[Value], '' )
     OR ISNULL( [b].[ValueAsDateTime], '1900-01-01' ) <> ISNULL( [n].[ValueAsDateTime], '1900-01-01' )
     OR ISNULL( [b].[ValueAsNumeric], -1 ) <> ISNULL( [n].[ValueAsNumeric], -1 );" );
 

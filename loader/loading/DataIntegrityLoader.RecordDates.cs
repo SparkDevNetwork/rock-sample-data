@@ -111,7 +111,9 @@ namespace RockSampleData.Loader.Loading
                 }
                 else if ( castHouseholdKeys.Contains( household.Cast.Key ) )
                 {
-                    var alreadyComing = record.HasValue && record.Value.At < _historyStart.AddDays( AlreadyComingDays );
+                    // A first record early in the window shows the household was already coming. With no record at all,
+                    // as in a load that leaves parts out, its record was made before the window too.
+                    var alreadyComing = !record.HasValue || record.Value.At < _historyStart.AddDays( AlreadyComingDays );
                     first = alreadyComing ? BeforeHistory( rule.Generated, MonthWeights(), household.Cast.Guid ) : record?.At;
                     source = alreadyComing ? Draw( rule.Sources.Earlier, household.Cast.Guid ) : record?.Source ?? Draw( rule.Sources.Earlier, household.Cast.Guid );
                 }

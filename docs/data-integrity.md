@@ -32,7 +32,7 @@ Now every record has the date it was made (decisions D-integrity-1 and D-integri
 
 1. A record was made on its household's first visit (`attendance.started`). A child born later was added three weeks after birth.
 2. A Pending record has the date of the form that made it (see below).
-3. A Cast household with no first visit takes the date in `recordDates.households`, or else its first record. A first record in the history window's first eight weeks shows the household was already coming, so its record was made in the years before.
+3. A Cast household with no first visit takes the date in `recordDates.households`, or else its first record. A first record in the history window's first eight weeks shows the household was already coming, so its record was made in the years before. So was the record of a household with nothing written for it, as in a load that leaves parts out.
 4. A generated household with no first visit fills a month of the history window. Each month, latest first, takes households until its new records reach source-1's rate of 1.17% of active people, in source-1's busier and quieter months. It takes households whose first record falls in that month first, made by that record, such as a first gift. Then it takes households with no record at all, and then households whose first record comes later. Every household left over was made in the 12 years before the window, more often recently.
 5. No record is made after its person's first record: a check-in, gift, group membership, request, registration, note, login, workflow, or History line Rock writes as it happens.
 
@@ -63,7 +63,7 @@ Rock's Family Analytics job fills each person's First Visit and Second Visit whe
 1. A person whose record is older than the history window, and who comes to services, or an adult whose family's children do, gets the visits they made back then. First Visit is the first Sunday on or after their record's date. Second Visit is one to five weeks later. Both are at the family's service time.
 2. Then the load runs Rock's own visit dates procedure, as of the job's last run. It fills everyone who first came inside the window from their check-ins.
 
-Rock's procedure gives an adult the first check-in of their family's children, so an adult can get a Second Visit from a child's check-in the same morning. It also writes an empty First Visit for an adult whose family has no child's check-in. The load keeps both as Rock writes them.
+Rock's procedure gives an adult the first check-in of their family's children, so an adult can get a Second Visit from a child's check-in the same morning. The load keeps that as Rock writes it. The procedure also writes an empty First Visit for an adult whose family has no child's check-in, and Rock Cleanup deletes every empty attribute value each night, so the load leaves none.
 
 ## Pending records
 

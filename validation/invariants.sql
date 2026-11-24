@@ -1665,18 +1665,18 @@ WHERE [n].[ForeignKey] = @ForeignKey AND [n].[NcoaType] = 3 AND [n].[Processed] 
         OR EXISTS ( SELECT 1 FROM [CommunicationFlowInstanceRecipient] AS [r] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[RecipientPersonAliasId] WHERE [pa].[PersonId] = [p].[Id] AND [r].[Status] = 1 ) );
 
 -- check: visit-dates-are-as-rock-writes-them
--- why: Decision D-integrity-11. Rock's Family Analytics job writes First Visit and Second Visit as system values with the date in Value and ValueAsDateTime, and writes a Second Visit only after a First Visit. It also writes an empty First Visit for an adult whose family has no child's check-in. Verify replays the job to show it would change none of them.
+-- why: Decision D-integrity-11. Rock's Family Analytics job writes First Visit and Second Visit as system values with the date in Value and ValueAsDateTime, and writes a Second Visit only after a First Visit. The empty First Visit it writes for an adult whose family has no child's check-in is gone, as Rock Cleanup deletes every empty attribute value each night. Verify replays the job to show it would change none of them.
 SELECT COUNT(*)
 FROM [AttributeValue] AS [av]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] AND [a].[Guid] IN ( '655D6FBA-F8C0-4919-9E31-C1C936653555', 'D7EA578F-0132-473E-8338-4A48DDB8BF66' )
 INNER JOIN [Person] AS [p] ON [p].[Id] = [av].[EntityId]
 WHERE [p].[ForeignKey] = @ForeignKey
     AND ( [av].[IsSystem] = 0
-        OR ( [av].[Value] IS NULL AND [av].[ValueAsDateTime] IS NOT NULL )
-        OR ( [av].[Value] IS NOT NULL AND ISNULL( TRY_CONVERT( DATETIME, [av].[Value], 126 ), '1900-01-01' ) <> ISNULL( [av].[ValueAsDateTime], '1900-01-02' ) )
-        OR ( [a].[Guid] = 'D7EA578F-0132-473E-8338-4A48DDB8BF66' AND [av].[Value] IS NOT NULL AND NOT EXISTS ( SELECT 1 FROM [AttributeValue] AS [fv]
+        OR ISNULL( [av].[Value], '' ) = ''
+        OR ISNULL( TRY_CONVERT( DATETIME, [av].[Value], 126 ), '1900-01-01' ) <> ISNULL( [av].[ValueAsDateTime], '1900-01-02' )
+        OR ( [a].[Guid] = 'D7EA578F-0132-473E-8338-4A48DDB8BF66' AND NOT EXISTS ( SELECT 1 FROM [AttributeValue] AS [fv]
             INNER JOIN [Attribute] AS [fa] ON [fa].[Id] = [fv].[AttributeId] AND [fa].[Guid] = '655D6FBA-F8C0-4919-9E31-C1C936653555'
-            WHERE [fv].[EntityId] = [av].[EntityId] AND [fv].[Value] IS NOT NULL ) ) );
+            WHERE [fv].[EntityId] = [av].[EntityId] ) ) );
 
 -- check: sent-text-is-delivered-with-its-text
 -- why: SMS Conversations shows an outbound text only when its recipient is Delivered, and reads its words only from SentMessage (decision 93). A text Rock could not send failed with Rock's note and has no send time.
