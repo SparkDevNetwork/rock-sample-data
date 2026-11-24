@@ -28,7 +28,7 @@ namespace RockSampleData.RockRunner
     /// <summary>
     /// Runs a piece of Rock against the database named in a config file, outside IIS.
     ///
-    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows|person-duplicates|group-requirements|launch-benevolence-workflows|staff-homepage --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
+    /// Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows|person-duplicates|group-requirements|launch-benevolence-workflows|staff-homepage|calculate-metrics --rock-bin <RockWeb\bin folder> --config <config file> [--input <file>]
     ///
     ///   startup  Rock's own start-up steps that write to the database: the RockGetDate function, plugin and
     ///            hotfix migrations, and the attribute value views, then the Lava engine, Rock's one-time update jobs
@@ -91,6 +91,8 @@ namespace RockSampleData.RockRunner
     ///   staff-homepage  Renders the Internal Communication View block's Body Template, through Rock's Lava engine, for
     ///            the content channel item whose Id is on the input's second line, as the block on the first line's Guid
     ///            renders it, and prints the HTML on one line.
+    ///   calculate-metrics  Runs Rock's Calculate Metrics job once, as its stored job, as Rock's scheduler runs it every
+    ///            15 minutes. Prints the job's result. The caller compares the metric values before and after.
     ///
     /// The config file holds the RockContext connection string, Rock's appSettings, and its binding redirects
     /// (the verify tool writes it from the checkout's web.config). Rock runs in its own AppDomain whose base is
@@ -105,10 +107,10 @@ namespace RockSampleData.RockRunner
             var rockBin = Argument( args, "--rock-bin" );
             var config = Argument( args, "--config" );
             var input = Argument( args, "--input" );
-            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "email-sections", "signals", "personal-links", "notifications", "process-reminders", "process-workflows", "launch-step-workflows", "person-duplicates", "group-requirements", "launch-benevolence-workflows", "staff-homepage" };
+            var tasks = new[] { "startup", "cleanup", "hash-password", "sign-in", "group-sync", "data-views", "data-view-people", "reports", "authorize", "assessment-scores", "segments", "adaptive-messages", "email-sections", "signals", "personal-links", "notifications", "process-reminders", "process-workflows", "launch-step-workflows", "person-duplicates", "group-requirements", "launch-benevolence-workflows", "staff-homepage", "calculate-metrics" };
             if ( rockBin == null || config == null || !tasks.Contains( task ) || ( task is "hash-password" or "sign-in" or "authorize" or "data-view-people" or "adaptive-messages" or "personal-links" or "notifications" or "launch-step-workflows" or "launch-benevolence-workflows" or "staff-homepage" && input == null ) )
             {
-                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows|person-duplicates|group-requirements|launch-benevolence-workflows|staff-homepage --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
+                Console.Error.WriteLine( "Usage: rock-runner --task startup|cleanup|hash-password|sign-in|group-sync|data-views|data-view-people|reports|authorize|assessment-scores|segments|adaptive-messages|email-sections|signals|personal-links|notifications|process-reminders|process-workflows|launch-step-workflows|person-duplicates|group-requirements|launch-benevolence-workflows|staff-homepage|calculate-metrics --rock-bin <RockWeb\\bin folder> --config <config file> [--input <file>]" );
                 return 2;
             }
 
@@ -158,6 +160,7 @@ namespace RockSampleData.RockRunner
                     "group-requirements" => worker.GroupRequirements(),
                     "launch-benevolence-workflows" => worker.LaunchBenevolenceWorkflows( lines ),
                     "staff-homepage" => worker.StaffHomepage( lines ),
+                    "calculate-metrics" => worker.CalculateMetrics(),
                     _ => worker.Cleanup()
                 } );
                 return 0;
@@ -329,6 +332,20 @@ namespace RockSampleData.RockRunner
             }
 
             return string.Join( "\n", results );
+        }
+
+        /// <summary>
+        /// Runs Rock's Calculate Metrics job as Rock's scheduler does every 15 minutes and returns its result text: how many
+        /// values it calculated for how many metrics. Verify compares the metric values before and after.
+        /// </summary>
+        public string CalculateMetrics()
+        {
+            Start();
+            StartMessageBus();
+            var jobType = _rock.GetType( "Rock.Jobs.CalculateMetrics", true );
+            var job = Activator.CreateInstance( jobType );
+            RunStoredJob( job, new Guid( "3425AE05-354C-4C0E-AF5E-50CD6A7F8740" ) );
+            return ( string ) jobType.GetProperty( "Result" ).GetValue( job );
         }
 
         /// <summary>

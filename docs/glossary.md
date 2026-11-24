@@ -57,7 +57,7 @@ The words this project uses, in alphabetical order.
 | **Login** | A Rock Database login: a username and password that signs a person in to Rock. Every sample login uses the one password the person installing chose, and most people have none, as in a real church (decision 179). |
 | **Mass send** | An email, text, or push sent to 25 or more people at once. Calibration part 7 measures them. |
 | **Merge request** | A merge asked for by someone who cannot merge people. Rock keeps it until someone merges or deletes it, on the Merge Requests page. See [Duplicates](duplicates.md). |
-| **Metric** | A Rock count taken on a schedule and kept over time, such as how many people have reached the Belong stage each week. Rock's Calculate Metrics job takes each value, often by counting a data view. See [Data views and reports](reporting.md). |
+| **Metric** | A Rock count taken on a schedule and kept over time, such as how many people have reached the Belong stage each week. Rock's Calculate Metrics job takes each value, often by counting a data view or running SQL. The load writes the values the job would have saved before install (see [Rock's metrics](../loader/README.md#rocks-metrics)). See [Data views and reports](reporting.md). |
 | **Notification message** | A message in a person's bell in Rock's top bar, which counts the unread ones. A mention in a recent note leaves one for the staff member it mentions, and it opens the note (decision 307). |
 | **Opportunity** | One way to serve that people can ask about, such as Greeter. Each opportunity places people on its serving team. |
 | **Organizational tag** | A tag staff share. It sits in a tag category, whose security decides who can see it and tag people with it, such as Homebound in Care (decision 303). |

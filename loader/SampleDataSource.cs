@@ -426,6 +426,16 @@ namespace RockSampleData.Loader
         public const string StaffHomepageConfigurationPath = "configuration/staff-homepage.json";
 
         /// <summary>
+        /// Reads configuration/rock-metrics.json, the history for Rock's own metrics. A package built before it existed has none.
+        /// </summary>
+        public RockMetricsConfiguration ReadRockMetrics()
+        {
+            return Files.Exists( RockMetricsConfigurationPath ) ? Read<RockMetricsConfiguration>( RockMetricsConfigurationPath ) : null;
+        }
+
+        public const string RockMetricsConfigurationPath = "configuration/rock-metrics.json";
+
+        /// <summary>
         /// Reads content/internal-news/updates.json, the text of the staff homepage's weekly updates.
         /// </summary>
         public InternalNewsLibrary ReadInternalNews() => Read<InternalNewsLibrary>( InternalNewsPath );

@@ -77,6 +77,7 @@ namespace RockSampleData.Loader
             ("Tags", null),
             ("Logins", null),
             ("Duplicates", null),
+            ("Rock metrics", null),
             (CastExpectationsStep, null),
             ("Check images", SampleDataPart.CheckImages)
         };
@@ -884,6 +885,24 @@ namespace RockSampleData.Loader
             // job finds nothing new on its first night. The Cast's merges, decisions, and merge requests come with it.
             steps.Begin( "Duplicates" );
             new DuplicatesLoader( db, source, dates, foreignKey ).Load( people );
+
+            // The history of Rock's own metrics. Each value reads the rows the load wrote, the duplicate records and the
+            // attribute values Rock's save hook filled among them, so it comes after every data step and always runs.
+            steps.Begin( "Rock metrics" );
+            var rockMetrics = source.ReadRockMetrics();
+            if ( rockMetrics == null )
+            {
+                log.Write( "  Skipped (this package has no configuration/rock-metrics.json)" );
+            }
+            else
+            {
+                var rockMetricsLoader = new RockMetricsLoader( db, source, rockMetrics, dates.Anchor.Date.Add( DateTime.Now.TimeOfDay ), foreignKey, seed );
+                var (rockMetricCount, rockValueCount) = rockMetricsLoader.Load();
+                log.Write( $"  Rock metrics: {rockMetricCount} with {rockValueCount:N0} values" );
+
+                // Rock Cleanup's nightly campus average weekend attendance, from the Total Weekend Attendance values.
+                log.Write( $"  Campus average weekend attendance: {rockMetricsLoader.UpdateCampusAverageWeekendAttendance()}" );
+            }
 
             /*
                 10/30/26 - CLAUDE

@@ -256,35 +256,47 @@ module.exports = function features( { model } ) {
     const unusedViews = model.reportingDataViews.filter( v => v.usage && v.usage.lastRunDaysAgo > 365 ).length;
     const reportingArea = {
         id: "data-views-and-reports", eyebrow: "Data views and reports", title: "Built in layers, locked like a real church.",
-        text: html`${model.reportingDataViews.length} data views and ${model.reports.length} reports, filed by the Ministry by Design systems. Foundations hold the shared rules, stage views build on them from steps, and next-step views such as Ready to Serve build on the stages. A Rock Metric counts each stage every week.`,
+        text: html`${model.reportingDataViews.length} data views and ${model.reports.length} reports, filed by the Ministry by Design systems. Foundations hold the shared rules, stage views build on them from steps, and next-step views such as Ready to Serve build on the stages. A Rock Metric counts each stage at each campus every week.`,
         checks: [ "Foundations, stage views, and next-step views that build on each other", html`${esc( messageList( lockedReportCategories ) )}, each locked to its own roles`, "A weekly metric for each stage, with values back to when its view was made", `A run history on every view and report${unusedViews ? `, with ${unusedViews === 1 ? "one view" : `${unusedViews} views`} not run in over a year` : ""}` ],
         look: [ "Rock's Data Views and Reports pages, under Tools", "The Ministry Path metrics on Rock's staff homepage", html`<a href="reporting.html#sign-in-as">The Cast people to sign in as</a>, and what each can see` ],
         links: [ { label: "The Reporting page", href: "reporting.html" }, { label: "Data views and reports", href: doc( "docs/reporting.md" ) } ]
     };
 
-    // Assessments come after the data views and reports, which are plain, so the page keeps alternating.
+    // Rock's shipped metrics follow the data views and reports, which are plain, so they are on sand.
+    const rockMetrics = require( path.join( model.root, "configuration/rock-metrics.json" ) );
+    const weeklyYears = Math.round( Math.max( ...rockMetrics.metrics.map( m => m.weeks ) ) / 52 );
+    const tithingWeeks = rockMetrics.metrics.find( m => m.key === "tithing-percent" ).weeks;
+    const metricsArea = {
+        id: "metrics", eyebrow: "Metrics", title: "Charts with history on day one.", sand: true,
+        text: html`Rock ships its own metrics for weekend attendance, giving, prayer, salvations, baptisms, eRA, tithing, and the people counts behind its Insights page. Each one has history on install day: ${weeklyYears} years of weekly values, ${tithingWeeks} weekly Tithing Overview runs, and ${rockMetrics.insights.months} monthly runs of every Insights metric, by campus and service where Rock splits them. Every value is the one Rock's Calculate Metrics job would have saved, counted from the people, check-ins, gifts, and prayers in the data.`,
+        checks: [ "Every newest value matches Rock's own metric SQL, run as of that week", "Weekend adult counts and salvations, typed in each Sunday the way staff do", "The Ministry Path metrics, split by campus" ],
+        look: [ "Tools > Reporting > Metrics, and any metric's chart", "Tools > Weekly Metrics, where staff type the weekend's numbers", "Baptisms, each month's count on the 1st of the next" ],
+        links: [ { label: "Rock's metrics", href: doc( "loader/README.md#rocks-metrics" ) } ]
+    };
+
+    // Assessments come after the metrics, which are on sand, so the page keeps alternating.
     const assessments = require( path.join( model.root, "configuration/assessments.json" ) );
     const startingPoint = assessments.classes.find( c => c.stepType === "starting-point-class" );
     const assessmentsArea = {
-        id: "assessments", eyebrow: "Assessments", title: "Results with real answers behind them.", sand: true,
+        id: "assessments", eyebrow: "Assessments", title: "Results with real answers behind them.",
         text: html`Rock's ${assessments.types.length} assessments: DISC, Spiritual Gifts, Conflict Profile, Emotional Intelligence, and Motivators. Most staff took all of them, every leader took DISC and Conflict Profile before leading, and each Starting Point class asks for Spiritual Gifts, which ${startingPoint.percentFinished}% finish. Every result comes from a full set of answers, scored the way Rock scores them.`,
         checks: [ "Requests still pending from the current classes, with reminders where Rock's job would leave them", "Answers and results that always agree, checked against Rock's own scoring", "Results as person attributes, ready for data views" ],
         look: [ html`The Assessments badge on ${person( model, "Ted Decker" )}'s profile`, html`${person( model, "Bri Hall" )}'s Spiritual Gifts, which fit a greeter`, html`${person( model, "Ty McClintock" )} and ${person( model, "Paul Smith" )}'s DISC results, side by side` ],
         links: [ { label: "Assessments", href: doc( "docs/assessments.md" ) } ]
     };
 
-    // Reminders come after assessments, which are on sand, so the page keeps alternating.
+    // Reminders come after assessments, which are plain, so they are on sand and the page keeps alternating.
     const reminders = require( path.join( model.root, "configuration/reminders.json" ) );
     const shows = { due: "due now", upcoming: "coming up", complete: "complete" };
     const remindersArea = {
-        id: "reminders", eyebrow: "Reminders", title: "Follow-ups staff set for themselves.",
+        id: "reminders", eyebrow: "Reminders", title: "Follow-ups staff set for themselves.", sand: true,
         text: html`Staff set reminders about the people they wrote notes on, and small group leaders set them about their groups, in Rock's own Personal and Group reminder types. Each is dated from the install day, so some are due, some are coming up, some are complete, and a few repeat. The Cast has ${reminders.cast.length} of its own, tied to their stories. Rock's bell counts each person's reminders due, as Rock's Process Reminders job would.`,
         checks: [ "Reminders about people and about groups", "Due, upcoming, complete, and repeating reminders on any install day", "A bell count that Rock's own job leaves as it is" ],
         look: [ html`The bell in Rock's top bar, signed in as <code>tdecker</code>`, ...reminders.cast.map( r => html`${person( model, r.ownerName )}'s reminder about ${r.group ? `the ${esc( r.aboutName )}` : person( model, r.aboutName )}, ${esc( shows[r.expect] || r.expect )}` ) ],
         links: [ { label: "How reminders load", href: doc( "loader/README.md#how-reminders-load" ) } ]
     };
 
-    const sections = [ ...areas, reportingArea, assessmentsArea, remindersArea ];
+    const sections = [ ...areas, reportingArea, metricsArea, assessmentsArea, remindersArea ];
 
     return {
         file: "features.html",
