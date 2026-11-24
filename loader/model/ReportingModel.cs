@@ -66,6 +66,11 @@ namespace RockSampleData.Loader.Model
         public string Weekday { get; set; }
 
         /// <summary>
+        /// The day of the month a monthly schedule runs, such as 1, or null for a daily or weekly one.
+        /// </summary>
+        public int? DayOfMonth { get; set; }
+
+        /// <summary>
         /// The weekday as a day, or null to run every day.
         /// </summary>
         public DayOfWeek? Day => Weekday == null ? null : ( DayOfWeek ) Enum.Parse( typeof( DayOfWeek ), Weekday, true );
@@ -95,9 +100,19 @@ namespace RockSampleData.Loader.Model
         public string Category { get; set; }
 
         /// <summary>
-        /// The key of the data view it counts, in configuration/reporting.json.
+        /// The key of the data view it counts, in configuration/reporting.json, or null for a metric with its own SQL.
         /// </summary>
         public string DataView { get; set; }
+
+        /// <summary>
+        /// The church's SQL for a metric that counts with SQL, one string per line, or null for a data view metric.
+        /// </summary>
+        public List<string> SourceSql { get; set; }
+
+        /// <summary>
+        /// How many weeks of values a SQL metric gets, up to install. A data view metric's start when its view was made.
+        /// </summary>
+        public int Weeks { get; set; }
 
         /// <summary>
         /// The key of the named schedule it runs on.
@@ -107,7 +122,7 @@ namespace RockSampleData.Loader.Model
         public Guid Guid { get; set; }
 
         /// <summary>
-        /// The Guid of its one partition, the default one Rock adds to a metric that is not split by campus or anything else.
+        /// The Guid of its one partition, Campus, since every church metric splits by campus.
         /// </summary>
         public Guid PartitionGuid { get; set; }
     }

@@ -221,7 +221,27 @@ for ( const report of reporting.reports || [] ) {
     }
 }
 
-// Metrics: a metric category, a stage view of the church's, and a metric schedule.
+// A view whose past weeks the loader can replay (loader/loading/ViewHistory.cs): every filter, through the views it
+// points at, is an attendance count, a steps filter, or a filter on a person's fields.
+const replayable = new Set( [
+    "Rock.Reporting.DataFilter.Person.GroupTypeAttendanceFilter",
+    "Rock.Reporting.DataFilter.Person.StepsTakenFilter",
+    "Rock.Reporting.DataFilter.PropertyFilter"
+] );
+function canReplay( view, seen = new Set() ) {
+    if ( !view || view.transform || seen.has( view.key ) ) {
+        return !!view && !view.transform;
+    }
+
+    seen.add( view.key );
+    return leaves( view.filter ).every( l => l.steps
+        || ( l.dataView && [ "Rock.Reporting.DataFilter.OtherDataViewFilter", "Rock.Reporting.DataFilter.NotInOtherDataViewFilter" ].includes( l.component )
+            && canReplay( reporting.dataViews.find( v => v.key === l.dataView ), seen ) )
+        || ( !l.dataView && replayable.has( l.component ) ) );
+}
+
+// Metrics: a metric category, a metric schedule, and either the church's SQL with its weeks of history, or a view of the
+// church's whose past weeks the loader can replay.
 for ( const metric of reporting.metrics || [] ) {
     const name = `metric ${metric.key}`;
     for ( const guid of [ metric.guid, metric.partitionGuid ] ) {
@@ -237,9 +257,15 @@ for ( const metric of reporting.metrics || [] ) {
         problems.push( `${name}: category ${metric.category} is not a metric category` );
     }
 
-    const view = reporting.dataViews.find( v => v.key === metric.dataView );
-    if ( !view || !leaves( view.filter ).some( l => l.steps ) ) {
-        problems.push( `${name}: ${metric.dataView} is not a reporting view built from steps, the only kind whose past weeks the loader can count` );
+    if ( metric.sourceSql ) {
+        if ( metric.dataView || !Array.isArray( metric.sourceSql ) || !metric.sourceSql.every( l => typeof l === "string" ) || !( metric.weeks > 0 ) ) {
+            problems.push( `${name}: a SQL metric needs its SQL as a list of lines, weeks of history, and no data view` );
+        }
+    } else {
+        const view = reporting.dataViews.find( v => v.key === metric.dataView );
+        if ( !view || !canReplay( view ) ) {
+            problems.push( `${name}: ${metric.dataView} is not a reporting view whose past weeks the loader can replay: attendance counts, steps, and a person's fields` );
+        }
     }
 
     if ( !metricSchedules.has( metric.schedule ) ) {

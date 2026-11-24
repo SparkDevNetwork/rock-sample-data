@@ -58,6 +58,11 @@ namespace RockSampleData.Loader.Loading
         /// </summary>
         private static readonly Guid DataViewSourceGuid = new Guid( "2EC60BCF-EF63-4CCC-A970-F152292765D0" );
 
+        /// <summary>
+        /// Rock's "SQL" metric source type.
+        /// </summary>
+        private static readonly Guid SqlSourceGuid = new Guid( "6A1E1A1B-A636-4E12-B90C-D7FD1BDAE764" );
+
         private static readonly Guid CampusEntityTypeGuid = new Guid( "00096BED-9587-415E-8AD4-4E076AE8FBF0" );
 
         private static readonly Guid ActiveRecordGuid = new Guid( "618F906C-C33D-4FA3-8AEF-E58CB7B63F1E" );
@@ -82,43 +87,77 @@ namespace RockSampleData.Loader.Loading
         /// <param name="views">The reporting views, by key.</param>
         /// <param name="schedules">The named schedules, by key, and their Ids.</param>
         /// <param name="stepRule">The step types and the Complete status a steps leaf matches.</param>
+        /// <param name="selection">A leaf's Rock selection when the configuration builds it at load, such as a steps filter's.</param>
         /// <returns>How many metrics and values were written.</returns>
         public (int Metrics, int Values) Write( List<MetricDefinition> metrics, IReadOnlyDictionary<string, DataViewDefinition> views,
-            IReadOnlyDictionary<string, (NamedPersistSchedule Schedule, int Id)> schedules, Func<StepsFilterRule, (List<Guid> StepTypes, Guid Complete)> stepRule )
+            IReadOnlyDictionary<string, (NamedPersistSchedule Schedule, int Id)> schedules, Func<StepsFilterRule, (List<Guid> StepTypes, Guid Complete)> stepRule,
+            Func<DataViewFilterDefinition, string> selection )
         {
             var values = TableFactory.Create( "Id:int", "MetricValueType:int", "YValue:decimal", "MetricId:int", "MetricValueDateTime:date", "MetricValueDateKey:int",
                 "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var partitions = TableFactory.Create( "Id:int", "MetricPartitionId:int", "EntityId:int", "MetricValueId:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
             var nextValueId = Convert.ToInt32( _db.Scalar( "SELECT ISNULL( MAX( [Id] ), 0 ) + 1 FROM [MetricValue]" ) );
             var nextPartitionId = Convert.ToInt32( _db.Scalar( "SELECT ISNULL( MAX( [Id] ), 0 ) + 1 FROM [MetricValuePartition]" ) );
-            var sourceTypeId = _db.RequireIdByGuid( "DefinedValue", DataViewSourceGuid );
+            var dataViewSourceId = _db.RequireIdByGuid( "DefinedValue", DataViewSourceGuid );
+            var sqlSourceId = _db.RequireIdByGuid( "DefinedValue", SqlSourceGuid );
             var campusTypeId = _db.RequireIdByGuid( "EntityType", CampusEntityTypeGuid );
+            var history = new ViewHistory( _db, _installed.Date, views, selection );
+            var sqlMetrics = new MinistrySqlMetrics( _db );
+            Dictionary<int, int?> campuses = null;
             var written = 0;
 
             foreach ( var metric in metrics )
             {
-                var view = views.TryGetValue( metric.DataView, out var found ) ? found
-                    : throw new InvalidDataException( $"{SampleDataSource.ReportingConfigurationPath}: metric {metric.Key} counts data view {metric.DataView}, which is not a reporting data view." );
-                var viewRow = _db.Query( "SELECT [Id], [CreatedDateTime] FROM [DataView] WHERE [Guid] = @Guid", P( "@Guid", view.Guid ) ).SingleOrDefault();
-                if ( viewRow == null )
-                {
-                    _db.Log.Write( $"    Skipped metric {metric.Key}: its data view {metric.DataView} was not written" );
-                    continue;
-                }
-
                 var schedule = schedules.TryGetValue( metric.Schedule, out var named ) ? named
                     : throw new InvalidDataException( $"{SampleDataSource.ReportingConfigurationPath}: metric {metric.Key} runs on {metric.Schedule}, which is not a named schedule." );
-                var runs = Runs( schedule.Schedule, ( DateTime ) viewRow["CreatedDateTime"] );
-                var firstStep = FirstSteps( metric, view, stepRule );
+
+                // A data view metric starts the week its view was made. A SQL metric gets its weeks of history.
+                DataViewDefinition view = null;
+                object viewId = null;
+                var from = _installed.AddDays( -7 * metric.Weeks );
+                if ( metric.SourceSql == null )
+                {
+                    view = views.TryGetValue( metric.DataView, out var found ) ? found
+                        : throw new InvalidDataException( $"{SampleDataSource.ReportingConfigurationPath}: metric {metric.Key} counts data view {metric.DataView}, which is not a reporting data view." );
+                    var viewRow = _db.Query( "SELECT [Id], [CreatedDateTime] FROM [DataView] WHERE [Guid] = @Guid", P( "@Guid", view.Guid ) ).SingleOrDefault();
+                    if ( viewRow == null )
+                    {
+                        _db.Log.Write( $"    Skipped metric {metric.Key}: its data view {metric.DataView} was not written" );
+                        continue;
+                    }
+
+                    viewId = viewRow["Id"];
+                    from = ( DateTime ) viewRow["CreatedDateTime"];
+                }
+
+                var runs = Runs( schedule.Schedule, from );
+                Dictionary<DateTime, List<(int? Campus, decimal Value)>> counts;
+                if ( view == null )
+                {
+                    counts = sqlMetrics.Values( metric.Key, runs );
+                }
+                else if ( IsStageView( view ) )
+                {
+                    var firstStep = FirstSteps( metric, view, stepRule );
+                    counts = runs.ToDictionary( run => run, run => firstStep.Where( f => f.First <= run ).GroupBy( f => f.Campus ).OrderBy( g => g.Key ?? 0 )
+                        .Select( g => (g.Key, ( decimal ) g.Count()) ).ToList() );
+                }
+                else
+                {
+                    campuses ??= Campuses();
+                    counts = runs.ToDictionary( run => run, run => history.PeopleAt( view, run ).GroupBy( id => campuses.GetValueOrDefault( id ) ).OrderBy( g => g.Key ?? 0 )
+                        .Select( g => (g.Key, ( decimal ) g.Count()) ).ToList() );
+                }
 
                 var made = runs.Count > 0 ? runs[0].AddHours( -1 ) : _installed;
                 var metricId = ( int ) _db.Scalar( @"
-INSERT INTO [Metric] ( [IsSystem], [Title], [Description], [IconCssClass], [IsCumulative], [SourceValueTypeId], [DataViewId], [ScheduleId], [LastRunDateTime],
+INSERT INTO [Metric] ( [IsSystem], [Title], [Description], [IconCssClass], [IsCumulative], [SourceValueTypeId], [SourceSql], [DataViewId], [ScheduleId], [LastRunDateTime],
     [AutoPartitionOnPrimaryCampus], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
 OUTPUT INSERTED.[Id]
-VALUES ( 0, @Title, @Description, @Icon, 0, @SourceTypeId, @DataViewId, @ScheduleId, @LastRun, 1, @Guid, @ForeignKey, @Made, @Made )",
-                    P( "@Title", metric.Title ), P( "@Description", metric.Description ), P( "@Icon", metric.IconCssClass ), P( "@SourceTypeId", sourceTypeId ),
-                    P( "@DataViewId", viewRow["Id"] ), P( "@ScheduleId", schedule.Id ), P( "@LastRun", runs.Count > 0 ? runs[runs.Count - 1] : null ),
+VALUES ( 0, @Title, @Description, @Icon, 0, @SourceTypeId, @SourceSql, @DataViewId, @ScheduleId, @LastRun, @AutoPartition, @Guid, @ForeignKey, @Made, @Made )",
+                    P( "@Title", metric.Title ), P( "@Description", metric.Description ), P( "@Icon", metric.IconCssClass ), P( "@SourceTypeId", view == null ? sqlSourceId : dataViewSourceId ),
+                    P( "@SourceSql", view == null ? string.Join( "\r\n", metric.SourceSql ) : null ), P( "@DataViewId", viewId ), P( "@ScheduleId", schedule.Id ),
+                    P( "@LastRun", runs.Count > 0 ? runs[runs.Count - 1] : null ), P( "@AutoPartition", view != null ),
                     P( "@Guid", metric.Guid ), P( "@ForeignKey", _foreignKey ), P( "@Made", made ) );
                 _db.Execute( @"
 INSERT INTO [MetricCategory] ( [MetricId], [CategoryId], [Order], [Guid], [ForeignKey] )
@@ -126,7 +165,8 @@ VALUES ( @MetricId, @CategoryId, 0, @Guid, @ForeignKey )",
                     P( "@MetricId", metricId ), P( "@CategoryId", _db.RequireIdByGuid( "Category", _categories.Get( metric.Category ).Guid ) ),
                     P( "@Guid", SeededRandom.StableGuid( $"{_seed}:metric-category:{metric.Key}" ) ), P( "@ForeignKey", _foreignKey ) );
 
-                // The one partition Rock's metric editor allows with Auto Partition on Primary Campus: a required Campus.
+                // One required Campus partition: the one Rock's metric editor allows with Auto Partition on Primary Campus, and
+                // the one a SQL metric fills from its campus column.
                 var partitionId = ( int ) _db.Scalar( @"
 INSERT INTO [MetricPartition] ( [MetricId], [Label], [EntityTypeId], [IsRequired], [Order], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
 OUTPUT INSERTED.[Id]
@@ -136,12 +176,12 @@ VALUES ( @MetricId, 'Campus', @CampusType, 1, 0, @Guid, @ForeignKey, @Made, @Mad
                 var random = new SeededRandom( $"{_seed}:metric-values:{metric.Key}" );
                 foreach ( var run in runs )
                 {
-                    // The job saves a run's values a moment after its scheduled time, one for each campus that has anyone.
+                    // The job saves a run's values a moment after its scheduled time, one for each campus.
                     var saved = run.AddSeconds( random.Between( 2, 40 ) );
-                    foreach ( var campus in firstStep.Where( f => f.First <= run ).GroupBy( f => f.Campus ).OrderBy( g => g.Key ?? 0 ) )
+                    foreach ( var (campus, value) in counts[run] )
                     {
-                        values.Rows.Add( nextValueId, 0, ( decimal ) campus.Count(), metricId, run, int.Parse( run.ToString( "yyyyMMdd" ) ), random.NextGuid(), _foreignKey, saved, saved );
-                        partitions.Rows.Add( nextPartitionId++, partitionId, ( object ) campus.Key ?? DBNull.Value, nextValueId++, random.NextGuid(), _foreignKey, saved, saved );
+                        values.Rows.Add( nextValueId, 0, value, metricId, run, int.Parse( run.ToString( "yyyyMMdd" ) ), random.NextGuid(), _foreignKey, saved, saved );
+                        partitions.Rows.Add( nextPartitionId++, partitionId, ( object ) campus ?? DBNull.Value, nextValueId++, random.NextGuid(), _foreignKey, saved, saved );
                     }
                 }
 
@@ -154,23 +194,45 @@ VALUES ( @MetricId, 'Campus', @CampusType, 1, 0, @Guid, @ForeignKey, @Made, @Mad
         }
 
         /// <summary>
-        /// Each scheduled run from when the view was made up to install.
+        /// Each scheduled run from the start up to install: daily, weekly, or monthly.
         /// </summary>
         private List<DateTime> Runs( NamedPersistSchedule schedule, DateTime from )
         {
             var time = TimeSpan.Parse( schedule.Time );
             var weekday = schedule.Day;
+            var dayOfMonth = schedule.DayOfMonth;
             var runs = new List<DateTime>();
             for ( var day = from.Date; day <= _installed.Date; day = day.AddDays( 1 ) )
             {
                 var run = day.Add( time );
-                if ( ( weekday == null || day.DayOfWeek == weekday ) && run > from && run <= _installed )
+                var isRunDay = weekday == null && dayOfMonth == null || day.DayOfWeek == weekday || day.Day == dayOfMonth;
+                if ( isRunDay && run > from && run <= _installed )
                 {
                     runs.Add( run );
                 }
             }
 
             return runs;
+        }
+
+        /// <summary>
+        /// The campus Rock's job counts each person under: Person.GetCampus(), their primary campus, or else their primary family's.
+        /// </summary>
+        private Dictionary<int, int?> Campuses()
+        {
+            return _db.Query( @"
+SELECT [p].[Id], COALESCE( [p].[PrimaryCampusId], [f].[CampusId] ) AS [Campus]
+FROM [Person] AS [p]
+LEFT JOIN [Group] AS [f] ON [f].[Id] = [p].[PrimaryFamilyId]" ).ToDictionary( r => ( int ) r["Id"], r => r["Campus"] as int? );
+        }
+
+        /// <summary>
+        /// A stage view: active people with any of some steps, whose past weeks read straight back from the steps.
+        /// </summary>
+        internal static bool IsStageView( DataViewDefinition view )
+        {
+            var leaves = DataViewWriter.Leaves( view.Filter ).ToList();
+            return view.Filter.All != null && leaves.Any( f => f.Steps != null ) && leaves.All( f => f.Steps != null || f.DataView == "active-people" );
         }
 
         /// <summary>
