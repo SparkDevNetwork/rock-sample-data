@@ -144,7 +144,8 @@
         "percentAttended": { "type": "integer", "minimum": 0, "maximum": 100 },
         "percentPrimaryService": { "type": "integer", "minimum": 0, "maximum": 100 },
         "started": { "$ref": "#/$defs/relativeDate" },
-        "ended": { "$ref": "#/$defs/relativeDate" }
+        "ended": { "$ref": "#/$defs/relativeDate" },
+        "kidsKiosk": { "type": "integer", "minimum": 1, "description": "The kids kiosk the family always checks in at, by its number at the household's campus in configuration/kiosks.json, such as 1 for Phoenix Kids 1. Left out, the loader draws one." }
       }
     },
     "giving": {
@@ -255,6 +256,16 @@
           "type": "object",
           "additionalProperties": false,
           "properties": { "home": { "type": "string" }, "mobile": { "type": "string" }, "work": { "type": "string" } }
+        },
+        "studentNight": {
+          "type": "object",
+          "description": "A student's Wednesday Student Night habit: the share of Student Nights they check in while in grades 7 to 12, from started on, or from the start of the history. A Cast student without it never comes on Wednesday.",
+          "required": [ "percentAttended" ],
+          "additionalProperties": false,
+          "properties": {
+            "percentAttended": { "type": "integer", "minimum": 1, "maximum": 100 },
+            "started": { "$ref": "#/$defs/relativeDate" }
+          }
         },
         "expect": {
           "type": "object",

@@ -49,6 +49,7 @@
   ],
   "overrides": [
     { "path": "people.ageMix", "value": { "00-05": 3.94, "06-11": 9.61, "12-17": 18.64, "18-24": 18.51, "25-34": 15.27, "35-44": 15.72, "45-54": 9.37, "55-64": 5.35, "65-74": 2.9, "75+": 0.78 }, "reason": "Assumption. The measured age mix counts only people with a birth date, and 17.9% of measured people have none (people.pctNoBirthDate), but every sample person has one (decision 156). These are the measured shares restated as shares of all people, assuming the people with no birth date are adults spread like the adults who have one: each child band is the measured share times 0.821, and each adult band the measured share times 1.115. Every band keeps its measured ratio to the others in its group, so the generator, which reads these shares as weights, draws almost exactly the same ages as before." },
+    { "path": "attendance.studentCheckInDayMix", "value": { "sunday": 60, "wednesday": 40, "otherDays": 0 }, "reason": "Design choice. The only midweek check-in is Wednesday Student Night, which draws about two-thirds as many students as the Sunday student service (decision 364). The measured Wednesday share counts every check-in, kids included, so it is not a student target." },
     { "path": "groups.smallGroups.pctDidAttend", "value": 65, "reason": "Design choice. Small group attendance sits between the measured rate and a livelier demo church (docs/small-groups.md)." },
     { "path": "groups.smallGroups.weightedMedianSize", "value": 12, "reason": "Design choice. Small groups have about 12 members (decision 33)." },
     { "path": "groups.smallGroups.pctLeaders", "value": 8.3, "reason": "Design choice. Each small group has one leader, about 1 in 12 members (decision 33)." },
@@ -166,7 +167,7 @@
     }
   ],
   "notes": [
-    "The sample church has a midweek student service, so a share of check-ins happen on Wednesday.",
+    "The sample church has a midweek student night, so a share of student check-ins happen on Wednesday. It has no midweek kids programs.",
     "Christmas week shows almost no kids check-in, because many churches hold Christmas Eve services without children's ministry.",
     "Dollar amounts (annual totals, gift sizes) should be reviewed as sources are added.",
     "Prayer volume and its monthly pattern come from source-1. Categories, text length, timing, and who asks come from source-2. The prayer team's activity is a design choice, not a measurement (decision 67).",

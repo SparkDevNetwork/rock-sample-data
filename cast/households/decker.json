@@ -36,7 +36,8 @@
       "yearsAgo": 11,
       "month": 12,
       "day": 25
-    }
+    },
+    "kidsKiosk": 1
   },
   "giving": [
     {
@@ -337,7 +338,7 @@
       "firstName": "Alexis",
       "nickName": "Alex",
       "lastName": "Decker",
-      "bio": "Alex (Alexis) is seven and has a peanut allergy that prints on her check-in label. She is the example to use for allergy and label testing.",
+      "bio": "Alex (Alexis) is seven and has a peanut allergy that prints on her check-in label. The family always checks in at Phoenix Kids 1, so her label prints on Phoenix Kids Printer 1. She is the example to use for allergy and label testing.",
       "gender": "female",
       "familyRole": "child",
       "birth": {

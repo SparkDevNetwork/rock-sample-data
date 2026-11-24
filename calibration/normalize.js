@@ -290,6 +290,8 @@ if ( s.attendanceWeekly ) {
     };
     const times = list( s.checkInTimes );
     const timeShare = d => round( sum( times.filter( t => t.dayOfWeek === d ).map( t => t.pctCheckIns ) ) );
+    const studentDays = list( s.studentCheckInDays );
+    const studentShare = d => round( sum( studentDays.filter( t => t.dayOfWeek === d ).map( t => t.pctCheckIns ) ) );
     const sundayTotal = sum( times.filter( t => t.dayOfWeek === 0 ).map( t => t.pctCheckIns ) );
 
     // Weeks far below normal that are not holidays (weather closures and similar).
@@ -305,6 +307,8 @@ if ( s.attendanceWeekly ) {
         childFrequencyMixOf26Weeks: freqMix( "Child" ),
         adultFrequencyMixOf26Weeks: freqMix( "Adult or unknown" ),
         checkInDayMix: { sunday: timeShare( 0 ), saturday: timeShare( 6 ), wednesday: timeShare( 3 ), otherWeekdays: round( 100 - timeShare( 0 ) - timeShare( 6 ) - timeShare( 3 ) ) },
+        // Students in grades 7 to 12 only, so a midweek student night is measured apart from midweek kids programs.
+        studentCheckInDayMix: studentDays.length ? { sunday: studentShare( 0 ), wednesday: studentShare( 3 ), otherDays: round( 100 - studentShare( 0 ) - studentShare( 3 ) ) } : undefined,
         sundayHourMix: Object.fromEntries( times.filter( t => t.dayOfWeek === 0 ).map( t => [ t.hour, pct( t.pctCheckIns, sundayTotal ) ] ) ),
         kidsPerFamilyCheckInMix: Object.fromEntries( list( s.kidsPerFamilyCheckIn ).map( k => [ k.kidsCheckedIn, k.pctFamilyWeeks ] ) )
     };

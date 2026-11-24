@@ -44,6 +44,10 @@ const ALLOWED_EMAIL_DOMAINS = [ "example.org", "example.com", "rocksolidchurchde
 // A Cast household lives on the main campus, or on another campus and loads only in datasets that have it.
 const OTHER_CAMPUS_KEYS = new Set( JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "campuses.json" ), "utf8" ) ).campuses
     .filter( c => !c.rockDefault ).map( c => c.key ) );
+const MAIN_CAMPUS_KEY = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "campuses.json" ), "utf8" ) ).campuses.find( c => c.rockDefault ).key;
+
+// Each campus's kiosks, so a household's usual kids kiosk is one its campus has (decision 360).
+const KIOSKS = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "kiosks.json" ), "utf8" ) );
 
 const errors = [];
 const warnings = [];
@@ -211,6 +215,13 @@ for ( const { file, data: h } of households ) {
     if ( h.campusSlot !== "main" && !OTHER_CAMPUS_KEYS.has( h.campusSlot ) ) {
         errors.push( `${file}: campusSlot "${h.campusSlot}" is neither "main" nor another campus's key in configuration/campuses.json.` );
     }
+    if ( h.attendance && h.attendance.kidsKiosk !== undefined ) {
+        const campus = h.campusSlot === "main" ? MAIN_CAMPUS_KEY : h.campusSlot;
+        const kiosks = ( KIOSKS.campuses || [] ).find( c => c.campus === campus );
+        if ( !kiosks || h.attendance.kidsKiosk > kiosks.kidsKiosks ) {
+            errors.push( `${file}: attendance.kidsKiosk ${h.attendance.kidsKiosk} is not a kids kiosk at ${campus} in configuration/kiosks.json.` );
+        }
+    }
     householdKeys.add( h.key );
     claimGuid( h.guid, file );
 
@@ -223,6 +234,11 @@ for ( const { file, data: h } of households ) {
         memberKeys.add( p.key );
         claimGuid( p.guid, owner );
         people.set( p.guid, { household: h, person: p, file } );
+
+        // Student Night is for students in grades 7 to 12 (decision 364).
+        if ( p.studentNight && ( p.familyRole !== "child" || !p.birth || p.birth.age < 11 || p.birth.age > 18 ) ) {
+            errors.push( `${owner}: studentNight is only for a child aged 11 to 18, in grades 7 to 12.` );
+        }
 
         // A business record has no first name, as in Rock; its name is the last name.
         if ( !p.firstName && p.recordType !== "business" ) {

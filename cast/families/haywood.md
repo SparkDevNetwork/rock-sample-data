@@ -2,7 +2,7 @@
 
 **Featured** · New household · 3 people · Phoenix campus · [source](../households/haywood.json)
 
-Andre Haywood is the Peoria Campus Pastor. Keisha is an academic advisor at Sonoran Valley University, and their son Isaiah checks in to the Peoria student service.
+Andre Haywood is the Peoria Campus Pastor. Keisha is an academic advisor at Sonoran Valley University, and their son Isaiah checks in to the Peoria student service and comes to Student Night most Wednesdays.
 
 | Photo | Name | Age | Role | Status |
 |---|---|---|---|---|
@@ -38,6 +38,7 @@ Andre is the Peoria Campus Pastor. He joined staff four years ago and leads the 
 ## Activity
 
 - **Attendance:** core, 93% of Sundays, since 4 years ago.
+- **Student Night:** Isaiah checks in on 85% of Wednesdays.
 - **Giving:** **bi-weekly** by Andre Haywood: $160 General Fund per gift, gives in 92% of periods, started 4 years ago.
 - **Giving units:** the couple gives together as one giving unit.
 

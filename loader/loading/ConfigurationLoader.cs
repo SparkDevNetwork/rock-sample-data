@@ -77,11 +77,6 @@ namespace RockSampleData.Loader.Loading
         public int WorshipGroupIdValue { get; private set; }
 
         /// <summary>
-        /// A check-in kiosk device for check-in records, if Rock has one.
-        /// </summary>
-        public int? KioskDeviceId { get; private set; }
-
-        /// <summary>
         /// Runs every configuration step in order.
         /// </summary>
         public void Load()
@@ -140,6 +135,7 @@ VALUES ( @Name, @Calendar, @CheckInStart, @CheckInEnd, '2013-05-01', @CategoryId
                         P( "@CategoryId", categoryId ),
                         P( "@Guid", slot.Guid ),
                         P( "@ForeignKey", _foreignKey ) ) );
+                    WriteScheduleDates( id.Value, slot );
                 }
 
                 slotIds[slot.Key] = id.Value;
@@ -147,6 +143,33 @@ VALUES ( @Name, @Calendar, @CheckInStart, @CheckInEnd, '2013-05-01', @CategoryId
 
             _db.Log.Write( $"  Service time slots: {slotIds.Count}" );
             return slotIds;
+        }
+
+        /// <summary>
+        /// The install day. A new slot's schedule dates count from it at midnight, so the same anchor gives the same rows.
+        /// </summary>
+        public DateTime Today { get; init; } = DateTime.Today;
+
+        /// <summary>
+        /// Writes a new slot's ScheduleDate rows, as Rock's Schedule save hook does for each start from two years before
+        /// to two years after (ScheduleService.UpdateScheduleDates), so Rock Cleanup finds nothing to add, as for the
+        /// calendar's schedules (CalendarPlanner). A start counts when the service overlaps the window.
+        /// </summary>
+        private void WriteScheduleDates( int scheduleId, ScheduleSlot slot )
+        {
+            var rows = TableFactory.Create( "ScheduleId:int", "StartDateTime:date", "EndDateTime:date", "StartDateKey:int" );
+            var weekday = ( DayOfWeek ) Enum.Parse( typeof( DayOfWeek ), slot.Day );
+            var time = TimeSpan.Parse( slot.Start );
+            for ( var day = Today.AddYears( -2 ).AddDays( -1 ); day < Today.AddYears( 2 ); day = day.AddDays( 1 ) )
+            {
+                var start = day.Add( time );
+                if ( day.DayOfWeek == weekday && start < Today.AddYears( 2 ) && start.AddMinutes( slot.Minutes ) > Today.AddYears( -2 ) )
+                {
+                    rows.Rows.Add( scheduleId, start, start.AddMinutes( slot.Minutes ), int.Parse( start.ToString( "yyyyMMdd" ) ) );
+                }
+            }
+
+            _db.BulkInsert( "ScheduleDate", rows, keepIdentity: false );
         }
 
         /// <summary>
@@ -324,17 +347,11 @@ VALUES ( @Name, @PublicName, @ParentId, @CampusId, @TaxDeductible, @Order, 1, 1,
             var groupIds = CheckInGroupIds();
             var worshipGroupId = WorshipGroupId();
             var placements = 0;
-            var slotStarts = _source.Schedules.Slots.ToDictionary( s => s.Key, s => TimeSpan.Parse( s.Start ) );
+            var slots = _source.Schedules.Slots.ToDictionary( s => s.Key );
+            ServicePlan Service( string slot ) => new ServicePlan( slotIds[slot], TimeSpan.Parse( slots[slot].Start ), slots[slot].Minutes );
 
             CheckInGroupIdsByKey = groupIds;
             WorshipGroupIdValue = worshipGroupId;
-            var kiosk = _db.Scalar( @"
-SELECT TOP 1 [d].[Id]
-FROM [Device] AS [d]
-INNER JOIN [DefinedValue] AS [dv] ON [dv].[Id] = [d].[DeviceTypeValueId]
-WHERE [dv].[Value] = 'Check-in Kiosk'
-ORDER BY [d].[Id]" );
-            KioskDeviceId = kiosk == null ? null : Convert.ToInt32( kiosk );
 
             foreach ( var campus in campuses )
             {
@@ -354,9 +371,11 @@ ORDER BY [d].[Id]" );
                     Key = campus.Key,
                     CampusId = CampusIds[campus.Key],
                     LocationId = campusLocationId,
-                    Services = campus.Schedules.Where( s => s.Type == "weekend" ).Select( s => new ServicePlan( slotIds[s.Slot], slotStarts[s.Slot] ) ).ToList(),
-                    StudentService = campus.Schedules.Where( s => s.Type == "student" ).Select( s => new ServicePlan( slotIds[s.Slot], slotStarts[s.Slot] ) ).FirstOrDefault()
-                        ?? new ServicePlan( slotIds[checkIn.StudentFallbackSlot], slotStarts[checkIn.StudentFallbackSlot] )
+                    Services = campus.Schedules.Where( s => s.Type == "weekend" ).Select( s => Service( s.Slot ) ).ToList(),
+                    StudentService = campus.Schedules.Where( s => s.Type == "student" && slots[s.Slot].Day == "Sunday" ).Select( s => Service( s.Slot ) ).FirstOrDefault()
+                        ?? Service( checkIn.StudentFallbackSlot ),
+                    MidweekStudentService = campus.Schedules.Where( s => s.Type == "student" && slots[s.Slot].Day != "Sunday" ).Select( s => Service( s.Slot ) ).FirstOrDefault(),
+                    MidweekStudentDay = campus.Schedules.Where( s => s.Type == "student" && slots[s.Slot].Day != "Sunday" ).Select( s => ( DayOfWeek ) Enum.Parse( typeof( DayOfWeek ), slots[s.Slot].Day ) ).FirstOrDefault()
                 };
                 CampusPlans[campus.Key] = plan;
 
@@ -549,9 +568,16 @@ namespace RockSampleData.Loader.Loading
         public List<ServicePlan> Services { get; set; } = new List<ServicePlan>();
 
         /// <summary>
-        /// The service students check in at.
+        /// The Sunday service students check in at.
         /// </summary>
         public ServicePlan StudentService { get; set; }
+
+        /// <summary>
+        /// The midweek student service (Wednesday Student Night) and its weekday, or null when the campus has none.
+        /// </summary>
+        public ServicePlan MidweekStudentService { get; set; }
+
+        public DayOfWeek MidweekStudentDay { get; set; }
 
         /// <summary>
         /// Room location Ids by check-in group key.
@@ -565,7 +591,7 @@ namespace RockSampleData.Loader.Loading
     }
 
     /// <summary>
-    /// One service: its schedule and its start time.
+    /// One service: its schedule, its start time, and how many minutes it lasts.
     /// </summary>
-    internal sealed record ServicePlan( int ScheduleId, TimeSpan Start );
+    internal sealed record ServicePlan( int ScheduleId, TimeSpan Start, int Minutes );
 }

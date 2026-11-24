@@ -50,6 +50,19 @@ namespace RockSampleData.Loader.Loading
         records (decisions 146 to 148).
     */
 
+    /*
+        11/23/26 - CLAUDE
+
+        Each security code opens one check-in session at one kiosk at the family's campus. A family checks in at its
+        usual kids kiosk when a young kid comes, and at the student kiosk when only its teens do. A student on their own
+        uses the student kiosk. The search is what the person who checked in would type: the last four digits of a
+        phone. After their service, the adult who checked young kids in checks them out at the kiosk. Kiosks, searches,
+        and checkout times draw from streams of their own, never the household's, so every Sunday, room, and security
+        code stays as it was.
+
+        Reason: Check-in should look like a real church's (decisions 360 to 362).
+    */
+
     /// <summary>
     /// Generates Sunday worship attendance for adults and check-in attendance for kids and students.
     /// </summary>
@@ -62,15 +75,17 @@ namespace RockSampleData.Loader.Loading
         private readonly SundayCalendar _calendar;
         private readonly AnchorDates _dates;
         private readonly ConfigurationLoader _configuration;
+        private readonly CheckInDevices _devices;
         private readonly string _foreignKey;
         private readonly string _seed;
 
-        public AttendanceLoader( RockDatabase db, SundayCalendar calendar, AnchorDates dates, ConfigurationLoader configuration, string foreignKey, string seed )
+        public AttendanceLoader( RockDatabase db, SundayCalendar calendar, AnchorDates dates, ConfigurationLoader configuration, CheckInDevices devices, string foreignKey, string seed )
         {
             _db = db;
             _calendar = calendar;
             _dates = dates;
             _configuration = configuration;
+            _devices = devices;
             _foreignKey = foreignKey;
             _seed = seed;
         }
@@ -123,6 +138,21 @@ namespace RockSampleData.Loader.Loading
         private readonly Dictionary<(int FamilyId, DateTime Sunday), int> _familyCodes = new Dictionary<(int, DateTime), int>();
 
         /// <summary>
+        /// The check-in session each security code opened, by code Id. Its kiosk, search, and check-outs are set once
+        /// every check-in on the code is planned.
+        /// </summary>
+        private readonly Dictionary<int, PlannedSession> _plannedSessions = new Dictionary<int, PlannedSession>();
+
+        /// <summary>
+        /// Everyone who can check someone in, by alias, and each family's members, for the search a session records.
+        /// </summary>
+        private readonly Dictionary<int, LoadedPerson> _peopleByAlias = new Dictionary<int, LoadedPerson>();
+        private readonly Dictionary<int, List<LoadedPerson>> _membersByFamily = new Dictionary<int, List<LoadedPerson>>();
+        private readonly Dictionary<int, LoadedHousehold> _householdsByFamily = new Dictionary<int, LoadedHousehold>();
+
+        private CheckInSessions _sessions;
+
+        /// <summary>
         /// People with check-ins from the student pass, whose first-time flag is set from all of their rows at the end.
         /// </summary>
         private readonly HashSet<int> _studentAliases = new HashSet<int>();
@@ -139,19 +169,52 @@ namespace RockSampleData.Loader.Loading
         private sealed record StudentFamilySunday( LoadedHousehold Household, LoadedPerson Student, DateTime Sunday, ServicePlan Service, DateTime ServiceStart, int CheckedInByAliasId );
 
         /// <summary>
+        /// One security code's check-in session while it is planned: the campus, the family's usual kids kiosk (null for a
+        /// student's own code), the stream its check-out time draws from, and the rows on the code.
+        /// </summary>
+        private sealed class PlannedSession
+        {
+            public string CampusKey { get; init; }
+
+            public int? KidsKioskIndex { get; init; }
+
+            public string Stream { get; init; }
+
+            public List<DataRow> Rows { get; } = new List<DataRow>();
+
+            /// <summary>
+            /// The young kids' rows and when their service ended. Only young kids are checked out.
+            /// </summary>
+            public List<DataRow> YoungKids { get; } = new List<DataRow>();
+
+            public DateTime? ServiceEnd { get; set; }
+        }
+
+        /// <summary>
         /// Plans attendance for every household and fills the plans that later steps read. Other parts
         /// read them even when attendance is not written, so planning never depends on the parts chosen.
         /// </summary>
-        public void Plan( List<LoadedHousehold> households )
+        public void Plan( List<LoadedHousehold> households, ISet<string> castHouseholdKeys )
         {
             _now = DateTime.Now;
             _searchTypeId = _db.IdByGuid( "DefinedValue", PhoneSearchTypeGuid );
             _occurrences = NewTable( "Id:int", "GroupId:int", "LocationId:int", "ScheduleId:int", "OccurrenceDate:date", "SundayDate:date", "OccurrenceDateKey:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
-            _attendance = NewTable( "Id:int", "OccurrenceId:int", "PersonAliasId:int", "CampusId:int", "StartDateTime:date", "DidAttend:bool", "DeviceId:int", "SearchTypeValueId:int", "AttendanceCodeId:int", "CheckedInByPersonAliasId:int", "PresentDateTime:date", "CheckInStatus:int", "IsFirstTime:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+            _attendance = NewTable( "Id:int", "OccurrenceId:int", "PersonAliasId:int", "CampusId:int", "StartDateTime:date", "DidAttend:bool", "DeviceId:int", "SearchTypeValueId:int", "AttendanceCodeId:int", "CheckedInByPersonAliasId:int", "PresentDateTime:date", "CheckInStatus:int", "IsFirstTime:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date",
+                "AttendanceCheckInSessionId:int", "SearchValue:string", "SearchResultGroupId:int", "EndDateTime:date", "CheckedOutByPersonAliasId:int" );
             _codes = NewTable( "Id:int", "IssueDateTime:date", "Code:string", "Guid:guid", "ForeignKey:string" );
             _nextOccurrenceId = NextId( "AttendanceOccurrence" );
             _nextAttendanceId = NextId( "Attendance" );
             _nextCodeId = NextId( "AttendanceCode" );
+            _sessions = new CheckInSessions( _db, _foreignKey );
+            foreach ( var household in households )
+            {
+                _membersByFamily[household.FamilyId] = household.Members;
+                _householdsByFamily[household.FamilyId] = household;
+                foreach ( var member in household.Members )
+                {
+                    _peopleByAlias[member.AliasId] = member;
+                }
+            }
 
             var studentFamilySundays = new List<StudentFamilySunday>();
             foreach ( var household in households )
@@ -169,8 +232,97 @@ namespace RockSampleData.Loader.Loading
                 PlanStudentsOnTheirOwn( household );
             }
 
+            var studentNights = StudentNights();
+            foreach ( var household in households )
+            {
+                PlanStudentNights( household, castHouseholdKeys.Contains( household.Cast.Key ), studentNights );
+            }
+
             PlanRelativesAndSecondRooms();
             SetFirstTimes();
+            CloseSessions();
+        }
+
+        /*
+            11/23/26 - CLAUDE
+
+            Students also check in on Wednesday nights, at Student Night, in a pass of its own after every Sunday is
+            planned. Each Wednesday row draws from the student's own stream, so no Sunday changes. A Cast student comes only
+            when their file gives them a Student Night habit. A generated student is a regular by a share that follows
+            their family's connection status. A regular comes on most Wednesdays of the weeks they also come on Sunday, and
+            now and then in a week they miss Sunday, so the student keeps their Sunday habit and the weeks they come, the
+            months, and the holidays keep the shape calibration measured. Student Night does not meet in Christmas week,
+            when the student service does not either. A student checks in on their own
+            at the student kiosk with a code of their own. Wednesday check-ins count toward the weekly check-in streak,
+            as Rock counts every check-in in the week, but not toward the Student Path, which follows the Sunday service.
+
+            Reason: The church calendar has Student Night every Wednesday (decisions 363 and 364).
+        */
+
+        /// <summary>
+        /// The Wednesdays Student Night met: every one in the history whose week ended by the install day, in a week the
+        /// student service ran.
+        /// </summary>
+        private List<DateTime> StudentNights()
+        {
+            var nights = new List<DateTime>();
+            for ( var night = _calendar.HistoryStart.Date; SundayCalendar.SundayOnOrAfter( night ) <= _calendar.HistoryEnd; night = night.AddDays( 1 ) )
+            {
+                if ( night.DayOfWeek == DayOfWeek.Wednesday && StudentServiceRuns( SundayCalendar.SundayOnOrAfter( night ) ) )
+                {
+                    nights.Add( night );
+                }
+            }
+
+            return nights;
+        }
+
+        /// <summary>
+        /// One household's students at Student Night, inside the family's window, on the nights they are in grades 7 to 12.
+        /// </summary>
+        private void PlanStudentNights( LoadedHousehold household, bool isCast, List<DateTime> studentNights )
+        {
+            var plan = _configuration.CampusPlans[household.CampusKey];
+            var (percent, _) = AttendanceRate( household );
+            if ( plan.MidweekStudentService == null || ( !isCast && percent <= 0 ) )
+            {
+                return;
+            }
+
+            var (started, ended) = Window( household );
+            var students = household.Members.Where( m => m.CanAttend && m.FamilyId == household.FamilyId && ( !m.IsAdult || IsRecentGraduate( m ) ) );
+            foreach ( var student in students )
+            {
+                var random = new SeededRandom( $"{_seed}:student-night:{student.Cast.Guid}" );
+                var habit = student.Cast.StudentNight;
+                var isRegular = isCast ? habit != null : random.Chance( StudentNightRules.RegularShare.GetValueOrDefault( student.Cast.ConnectionStatus ?? string.Empty, StudentNightRules.OtherRegularShare ) );
+                if ( !isRegular )
+                {
+                    continue;
+                }
+
+                var from = isCast ? _dates.Resolve( habit.Started ) ?? started : started;
+                foreach ( var night in studentNights.Where( n => n >= from && n >= started && n <= ended ) )
+                {
+                    var groupKey = CheckInGroupFor( student, night );
+                    var week = SundayCalendar.SundayOnOrAfter( night );
+                    var chance = isCast ? habit.PercentAttended / 100.0
+                        : _checkedInThisSunday.Contains( (student.PersonId, week) ) ? StudentNightRules.WithSundayChance
+                        : Math.Min( 0.95, StudentNightRules.WithoutSundayChance * _calendar.Multiplier( week, "kids" ) );
+                    if ( !IsStudentGroup( groupKey ) || !random.Chance( chance ) || !_checkedInThisSunday.Add( (student.PersonId, night) ) )
+                    {
+                        continue;
+                    }
+
+                    // The time and code come from a stream for this night alone, as a student's own Sunday does, because a
+                    // code that collides with another student's draws again.
+                    var nightRandom = StudentRandom( "night", student, night );
+                    var service = plan.MidweekStudentService;
+                    var start = night.Add( service.Start ).AddMinutes( -nightRandom.Between( StudentNightRules.ArrivesMinutes.Min, StudentNightRules.ArrivesMinutes.Max ) );
+                    _studentAliases.Add( student.AliasId );
+                    AddCheckIn( student, plan, groupKey, service, night, start, OpenSession( NewCode( nightRandom, night, start ), plan.Key, null, $"{student.Cast.Guid}:{night:yyyy-MM-dd}" ), student.AliasId );
+                }
+            }
         }
 
         /// <summary>
@@ -260,7 +412,7 @@ namespace RockSampleData.Loader.Loading
 
                     var childService = isStudent ? plan.StudentService : service;
                     var start = sunday.Add( childService.Start ).AddMinutes( -random.Between( 2, 25 ) );
-                    codeId ??= NewCode( random, sunday, start );
+                    codeId ??= OpenSession( NewCode( random, sunday, start ), household.CampusKey, UsualKidsKiosk( household ), $"{household.Cast.Guid}:{sunday:yyyy-MM-dd}" );
                     AddCheckIn( child, plan, groupKey, childService, sunday, start, codeId.Value, inService.FirstOrDefault()?.AliasId ?? ( present.Count > 0 ? present[0].AliasId : child.AliasId ) );
                 }
 
@@ -302,7 +454,8 @@ namespace RockSampleData.Loader.Loading
             }
 
             var start = sunday.Add( plan.StudentService.Start ).AddMinutes( -random.Between( 2, 25 ) );
-            var codeId = _familyCodes.TryGetValue( (household.FamilyId, sunday), out var familyCode ) ? familyCode : NewCode( random, sunday, start );
+            var codeId = _familyCodes.TryGetValue( (household.FamilyId, sunday), out var familyCode ) ? familyCode
+                : OpenSession( NewCode( random, sunday, start ), household.CampusKey, null, $"{student.Cast.Guid}:{sunday:yyyy-MM-dd}" );
             AddCheckIn( student, plan, groupKey, plan.StudentService, sunday, start, codeId, checkedInBy );
         }
 
@@ -372,7 +525,7 @@ namespace RockSampleData.Loader.Loading
             var random = StudentRandom( "own", student, sunday );
             var start = sunday.Add( plan.StudentService.Start ).AddMinutes( -random.Between( 2, 25 ) );
             _studentAliases.Add( student.AliasId );
-            AddCheckIn( student, plan, groupKey, plan.StudentService, sunday, start, NewCode( random, sunday, start ), student.AliasId );
+            AddCheckIn( student, plan, groupKey, plan.StudentService, sunday, start, OpenSession( NewCode( random, sunday, start ), plan.Key, null, $"{student.Cast.Guid}:{sunday:yyyy-MM-dd}" ), student.AliasId );
         }
 
         /// <summary>
@@ -434,11 +587,14 @@ namespace RockSampleData.Loader.Loading
         {
             _db.BulkInsert( "AttendanceOccurrence", _occurrences, keepIdentity: true );
             _db.BulkInsert( "AttendanceCode", _codes, keepIdentity: true );
+            _sessions.Write();
             _db.BulkInsert( "Attendance", _attendance, keepIdentity: true );
 
             var checkIns = _attendance.AsEnumerable().Count( r => r["AttendanceCodeId"] != DBNull.Value );
             var onTheirOwn = _attendance.AsEnumerable().Count( r => r["AttendanceCodeId"] != DBNull.Value && Equals( r["CheckedInByPersonAliasId"], r["PersonAliasId"] ) );
-            _db.Log.Write( $"  Sundays: {_calendar.Sundays.Count}, occurrences: {_occurrences.Rows.Count:N0}, attendance: {_attendance.Rows.Count:N0} ({checkIns:N0} kids check-ins, {onTheirOwn:N0} on their own)" );
+            var checkedOut = _attendance.AsEnumerable().Count( r => r["EndDateTime"] != DBNull.Value );
+            _db.Log.Write( $"  Sundays: {_calendar.Sundays.Count}, occurrences: {_occurrences.Rows.Count:N0}, attendance: {_attendance.Rows.Count:N0} ({checkIns:N0} kids check-ins, {onTheirOwn:N0} on their own, {checkedOut:N0} checked out)" );
+            _db.Log.Write( $"  Check-in sessions: {_sessions.Count:N0}" );
         }
 
         /// <summary>
@@ -447,18 +603,38 @@ namespace RockSampleData.Loader.Loading
         private void AddWorship( LoadedPerson adult, CampusPlan plan, ServicePlan service, DateTime sunday, DateTime start )
         {
             var occurrenceId = Occurrence( _configuration.WorshipGroupIdValue, plan.LocationId, service.ScheduleId, sunday );
-            _attendance.Rows.Add( _nextAttendanceId++, occurrenceId, adult.AliasId, plan.CampusId, start, true, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, RockCheckInStatus.NotPresent, _attendedBefore.Add( adult.PersonId ), Guid.NewGuid(), _foreignKey, start, start );
+            _attendance.Rows.Add( _nextAttendanceId++, occurrenceId, adult.AliasId, plan.CampusId, start, true, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, RockCheckInStatus.NotPresent, _attendedBefore.Add( adult.PersonId ), Guid.NewGuid(), _foreignKey, start, start,
+                DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value );
         }
 
         /// <summary>
-        /// One check-in to a kids or student room, and the plans later steps read.
+        /// One check-in to a kids or student room, and the plans later steps read. Its kiosk, session, and search come
+        /// from its code's session when every check-in is planned.
         /// </summary>
         private void AddCheckIn( LoadedPerson person, CampusPlan plan, string groupKey, ServicePlan service, DateTime sunday, DateTime start, int codeId, int checkedInByAliasId )
         {
             var occurrenceId = Occurrence( _configuration.CheckInGroupIdsByKey[groupKey], plan.RoomIds[groupKey], service.ScheduleId, sunday );
-            _attendance.Rows.Add( _nextAttendanceId++, occurrenceId, person.AliasId, plan.CampusId, start, true,
-                ( object ) _configuration.KioskDeviceId ?? DBNull.Value, ( object ) _searchTypeId ?? DBNull.Value, codeId, checkedInByAliasId, start, RockCheckInStatus.Present,
-                _attendedBefore.Add( person.PersonId ), Guid.NewGuid(), _foreignKey, start, start );
+            var row = _attendance.Rows.Add( _nextAttendanceId++, occurrenceId, person.AliasId, plan.CampusId, start, true,
+                DBNull.Value, ( object ) _searchTypeId ?? DBNull.Value, codeId, checkedInByAliasId, start, RockCheckInStatus.Present,
+                _attendedBefore.Add( person.PersonId ), Guid.NewGuid(), _foreignKey, start, start,
+                DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value );
+
+            // A code from a pass that opened no session gets one here, at the usual kids kiosk of the family of whoever
+            // checked the person in.
+            if ( !_plannedSessions.TryGetValue( codeId, out var session ) )
+            {
+                var by = _peopleByAlias.TryGetValue( checkedInByAliasId, out var byPerson ) ? byPerson : person;
+                var byHousehold = _householdsByFamily.TryGetValue( by.FamilyId, out var household ) && household.CampusKey == plan.Key ? household : null;
+                OpenSession( codeId, plan.Key, byHousehold == null ? 0 : UsualKidsKiosk( byHousehold ), $"{by.Cast.Guid}:{sunday:yyyy-MM-dd}" );
+                session = _plannedSessions[codeId];
+            }
+
+            session.Rows.Add( row );
+            if ( !IsStudentGroup( groupKey ) )
+            {
+                session.YoungKids.Add( row );
+                session.ServiceEnd = sunday.Add( service.Start ).AddMinutes( service.Minutes );
+            }
 
             if ( !CheckInSundaysByAlias.TryGetValue( person.AliasId, out var checkedIn ) )
             {
@@ -466,8 +642,15 @@ namespace RockSampleData.Loader.Loading
                 CheckInSundaysByAlias[person.AliasId] = checkedIn;
             }
 
-            checkedIn.Add( sunday );
-            CheckInSundays.Add( sunday );
+            // Rock's weekly streak counts a check-in in the week that ends on the Sunday on or after it, so a Wednesday
+            // counts for its week. The Student Path follows only the Sunday service.
+            var week = SundayCalendar.SundayOnOrAfter( sunday );
+            checkedIn.Add( week );
+            CheckInSundays.Add( week );
+            if ( sunday != week )
+            {
+                return;
+            }
 
             if ( !_checkInDaysByGroup.TryGetValue( groupKey, out var groupDays ) )
             {
@@ -512,6 +695,144 @@ namespace RockSampleData.Loader.Loading
 
             _codes.Rows.Add( codeId, start, code, Guid.NewGuid(), _foreignKey );
             return codeId;
+        }
+
+        /// <summary>
+        /// Opens the check-in session for a new security code and returns the code. A family's session has its usual kids
+        /// kiosk; a student's own has none, so it uses the student kiosk. The stream names the family or student and the day.
+        /// </summary>
+        private int OpenSession( int codeId, string campusKey, int? kidsKioskIndex, string stream )
+        {
+            _plannedSessions[codeId] = new PlannedSession { CampusKey = campusKey, KidsKioskIndex = kidsKioskIndex, Stream = stream };
+            return codeId;
+        }
+
+        private readonly Dictionary<int, int> _usualKidsKiosks = new Dictionary<int, int>();
+
+        /// <summary>
+        /// The kids kiosk a family always uses at its campus: the one its Cast file names, or one drawn from its own stream.
+        /// </summary>
+        private int UsualKidsKiosk( LoadedHousehold household )
+        {
+            if ( !_usualKidsKiosks.TryGetValue( household.FamilyId, out var index ) )
+            {
+                var named = household.Cast.Attendance?.KidsKiosk;
+                index = named.HasValue ? named.Value - 1
+                    : new SeededRandom( $"{_seed}:kids-kiosk:{household.Cast.Guid}" ).Between( 0, _devices.KidsCount( household.CampusKey ) - 1 );
+                _usualKidsKiosks[household.FamilyId] = index;
+            }
+
+            return index;
+        }
+
+        /// <summary>
+        /// Gives every planned check-in its session's kiosk, session, and search, and checks young kids out. A session
+        /// with a young kid is at the family's kids kiosk; one with only students is at the student kiosk. The search is
+        /// what the person who checked in typed, and the family it found is theirs.
+        /// </summary>
+        private void CloseSessions()
+        {
+            foreach ( var session in _plannedSessions.Values )
+            {
+                var kiosk = session.KidsKioskIndex.HasValue && session.YoungKids.Count > 0
+                    ? _devices.Kids( session.CampusKey, session.KidsKioskIndex.Value )
+                    : _devices.Students( session.CampusKey );
+                var sessionId = _sessions.Open( kiosk );
+                var first = session.Rows[0];
+                var searcher = _peopleByAlias.TryGetValue( ( int ) first["CheckedInByPersonAliasId"], out var by ) ? by : _peopleByAlias[( int ) first["PersonAliasId"]];
+                var search = CheckInSessions.SearchValue( searcher, _membersByFamily.TryGetValue( searcher.FamilyId, out var family ) ? family : new List<LoadedPerson> { searcher } );
+                foreach ( var row in session.Rows )
+                {
+                    row["DeviceId"] = ( object ) kiosk?.Id ?? DBNull.Value;
+                    row["AttendanceCheckInSessionId"] = ( object ) sessionId ?? DBNull.Value;
+                    row["SearchValue"] = ( object ) search ?? DBNull.Value;
+                    row["SearchResultGroupId"] = searcher.FamilyId;
+                }
+
+                CheckOut( session );
+            }
+        }
+
+        /*
+            11/23/26 - CLAUDE
+
+            Kids from the nursery through 6th grade are checked out after their service, all at once, by the adult who
+            checked them in, a few minutes after the service ends. Students and adults are never checked out. A young kid
+            who checked in on their own, because their family has no adult who could come, has no one to check them out.
+
+            Reason: A kids ministry checks each child out to the adult who brought them (decision 362).
+        */
+
+        /// <summary>
+        /// Checks a session's young kids out a few minutes after their service ends, by the adult who checked them in.
+        /// </summary>
+        private void CheckOut( PlannedSession session )
+        {
+            if ( session.YoungKids.Count == 0 || session.ServiceEnd == null )
+            {
+                return;
+            }
+
+            var random = new SeededRandom( $"{_seed}:check-out:{session.Stream}" );
+            var end = session.ServiceEnd.Value.AddMinutes( random.Between( CheckOutRules.MinutesAfterService.Min, CheckOutRules.MinutesAfterService.Max ) );
+            foreach ( var row in session.YoungKids )
+            {
+                var byAliasId = ( int ) row["CheckedInByPersonAliasId"];
+                if ( byAliasId == ( int ) row["PersonAliasId"] )
+                {
+                    continue;
+                }
+
+                row["EndDateTime"] = end;
+                row["CheckedOutByPersonAliasId"] = byAliasId;
+                row["CheckInStatus"] = RockCheckInStatus.CheckedOut;
+                row["ModifiedDateTime"] = end;
+            }
+        }
+
+        /// <summary>
+        /// Who comes to Wednesday Student Night and how often (decision 364).
+        /// </summary>
+        private static class StudentNightRules
+        {
+            /// <summary>
+            /// The share of generated students who are Student Night regulars, by their family's connection status.
+            /// </summary>
+            public static readonly Dictionary<string, double> RegularShare = new Dictionary<string, double>
+            {
+                ["Leading"] = 0.85,
+                ["Engaged"] = 0.8,
+                ["Connected"] = 0.5
+            };
+
+            /// <summary>
+            /// The share of other generated students, from families that seldom come, who are regulars.
+            /// </summary>
+            public const double OtherRegularShare = 0.1;
+
+            /// <summary>
+            /// A regular's chance of coming on a Wednesday in a week they check in on Sunday.
+            /// </summary>
+            public const double WithSundayChance = 0.85;
+
+            /// <summary>
+            /// A regular's chance of coming in a week they miss Sunday, shaped by the week's kids multiplier.
+            /// </summary>
+            public const double WithoutSundayChance = 0.2;
+
+            /// <summary>
+            /// How many minutes before the start a student checks in. Doors open 15 minutes early, and a few come late.
+            /// </summary>
+            public static readonly (int Min, int Max) ArrivesMinutes = (-8, 25);
+
+        }
+
+        private static class CheckOutRules
+        {
+            /// <summary>
+            /// How many minutes after the service ends the adult checks the kids out.
+            /// </summary>
+            public static readonly (int Min, int Max) MinutesAfterService = (2, 15);
         }
 
         /// <summary>
