@@ -27,10 +27,11 @@ namespace RockSampleData.Loader.Loading
 
         A data view metric's past weeks need the view as it was at each run, and Rock counts a view only as it is today.
         This replays a person data view at a past moment by walking its own filters. Attendance windows slide back to
-        the run's day, only steps completed by then count, and group membership comes from Rock's group member history. A filter on a person's fields, such as record status or
-        adult, reads today's value, since Rock keeps no history of those (decisions 234 and 347), and comes from the
-        loader's DataViewEvaluator, which verify holds to Rock's own engine. Each kind of row is read once, so every run
-        of every metric is a few lookups. A filter it cannot replay is an error, never a guess.
+        the run's day, only steps completed by then count, and group membership comes from Rock's group member history.
+        A filter on a person's fields, such as record status or adult, reads today's value, since Rock keeps no history
+        of those (decisions 234 and 347), and comes from the loader's DataViewEvaluator, which verify holds to Rock's own
+        engine. Each kind of row is read once, so every run of every metric is a few lookups. A filter it cannot replay
+        is an error, never a guess.
 
         Reason: Each Ministry by Design metric follows its view's own definition, and at today it gives exactly what the
         evaluator gives, which verify checks.

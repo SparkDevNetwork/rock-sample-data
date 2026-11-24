@@ -723,6 +723,27 @@ The build follows the design, with these differences. Each was found by running 
 
 Verify checks each metric's newest values, campus by campus, against Rock's count of its stage view, less the people who reached the stage since. It also checks every report in Rock: each property is one of Rock's reportable fields, each attribute exists, each component builds its expression from the stored selection, and each Lava column renders through Rock's Lava engine.
 
+### 8.3 Ministry by Design metrics
+
+Each Ministry System has an owner at the center and one at each campus, and each needs three kinds of number: how many reached the stage, how many are ready for the next step, and whether the system works. The four path metrics count the stages. A Ministry by Design metric category holds the rest, each split by campus (decision D-mbd-1).
+
+| System | Metric | Counts | Source |
+|---|---|---|---|
+| First Contact (Notice) | First-Time Guests | People whose first visit to a weekend service came that week | SQL |
+| Connection (Belong) | Ready to Belong | Regular attenders not in a small group | Ready to Belong view |
+| Connection (Belong) | Group Connection Rate | The percent of regular attending adults in a small group | SQL |
+| Discipleship (Equip) | Ready to Grow | Adults who belong but have no Equip step | Ready to Grow view |
+| Engagement (Contribute) | Ready to Serve | Adults with an Equip step who do not serve | Ready to Serve view |
+| Engagement (Contribute) | Serving Rate | The percent of regular attending adults on a serving team | SQL |
+| Leadership (Lead) | Ready to Lead | Adults who are growing, serving, and in a group, but lead nothing | Ready to Lead view |
+| Retention (Re-engage) | Drifting Adults | Adults who came regularly and stopped | Drifting Adults view |
+| Retention (Re-engage) | Back in the Last 30 Days | Adults who came back after 90 or more days away | SQL |
+| Pastoral Care (Care) | Benevolence Requests | New requests for help in the month that just ended | SQL, monthly |
+
+Second-Time Guests, the eleventh, waits for visit dates. A regular attender came to worship 4 or more times in the 12 weeks before the run. Each SQL metric keeps the church's SQL on the metric, so Rock's job runs it after install, and every active campus gets a value each run.
+
+Each metric has history on install day. A data view metric replays its view as it was at each run: attendance windows end on the run's day, steps count once completed, group membership comes from Rock's group member history, and a person's fields are today's. A SQL metric's past values are what its SQL gives at each run (decision D-mbd-2). Verify replays each view today and holds it to Rock's own count, and runs each SQL metric's SQL as of past runs (decision D-mbd-3).
+
 ## 9. Open questions
 
 Each has one recommendation.

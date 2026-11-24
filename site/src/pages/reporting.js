@@ -207,6 +207,36 @@ function stages( model ) {
 }
 
 /**
+ * The Ministry by Design metrics: what each counts, at each campus, and where its number comes from.
+ */
+function ministryMetrics( model ) {
+    if ( !model.ministryMetrics.length ) {
+        return "";
+    }
+
+    const schedules = require( path.join( model.root, "configuration/reporting.json" ) ).namedSchedules || [];
+    return html`
+<section class="section" id="ministry-metrics">
+  <div class="wrap">
+    ${sectionHead( { eyebrow: "Ministry by Design metrics", title: "Is each system working?", lede: html`${model.ministryMetrics.length} Rock Metrics follow the Ministry Systems at each campus: who is ready for their next step, and whether the system works. Each has history on install day, counted from the people, check-ins, steps, groups, and requests in the data as they were at each run.` } )}
+    <div class="card-grid">
+      ${model.ministryMetrics.map( m => {
+        const view = m.dataView ? model.reportingDataViews.find( v => v.key === m.dataView ) : null;
+        const schedule = schedules.find( s => s.key === m.schedule );
+        const when = schedule ? `${schedule.name.charAt( 0 ).toLowerCase()}${schedule.name.slice( 1 )}` : "on its schedule";
+        return html`<div class="card reveal">
+  <h3>${esc( m.title )}</h3>
+  <p>${esc( m.description )}</p>
+  <p class="card-meta">${view ? `It counts the ${esc( view.name )} data view ${esc( when )}.` : `It counts with the church's own SQL ${esc( when )}.`}</p>
+</div>`;
+      } )}
+    </div>
+    <p class="feature-links"><a class="link-arrow" href="${doc( "docs/reporting.md#83-ministry-by-design-metrics" )}">How the metrics count</a></p>
+  </div>
+</section>`;
+}
+
+/**
  * Every report, grouped by its category, with what it is for and who can see it.
  */
 function reports( model ) {
@@ -236,7 +266,7 @@ function reports( model ) {
     };
 
     return html`
-<section class="section" id="reports">
+<section class="section section-sand" id="reports">
   <div class="wrap">
     ${sectionHead( { eyebrow: "Reports", title: "Reports a church would really run.", lede: html`${model.reports.length} reports in ${groups.length} categories. Each next-step report names who to invite, and to what. A report takes its security from its category, unless it has its own.` } )}
     ${groups.map( g => {
@@ -265,7 +295,7 @@ function locks( model ) {
     const sameRule = ( a, b ) => a && b && roles( a ) === roles( b );
 
     return html`
-<section class="section section-sand" id="locks">
+<section class="section" id="locks">
   <div class="wrap">
     ${sectionHead( { eyebrow: "Security", title: "Locked like a real church.", lede: html`Security sits on the categories, so a view or report made later is locked the day it is made. The church's categories let in only ${esc( rootRule ? roles( rootRule.rule ) : "staff" )}, and deny everyone else, so a person who cannot reach the staff site cannot open one from a link either. ${esc( all( locked.map( c => c.name ) ) )} are locked tighter.` } )}
     <div class="card-grid">
@@ -321,7 +351,7 @@ function castCards( model, r ) {
     const names = [ ...new Set( model.reportingAccess.map( a => a.name ) ) ].sort( ( a, b ) => rank( a ) - rank( b ) );
 
     return html`
-<section class="section" id="sign-in-as">
+<section class="section section-sand" id="sign-in-as">
   <div class="wrap">
     ${sectionHead( { eyebrow: "Ask the Cast", title: "Sign in as someone, and see what they see.", lede: html`Each Cast person below can sign in. Each line is a question verify asks Rock's own security check on every verified load, so the answers are Rock's, not ours.` } )}
     <div class="card-grid">
@@ -352,6 +382,7 @@ module.exports = function reporting( { model, r } ) {
     const sections = [
         { id: "layers", label: "The layers" },
         { id: "ministry-path", label: "The path" },
+        ...( model.ministryMetrics.length ? [ { id: "ministry-metrics", label: "Metrics" } ] : [] ),
         { id: "reports", label: "Reports" },
         { id: "locks", label: "Security" },
         { id: "sign-in-as", label: "Ask the Cast" }
@@ -380,6 +411,7 @@ module.exports = function reporting( { model, r } ) {
 </section>
 ${layers( model )}
 ${stages( model )}
+${ministryMetrics( model )}
 ${reports( model )}
 ${locks( model )}
 ${castCards( model, r )}
