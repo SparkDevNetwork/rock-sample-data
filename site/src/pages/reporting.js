@@ -181,7 +181,7 @@ function stages( model ) {
     return html`
 <section class="section section-sand" id="ministry-path">
   <div class="wrap">
-    ${sectionHead( { eyebrow: "The path", title: "Every stage, counted every week.", lede: html`Each Ministry by Design stage is a data view built from steps. A step counts once it is complete, and a person can be in more than one stage. A Rock Metric counts each stage every week, with a value for each week since the stage view was made, so a dashboard shows the trend on install day.` } )}
+    ${sectionHead( { eyebrow: "The path", title: "Every stage, counted every week.", lede: html`Each Ministry by Design stage is a data view built from steps. A step counts once it is complete, and a person can be in more than one stage. A Rock Metric counts each stage at each campus every week, with a value for each week since the stage view was made, so a dashboard shows the trend on install day.` } )}
     <div class="card-grid card-grid-four">
       ${model.metrics.map( m => {
         const stageView = model.reportingDataViews.find( v => v.key === m.dataView );

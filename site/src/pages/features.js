@@ -59,6 +59,7 @@ module.exports = function features( { model } ) {
     const castDecker = "cast/decker.html";
     const flowNames = model.flows.map( f => f.name );
     const signals = require( path.join( model.root, "configuration/signals.json" ) );
+    const checkIn = require( path.join( model.root, "configuration/checkin.json" ) );
     const personalLinks = require( path.join( model.root, "configuration/personal-links.json" ) );
     const tags = require( path.join( model.root, "configuration/tags.json" ) ).tags;
     const tagCategories = model.categories.filter( c => c.entityType === "Rock.Model.Tag" );
@@ -102,6 +103,13 @@ module.exports = function features( { model } ) {
             checks: [ "Worship attendance for adults, and check-in for kids and students", "Allergies, pickup notes, and nursery ability levels that check-in reads", html`The Kids Check-in streak and its ${require( path.join( model.root, "configuration/achievements.json" ) ).achievementTypes.length} achievements, from High Five to Century Club`, "Volunteers who check in to serve", "Kids, student, and volunteer kiosks at every campus, each with a label printer at an address no real printer has", "A check-in session for every check-in, found by the last four digits of a phone", "Kids checked out after their service by the adult who brought them", "Wednesday Student Night for grades 7 to 12", "eRA, Rock's regular attender status, with years of eRA steps and history, as its weekly job would leave it" ],
             look: [ "Next-gen check-in, which shows each child's progress", "Rock's attendance analytics for the Service Attendance group type", html`The <a href="${castDecker}">Decker kids</a>, regulars on Sunday, who always check in at Phoenix Kids 1`, html`${person( model, "Grace Fischer" )} at Student Night most Wednesdays`, html`The eRA badge on the <a href="${castDecker}">Deckers</a>, eRAs for years` ],
             links: [ { label: "How it works", href: doc( "docs/how-it-works.md" ) } ]
+        },
+        {
+            id: "check-in-setup", eyebrow: "Check-in setup", title: "Check-in you can test any day.",
+            text: html`Check-in is set up the way a church sets it up, and Rock's own test check-in reaches every kids and student room at every campus. Its two test schedules are open all day, every day, so a kiosk can check someone in at any time. A Volunteer Test Area does the same for every room a serving team serves in. Each of the ${checkIn.supervisors.length} campuses has a kids check-in supervisor with a PIN.`,
+            checks: [ "Child, Parent, and Note labels for kids, and a Name Tag for students and volunteers", "Firm limits in the nursery, and Grades 4-6 balanced across two rooms", "Supervisor mode, checkout at the kiosk and in the Check-in Manager, and duplicate check-in prevention", "Volunteer test check-in in every serving room, with no test slots in the Group Scheduler", "Grandparents and other adults who may check in a child from another family" ],
+            look: [ html`A kiosk search for ${person( model, "Karen Morgan" )}, which shows her grandchildren, Mason and Chloe Kelly`, html`${person( model, "Craig Lowe" )}, who may check in his daughter Madison`, "The Test Group in Rock's Check-in Test Area, at any kiosk", "Each campus's Volunteer Test Group, under Volunteer Check-in", "The kiosk's supervisor screen, with the campus PIN" ],
+            links: [ { label: "Check-in setup and PINs", href: doc( "configuration/README.md#check-in" ) } ]
         },
         {
             id: "groups-and-serving", eyebrow: "Groups and serving", title: "Groups that meet, and teams that serve.", sand: true,
@@ -248,46 +256,58 @@ module.exports = function features( { model } ) {
     const unusedViews = model.reportingDataViews.filter( v => v.usage && v.usage.lastRunDaysAgo > 365 ).length;
     const reportingArea = {
         id: "data-views-and-reports", eyebrow: "Data views and reports", title: "Built in layers, locked like a real church.",
-        text: html`${model.reportingDataViews.length} data views and ${model.reports.length} reports, filed by the Ministry by Design systems. Foundations hold the shared rules, stage views build on them from steps, and next-step views such as Ready to Serve build on the stages. A Rock Metric counts each stage every week.`,
+        text: html`${model.reportingDataViews.length} data views and ${model.reports.length} reports, filed by the Ministry by Design systems. Foundations hold the shared rules, stage views build on them from steps, and next-step views such as Ready to Serve build on the stages. A Rock Metric counts each stage at each campus every week.`,
         checks: [ "Foundations, stage views, and next-step views that build on each other", html`${esc( messageList( lockedReportCategories ) )}, each locked to its own roles`, "A weekly metric for each stage, with values back to when its view was made", `A run history on every view and report${unusedViews ? `, with ${unusedViews === 1 ? "one view" : `${unusedViews} views`} not run in over a year` : ""}` ],
         look: [ "Rock's Data Views and Reports pages, under Tools", "The Ministry Path metrics on Rock's staff homepage", html`<a href="reporting.html#sign-in-as">The Cast people to sign in as</a>, and what each can see` ],
         links: [ { label: "The Reporting page", href: "reporting.html" }, { label: "Data views and reports", href: doc( "docs/reporting.md" ) } ]
     };
 
-    // Assessments come after the data views and reports, which are plain, so the page keeps alternating.
+    // Rock's shipped metrics follow the data views and reports, which are plain, so they are on sand.
+    const rockMetrics = require( path.join( model.root, "configuration/rock-metrics.json" ) );
+    const weeklyYears = Math.round( Math.max( ...rockMetrics.metrics.map( m => m.weeks ) ) / 52 );
+    const tithingWeeks = rockMetrics.metrics.find( m => m.key === "tithing-percent" ).weeks;
+    const metricsArea = {
+        id: "metrics", eyebrow: "Metrics", title: "Charts with history on day one.", sand: true,
+        text: html`Rock ships its own metrics for weekend attendance, giving, prayer, salvations, baptisms, eRA, tithing, and the people counts behind its Insights page. Each one has history on install day: ${weeklyYears} years of weekly values, ${tithingWeeks} weekly Tithing Overview runs, and ${rockMetrics.insights.months} monthly runs of every Insights metric, by campus and service where Rock splits them. Every value is the one Rock's Calculate Metrics job would have saved, counted from the people, check-ins, gifts, and prayers in the data.`,
+        checks: [ "Every newest value matches Rock's own metric SQL, run as of that week", "Weekend adult counts and salvations, typed in each Sunday the way staff do", "The Ministry Path metrics, split by campus" ],
+        look: [ "Tools > Reporting > Metrics, and any metric's chart", "Tools > Weekly Metrics, where staff type the weekend's numbers", "Baptisms, each month's count on the 1st of the next" ],
+        links: [ { label: "Rock's metrics", href: doc( "loader/README.md#rocks-metrics" ) } ]
+    };
+
+    // Assessments come after the metrics, which are on sand, so the page keeps alternating.
     const assessments = require( path.join( model.root, "configuration/assessments.json" ) );
     const startingPoint = assessments.classes.find( c => c.stepType === "starting-point-class" );
     const assessmentsArea = {
-        id: "assessments", eyebrow: "Assessments", title: "Results with real answers behind them.", sand: true,
+        id: "assessments", eyebrow: "Assessments", title: "Results with real answers behind them.",
         text: html`Rock's ${assessments.types.length} assessments: DISC, Spiritual Gifts, Conflict Profile, Emotional Intelligence, and Motivators. Most staff took all of them, every leader took DISC and Conflict Profile before leading, and each Starting Point class asks for Spiritual Gifts, which ${startingPoint.percentFinished}% finish. Every result comes from a full set of answers, scored the way Rock scores them.`,
         checks: [ "Requests still pending from the current classes, with reminders where Rock's job would leave them", "Answers and results that always agree, checked against Rock's own scoring", "Results as person attributes, ready for data views" ],
         look: [ html`The Assessments badge on ${person( model, "Ted Decker" )}'s profile`, html`${person( model, "Bri Hall" )}'s Spiritual Gifts, which fit a greeter`, html`${person( model, "Ty McClintock" )} and ${person( model, "Paul Smith" )}'s DISC results, side by side` ],
         links: [ { label: "Assessments", href: doc( "docs/assessments.md" ) } ]
     };
 
-    // Reminders come after assessments, which are on sand, so the page keeps alternating.
+    // Reminders come after assessments, which are plain, so they are on sand and the page keeps alternating.
     const reminders = require( path.join( model.root, "configuration/reminders.json" ) );
     const shows = { due: "due now", upcoming: "coming up", complete: "complete" };
     const remindersArea = {
-        id: "reminders", eyebrow: "Reminders", title: "Follow-ups staff set for themselves.",
+        id: "reminders", eyebrow: "Reminders", title: "Follow-ups staff set for themselves.", sand: true,
         text: html`Staff set reminders about the people they wrote notes on, and small group leaders set them about their groups, in Rock's own Personal and Group reminder types. Each is dated from the install day, so some are due, some are coming up, some are complete, and a few repeat. The Cast has ${reminders.cast.length} of its own, tied to their stories. Rock's bell counts each person's reminders due, as Rock's Process Reminders job would.`,
         checks: [ "Reminders about people and about groups", "Due, upcoming, complete, and repeating reminders on any install day", "A bell count that Rock's own job leaves as it is" ],
         look: [ html`The bell in Rock's top bar, signed in as <code>tdecker</code>`, ...reminders.cast.map( r => html`${person( model, r.ownerName )}'s reminder about ${r.group ? `the ${esc( r.aboutName )}` : person( model, r.aboutName )}, ${esc( shows[r.expect] || r.expect )}` ) ],
         links: [ { label: "How reminders load", href: doc( "loader/README.md#how-reminders-load" ) } ]
     };
 
-    // Data integrity comes after reminders, which are plain, so the page keeps alternating.
+    // Data integrity comes after reminders, which are on sand, so the page keeps alternating.
     const integrity = require( path.join( model.root, "configuration/data-integrity.json" ) );
     const openReports = integrity.dataErrors.reports.filter( r => !r.resolved );
     const dataIntegrityArea = {
-        id: "data-integrity", eyebrow: "Data integrity", title: "Work waiting on every Data Integrity page.", sand: true,
+        id: "data-integrity", eyebrow: "Data integrity", title: "Work waiting on every Data Integrity page.",
         text: html`The data is clean on purpose, so each of Rock's Data Integrity pages gets a small, named set of problems, each tied to a Cast story: ${integrity.pending.records.length} Pending records with the forms that made them, ${integrity.selfInactivations.records.length} people who said they are no longer involved, ${integrity.dataErrors.reports.length} data error reports, ${integrity.photoRequests.requests.length} photo requests, ${integrity.sharedPhones.numbers.length} phone numbers on more than one record, Cast homes the address service could not match, and an NCOA run with families who moved nearby and away. Every record has the day it was made and a Record Source, and Rock's ${Object.keys( integrity.settings.rules ).length} Data Automation rules are configured and off.`,
         checks: [ "Every record dated the day it was made, with new records at a real church's monthly rate, so the Pending report and Connection Status Changes read true", "A Record Source on every record, from the form or visit that made it", "First Visit and Second Visit as Rock's Family Analytics job leaves them", "Self Inactivated records with each person's own note", "Connection status changes staff made, in each person's History", "Couples who share an email, on the Duplicate Emails report", "A recycled landline, a shared cell, and a child carrying a parent's number, on the Duplicate Phone Numbers report", "An NCOA run Rock processed: new homes with the old ones kept as Previous, a family that moved away inactivated, and an adult child's move waiting on the Results page", "Generated adults with a real church's gaps: no email, mobile, birth date, marital status, or home address for some", "Failed addresses that Location Locked keeps from ever going to an address service", "Data Automation rules that Rock itself reads back, and a job that changes nobody" ],
         look: [ html`${openReports.length} reports waiting in ${person( model, "Alisha Marble" )}'s My Workflows, signed in as <code>admin</code>`, html`${person( model, "Jack Harper" )}'s record, Pending for three years`, html`The <a href="cast/keller.html">Kellers</a> on the Self Inactivated Individuals report`, "Verify Photos, with two uploads waiting", "The Location Editor's Not Geocoded list" ],
         links: [ { label: "Data Integrity", href: doc( "docs/data-integrity.md" ) } ]
     };
 
-    const sections = [ ...areas, reportingArea, assessmentsArea, remindersArea, dataIntegrityArea ];
+    const sections = [ ...areas, reportingArea, metricsArea, assessmentsArea, remindersArea, dataIntegrityArea ];
 
     return {
         file: "features.html",

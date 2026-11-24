@@ -62,13 +62,7 @@
       },
       "photo": {
         "ethnicity": "white"
-      },
-      "relationships": [
-        {
-          "type": "step-child",
-          "with": "3D7F6605-3666-4AB5-9F4E-D7FEBF93278E"
-        }
-      ]
+      }
     },
     {
       "key": "brian",
@@ -92,7 +86,7 @@
       "relationships": [
         {
           "type": "step-parent",
-          "with": "3C402382-3BD2-4337-A996-9E62F1BAB09D"
+          "with": "FB5D2DC6-5AB4-4CBD-B02F-3FB9ADBEFD33"
         }
       ]
     }

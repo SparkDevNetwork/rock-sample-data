@@ -873,7 +873,7 @@ WHERE [a].[ForeignKey] = @ForeignKey
     END;
 
 -- check: young-kid-checks-in-with-the-family
--- why: Kids from the nursery through 6th grade come only with their family (decision 146). Each of their check-ins is made by an adult of one of their families who was in the worship service that Sunday. A child whose families have no living, active adult checks in on their own, as before.
+-- why: Kids from the nursery through 6th grade come only with their family (decision 146), or with an adult from another family who may check them in, such as a grandparent (decisions 366 and 372). Each of their check-ins is made by an adult of one of their families, or by an adult whose Known Relationships hold the child in a role Rock lets check in (Can check in or Grandchild), who was in the worship service that Sunday. A child whose families have no living, active adult checks in on their own, as before.
 SELECT COUNT(*)
 FROM [Attendance] AS [a]
 INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
@@ -896,14 +896,122 @@ WHERE [a].[ForeignKey] = @ForeignKey AND [a].[DidAttend] = 1 AND [a].[Attendance
         INNER JOIN [GroupMember] AS [byMember] ON [byMember].[PersonId] = [byAlias].[PersonId]
         INNER JOIN [GroupTypeRole] AS [byRole] ON [byRole].[Id] = [byMember].[GroupRoleId]
         INNER JOIN [GroupMember] AS [kid] ON [kid].[GroupId] = [byMember].[GroupId] AND [kid].[PersonId] = [pa].[PersonId]
+        INNER JOIN [GroupTypeRole] AS [kidRole] ON [kidRole].[Id] = [kid].[GroupRoleId]
         INNER JOIN [PersonAlias] AS [wpa] ON [wpa].[PersonId] = [byAlias].[PersonId]
         INNER JOIN [Attendance] AS [w] ON [w].[PersonAliasId] = [wpa].[Id] AND [w].[DidAttend] = 1
         INNER JOIN [AttendanceOccurrence] AS [wo] ON [wo].[Id] = [w].[OccurrenceId] AND [wo].[SundayDate] = [o].[SundayDate]
         INNER JOIN [Group] AS [wg] ON [wg].[Id] = [wo].[GroupId]
         INNER JOIN [GroupType] AS [wgt] ON [wgt].[Id] = [wg].[GroupTypeId]
         WHERE [byAlias].[Id] = [a].[CheckedInByPersonAliasId]
-            AND [byRole].[Guid] = '2639F9A5-2AAE-4E48-A8C3-4FFE86681E42'
+            AND ( [byRole].[Guid] = '2639F9A5-2AAE-4E48-A8C3-4FFE86681E42'
+                OR ( [byRole].[Guid] = '7BC6C12E-0CD1-4DFD-8D5B-1B35AE714C42' AND [kidRole].[Guid] IN ( 'DC8E5C35-F37C-4B49-A5C6-DF3D94FC808F', 'C1A393B2-519D-4E46-A551-E48C36BCAC06' ) ) )
             AND [wg].[Name] = 'Weekend Service' AND [wgt].[Guid] = '235BAE2B-5760-4763-AADF-3938F34BA100' );
+
+-- check: known-relationship-has-its-other-half
+-- why: Decision 365. Rock writes a known relationship as two rows: the other person in the owner's Known Relationships group with the role, and the owner in theirs with the role's inverse, which the role's InverseRelationship attribute names. Profiles on both sides show it, and a kiosk search finds a child only from the side that may check in.
+SELECT COUNT(*)
+FROM [GroupMember] AS [m]
+INNER JOIN [GroupTypeRole] AS [r] ON [r].[Id] = [m].[GroupRoleId]
+INNER JOIN [GroupMember] AS [own] ON [own].[GroupId] = [m].[GroupId] AND [own].[GroupRoleId] = ( SELECT [Id] FROM [GroupTypeRole] WHERE [Guid] = '7BC6C12E-0CD1-4DFD-8D5B-1B35AE714C42' )
+INNER JOIN [AttributeValue] AS [inverse] ON [inverse].[EntityId] = [r].[Id]
+    AND [inverse].[AttributeId] = ( SELECT [a].[Id] FROM [Attribute] AS [a] INNER JOIN [EntityType] AS [et] ON [et].[Id] = [a].[EntityTypeId] WHERE [et].[Name] = 'Rock.Model.GroupTypeRole' AND [a].[Key] = 'InverseRelationship' )
+WHERE [m].[ForeignKey] = @ForeignKey AND [m].[PersonId] <> [own].[PersonId]
+    AND [m].[GroupTypeId] = ( SELECT [Id] FROM [GroupType] WHERE [Guid] = 'E0C5A0E2-B7B3-4EF4-820D-BBF7F9A374EF' )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [GroupMember] AS [theirs]
+        INNER JOIN [GroupMember] AS [back] ON [back].[GroupId] = [theirs].[GroupId] AND [back].[PersonId] = [own].[PersonId]
+        INNER JOIN [GroupTypeRole] AS [backRole] ON [backRole].[Id] = [back].[GroupRoleId]
+        WHERE [theirs].[PersonId] = [m].[PersonId] AND [theirs].[GroupRoleId] = [own].[GroupRoleId]
+            AND [backRole].[Guid] = TRY_CAST( [inverse].[Value] AS UNIQUEIDENTIFIER ) );
+
+-- check: test-schedules-have-no-attendance
+-- why: Decision 370. Rock's two test schedules, 4:30 (test) and 6:00 (test), run every day so check-in can be tested at any time. The load records no attendance and no occurrence on them, so a tester's check-ins are the only ones there.
+SELECT ( SELECT COUNT(*) FROM [AttendanceOccurrence] AS [o] WHERE [o].[ForeignKey] = @ForeignKey AND [o].[ScheduleId] IN ( SELECT [Id] FROM [Schedule] WHERE [Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' ) ) )
+    + ( SELECT COUNT(*)
+        FROM [Attendance] AS [a]
+        INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
+        WHERE [a].[ForeignKey] = @ForeignKey AND [o].[ScheduleId] IN ( SELECT [Id] FROM [Schedule] WHERE [Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' ) ) );
+
+-- check: test-group-in-every-kids-and-student-room
+-- why: Decision 370. Rock's Check-in Test Area has one Test Group. Every room at every campus that holds a kids or student group of the Weekly Service Check-in template holds the Test Group too, on both test schedules, so a kiosk at any campus can test check-in any day, at any time.
+SELECT COUNT(*)
+FROM ( SELECT DISTINCT [gl].[LocationId]
+    FROM [GroupLocation] AS [gl]
+    INNER JOIN [Group] AS [g] ON [g].[Id] = [gl].[GroupId]
+    INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+    WHERE [gt].[Guid] IN ( 'CADB2D12-7836-44BC-8EEA-3C6AB22FD5E8', 'E3C8F7D6-5CEB-43BB-802F-66C3E734049E', '7A17235B-69AD-439B-BAB0-1A0A472DB96F', '9A88743B-F336-4404-B877-2A623689195D' ) ) AS [room]
+WHERE ( SELECT COUNT( DISTINCT [gls].[ScheduleId] )
+    FROM [GroupLocation] AS [tgl]
+    INNER JOIN [Group] AS [tg] ON [tg].[Id] = [tgl].[GroupId]
+    INNER JOIN [GroupLocationSchedule] AS [gls] ON [gls].[GroupLocationId] = [tgl].[Id]
+    INNER JOIN [Schedule] AS [s] ON [s].[Id] = [gls].[ScheduleId]
+    WHERE [tgl].[LocationId] = [room].[LocationId] AND [tg].[Guid] = 'CBBBEEE0-DE95-4876-9FEF-5EB68FA67853'
+        AND [s].[Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' ) ) < 2;
+
+-- check: every-kiosk-offers-the-test-group
+-- why: Decision 370. A check-in kiosk offers the groups in the locations it is assigned, and in their rooms. Every campus's kiosks reach a room that holds the Test Group on both test schedules, so any kiosk can test check-in any day, at any time.
+WITH [reach] AS (
+    SELECT [dl].[DeviceId], [dl].[LocationId]
+    FROM [DeviceLocation] AS [dl]
+    UNION ALL
+    SELECT [reach].[DeviceId], [l].[Id]
+    FROM [reach]
+    INNER JOIN [Location] AS [l] ON [l].[ParentLocationId] = [reach].[LocationId] )
+SELECT COUNT(*)
+FROM [Device] AS [d]
+WHERE [d].[DeviceTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = 'BC809626-1389-4543-B8BB-6FAC79C27AFD' )
+    AND EXISTS ( SELECT 1 FROM [DeviceLocation] AS [dl] WHERE [dl].[DeviceId] = [d].[Id] )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [reach]
+        INNER JOIN [GroupLocation] AS [tgl] ON [tgl].[LocationId] = [reach].[LocationId]
+        INNER JOIN [Group] AS [tg] ON [tg].[Id] = [tgl].[GroupId]
+        WHERE [reach].[DeviceId] = [d].[Id] AND [tg].[Guid] = 'CBBBEEE0-DE95-4876-9FEF-5EB68FA67853'
+            AND ( SELECT COUNT( DISTINCT [gls].[ScheduleId] )
+                FROM [GroupLocationSchedule] AS [gls]
+                INNER JOIN [Schedule] AS [s] ON [s].[Id] = [gls].[ScheduleId]
+                WHERE [gls].[GroupLocationId] = [tgl].[Id] AND [s].[Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' ) ) = 2 )
+    OPTION ( MAXRECURSION 10 );
+
+-- check: volunteer-test-area-is-in-the-volunteer-template
+-- why: Decision 371. The Volunteer Test Area sits under Rock's Volunteer Check-in template, so a volunteer kiosk can offer its test groups, the way Rock's Check-in Test Area sits under Weekly Service Check-in.
+SELECT CASE WHEN EXISTS (
+    SELECT 1
+    FROM [GroupTypeAssociation] AS [a]
+    INNER JOIN [GroupType] AS [template] ON [template].[Id] = [a].[GroupTypeId]
+    INNER JOIN [GroupType] AS [area] ON [area].[Id] = [a].[ChildGroupTypeId]
+    WHERE [template].[Guid] = '92435F1D-E525-4FD2-BEC7-4956DC056A2B' AND [area].[Guid] = 'E3A4419E-62CD-4280-81D4-801078974735' ) THEN 0 ELSE 1 END;
+
+-- check: volunteer-test-group-in-every-serving-room
+-- why: Decision 371. Every room a serving team serves in holds its campus's volunteer test group on both test schedules, so volunteer check-in can be tested in any room, any day, at any time.
+SELECT COUNT(*)
+FROM ( SELECT DISTINCT [gl].[LocationId], [g].[CampusId]
+    FROM [GroupLocation] AS [gl]
+    INNER JOIN [Group] AS [g] ON [g].[Id] = [gl].[GroupId]
+    INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+    WHERE [gt].[Guid] = '2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4' ) AS [room]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [GroupLocation] AS [tgl]
+    INNER JOIN [Group] AS [tg] ON [tg].[Id] = [tgl].[GroupId]
+    INNER JOIN [GroupType] AS [tgt] ON [tgt].[Id] = [tg].[GroupTypeId]
+    WHERE [tgl].[LocationId] = [room].[LocationId] AND [tg].[CampusId] = [room].[CampusId] AND [tgt].[Guid] = 'E3A4419E-62CD-4280-81D4-801078974735'
+        AND ( SELECT COUNT( DISTINCT [gls].[ScheduleId] )
+            FROM [GroupLocationSchedule] AS [gls]
+            INNER JOIN [Schedule] AS [s] ON [s].[Id] = [gls].[ScheduleId]
+            WHERE [gls].[GroupLocationId] = [tgl].[Id] AND [s].[Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' ) ) = 2 );
+
+-- check: no-serving-team-room-has-a-test-schedule
+-- why: Decision 371. Rock's Group Scheduler, Schedule Toolbox, and auto-schedule read every schedule on a team's rooms, so a test schedule there would show a slot every day and let volunteers be scheduled to it. Real teams keep only their real services, and volunteer tests use the Volunteer Test Area.
+SELECT COUNT(*)
+FROM [GroupLocationSchedule] AS [gls]
+INNER JOIN [GroupLocation] AS [gl] ON [gl].[Id] = [gls].[GroupLocationId]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [gl].[GroupId]
+INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+INNER JOIN [Schedule] AS [s] ON [s].[Id] = [gls].[ScheduleId]
+WHERE [gt].[Guid] = '2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4'
+    AND [s].[Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' );
 
 -- check: onsite-gift-on-a-family-sunday
 -- why: Checks and cash go in the offering only on a Sunday the family came (decision 146). A student who comes on their own does not make it a family Sunday, so every gift in a Sunday Offering batch falls on a Sunday when an adult of the giver's family attended.
@@ -1857,13 +1965,15 @@ WHERE [e].[PhotoId] IS NOT NULL
 SELECT CASE WHEN EXISTS ( SELECT 1 FROM [UserLogin] WHERE [ForeignKey] = @ForeignKey ) THEN 0 ELSE 1 END;
 
 -- check: login-is-a-database-login-rock-can-check
--- why: Decision 180. Rock's Database login reads a BCrypt hash ($2a$, $2b$, or $2y$), and a demo person must sign in on the first try: not locked out, and not sent to change their password.
+-- why: Decision 180. Rock's Database login reads a BCrypt hash ($2a$, $2b$, or $2y$), and a demo person must sign in on the first try: not locked out, and not sent to change their password. The one other kind is a check-in supervisor's PIN Authentication login, whose user name is the PIN, in digits, with no password (decision 367).
 SELECT COUNT(*)
 FROM [UserLogin] AS [u]
 LEFT JOIN [EntityType] AS [et] ON [et].[Id] = [u].[EntityTypeId]
 WHERE [u].[ForeignKey] = @ForeignKey
-    AND ( [et].[Name] IS NULL OR [et].[Name] <> 'Rock.Security.Authentication.Database'
-        OR [u].[Password] IS NULL OR LEFT( [u].[Password], 4 ) NOT IN ( '$2a$', '$2b$', '$2y$' ) OR LEN( [u].[Password] ) <> 60
+    AND ( [et].[Name] IS NULL OR [et].[Name] NOT IN ( 'Rock.Security.Authentication.Database', 'Rock.Security.Authentication.PINAuthentication' )
+        OR ( [et].[Name] = 'Rock.Security.Authentication.PINAuthentication' AND ( [u].[Password] IS NOT NULL OR [u].[UserName] LIKE '%[^0-9]%' ) )
+        OR ( [et].[Name] = 'Rock.Security.Authentication.Database'
+            AND ( [u].[Password] IS NULL OR LEFT( [u].[Password], 4 ) NOT IN ( '$2a$', '$2b$', '$2y$' ) OR LEN( [u].[Password] ) <> 60 ) )
         OR [u].[PersonId] IS NULL OR [u].[IsPasswordChangeRequired] = 1 OR [u].[IsLockedOut] = 1 OR [u].[IsConfirmed] IS NULL
         OR ( [u].[LastLoginDateTime] IS NOT NULL AND ( [u].[LastLoginDateTime] < [u].[CreatedDateTime] OR [u].[IsConfirmed] = 0 ) ) );
 
