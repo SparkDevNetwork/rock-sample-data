@@ -872,6 +872,30 @@
       "sha256": "480e3aa745f61f41eb3ef53766df8e9e92c7b6202aa417ade1140e8b99dac94e"
     },
     {
+      "path": "Rock/CheckIn/v2/DefaultSaveProvider.cs",
+      "section": "Check-in attendance and session",
+      "from": "attendance.StartDateTime = request.StartDateTime;",
+      "to": "/// Creates a dictionary of all the attendance codes",
+      "why": "What a kiosk check-in saves on each attendance row (the kiosk, the session, the search, and the family it found) and on its session (the kiosk and its address), which the loader writes for every check-in (decision 361).",
+      "mirroredBy": [
+        "loader/loading/AttendanceLoader.cs",
+        "loader/loading/CheckInSessions.cs",
+        "loader/loading/ServingLoader.cs"
+      ],
+      "sha256": "017e78cbcbd42a19f94e45efb7e94e28e718dee3f91d2aa9f84bdd61e9a88ef9"
+    },
+    {
+      "path": "Rock/CheckIn/v2/DefaultSaveProvider.cs",
+      "section": "Kiosk check-out",
+      "from": "public CheckoutResultBag Checkout(",
+      "to": "private CheckInResultBag SaveAttendanceRecords(",
+      "why": "A kiosk check-out sets each row's end time and who checked it out, which the loader writes for young kids (decision 362).",
+      "mirroredBy": [
+        "loader/loading/AttendanceLoader.cs"
+      ],
+      "sha256": "060c5f2ec26c6b87fb996bfbf0c5434b0c3d6825445f411769b6bd2a85ade127"
+    },
+    {
       "path": "Rock/Model/CRM/Assessment/DiscService.cs",
       "why": "Rock's DISC scoring: the Most and Least counts, the adaptive and natural constants, the z-score to percentage table, and the personality type. The loader's port scores every DISC answer set with it.",
       "mirroredBy": [

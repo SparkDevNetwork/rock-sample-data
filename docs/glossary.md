@@ -23,6 +23,7 @@ The words this project uses, in alphabetical order.
 | **Cast expectation** | What Rock should show for a Cast giver (frequency, journey stage, alerts) or for a Cast person's achievements. Every load checks it, or how a Cast pledge is going on install day, along with the business expectations: each campus has its minimum number of businesses, and every business has a contact and a gift in the last 12 months. |
 | **Church app** | The Rock Solid Church App, the sample church's mobile app. It starts as a stub so push notifications have an app to point at. |
 | **Communication list** | A Rock group of people who get the same mass emails or texts, such as a campus's weekly newsletter list. See [Communications](communications.md). |
+| **Check-in session** | What Rock saves each time someone checks in at a kiosk: the kiosk and its address. A family's kids share one session and one security code. |
 | **Celebration** | The story behind a connection request, which its connector records. Rock stores it as a Celebration Note on the request, shows it in the Connections Hub, and lists it in the Celebrations Report (decision 219). |
 | **Commitment Sunday** | The Sunday the building campaign started and most pledges were made: 40 weeks before install day. |
 | **Companion** | A generated household on one of Core 3's two extra campuses. Companions are more involved than the Crowd, so each campus looks like a healthy congregation (decision 142). |
@@ -47,6 +48,7 @@ The words this project uses, in alphabetical order.
 | **Group sync** | A Rock setting that keeps a group's members in step with a data view. Rock's Group Sync job adds and removes people every 20 minutes, and can send welcome and exit emails. See [Group sync](communications.md#group-sync). |
 | **In-kind gift** | A gift of something other than money, such as stock, a vehicle, or a piano. Rock records it with the Non-Cash Asset currency type, one of its Non-Cash Asset Types, a summary, and its fair value. See [Uncommon gifts](uncommon-gifts.md). |
 | **Journey stage** | Rock's label for where a giver stands: Non-Giver, New, Consistent, Occasional, Lapsed, or Former. |
+| **Kiosk** | A check-in device at a campus, with a label printer beside it. Each campus has kids kiosks, a student kiosk, and a volunteer kiosk, all at addresses in 192.0.2.0/24, which no real printer has. |
 | **Launch Sunday** | A Sunday when the church starts new small groups: the second Sunday of September and the third Sunday of January. About a third of the groups started on one of the last four. See [Small groups](small-groups.md#new-groups-and-new-leaders). |
 | **Legacy** | Data that came from Rock's earlier sample data (version 1.14.1). Legacy Cast families keep their Guids, and their new photos were made from the old ones. |
 | **Linkage** | The row that ties a registration instance to a calendar occurrence, with a public name, a URL slug, and an optional linked group. The event page shows Register through it. See [Event registrations](registrations.md). |
@@ -106,8 +108,9 @@ The words this project uses, in alphabetical order.
 | **Step program** | A path of steps in Rock, such as the Discipleship Path or the Student Path. A person who completes every step gets a program completion. See [Steps](steps.md). |
 | **Step workflow** | A Rock workflow tied to a step type by a trigger. Rock starts it when a person completes the step, or staff start it by hand from the step. The sample church has three staff follow-up tasks, such as Baptism Follow-Up, which goes to the campus pastor. See [Steps](steps.md#step-workflows). |
 | **Streak** | One person's record on a streak type: the weeks they took part, and their current and longest run of weeks in a row. |
-| **Streak type** | What Rock counts week by week for streaks and achievements. The sample church has Kids Check-in, which counts kids check-ins. |
+| **Streak type** | What Rock counts week by week for streaks and achievements. The sample church has Kids Check-in, which counts each week a child or student checked in, Student Night included. |
 | **Student** | A child in grades 7 to 12 who checks in to the Sunday student service. The Student Path is for students. |
+| **Student Night** | The Wednesday 6:30pm student service for grades 7 to 12. Students check in at the student kiosk, on their own. |
 | **Student Path plan** | The camps, trips, Follow Jesus decisions, and Student Leader steps, planned once in every load from student check-ins. The steps part copies them, and the registrations part reads them (decision 206). |
 | **System phone number** | One of the church's own phone numbers in Rock, used to send and receive texts. One can be assigned to a staff member as a personal number. |
 | **Tag** | A quick label staff put on a person in Rock, shown in the tag bar on the person's profile. A tag is organizational or personal, and Rock ships one, Staff. See [Tags](../configuration/README.md#tags). |

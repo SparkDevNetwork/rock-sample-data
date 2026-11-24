@@ -1,6 +1,6 @@
 # Data views and reports
 
-Status: slices 1 to 8 are built: the data view and report categories with their security (Leadership, Safety, and Finance locked), the Foundational Views (Shipped) rename, the data views, and the 26 reports in `configuration/reporting.json`; the New Here and We Miss You syncs rebuilt on the foundations (slice 6); a run history on every view and report (slice 7); and a weekly metric for each stage (slice 8). Slice 9, a reporting page on the site, waits for Jon. Every open question is answered. Decisions 223 to 234 record what is built, and section 8.2 lists where the build differs from the design.
+Status: all nine slices are built: the data view and report categories with their security (Leadership, Safety, and Finance locked), the Foundational Views (Shipped) rename, the data views, and the 26 reports in `configuration/reporting.json`; the New Here and We Miss You syncs rebuilt on the foundations (slice 6); a run history on every view and report (slice 7); a weekly metric for each stage (slice 8); and the [Reporting page](https://sampledata.rockrms.com/reporting.html) on the public site (slice 9, issue 33). Every open question is answered. Decisions 223 to 234 record what is built, and section 8.2 lists where the build differs from the design.
 
 **The idea in one line:** give Rock Solid Church a layered set of data views and reports that teaches good Rock practice and follows Ministry by Design. A few foundation data views hold the shared rules. Stage views show who has reached each stage of the path. Next-step views, filed by Ministry System, find who is ready for the next stage. Reports sit on top. Categories carry the security, and finance and safety are locked to their own roles.
 
@@ -657,7 +657,7 @@ A new static checker, `validation/check-reporting.js`, runs without a database. 
 | 6 | Rebuild the existing views on foundations | The five sync views and three registration views use F2, F5, F6, F8, C3, and K3. The loader's own data view evaluator learns the two Existing Data View filters, so it still fills each synced group exactly | The existing group sync check: Rock's own sync must change nothing. Registration eligibility checks |
 | 7 | Usage history | Run counts and last run dates, and one retired data view (question 9, settled yes) | Invariants on the dates |
 | 8 | Path metrics (question 15, settled yes) | A Rock Metric for each stage, sourced from P1 to P4, with weekly values back through the history window, read from the steps | Each metric's latest value equals its stage view's count |
-| 9 | Docs and site | How it works, Verification, the glossary, Planned work, Roadmap, and a reporting page on the site if Jon wants one | `node site/build.js` |
+| 9 | Docs and site (done) | How it works, Verification, the glossary, Planned work, Roadmap, and the Reporting page on the site (`site/src/pages/reporting.js`, issue 33): the layers with one example each, the stages and their metrics, every report with who can see it, the locked categories, and the Cast people to sign in as. Features keeps a short section that links to it | `node site/build.js` |
 
 ### 8.1 Configuration shape
 

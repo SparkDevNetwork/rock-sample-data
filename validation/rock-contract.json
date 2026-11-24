@@ -266,14 +266,17 @@
     },
     "Attendance": {
       "written": [
+        "AttendanceCheckInSessionId",
         "AttendanceCodeId",
         "CampusId",
         "CheckInStatus",
         "CheckedInByPersonAliasId",
+        "CheckedOutByPersonAliasId",
         "CreatedDateTime",
         "DeclineReasonValueId",
         "DeviceId",
         "DidAttend",
+        "EndDateTime",
         "ForeignKey",
         "Guid",
         "Id",
@@ -289,7 +292,9 @@
         "ScheduleReminderSent",
         "ScheduledByPersonAliasId",
         "ScheduledToAttend",
+        "SearchResultGroupId",
         "SearchTypeValueId",
+        "SearchValue",
         "StartDateTime"
       ],
       "rockColumns": {
@@ -332,6 +337,24 @@
         "SearchValue": "nvarchar(max) null",
         "SourceValueId": "int null",
         "StartDateTime": "datetime not null"
+      }
+    },
+    "AttendanceCheckInSession": {
+      "written": [
+        "ClientIpAddress",
+        "DeviceId",
+        "ForeignKey",
+        "Guid",
+        "Id"
+      ],
+      "rockColumns": {
+        "ClientIpAddress": "nvarchar(45) null",
+        "DeviceId": "int null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "Id": "int not null"
       }
     },
     "AttendanceCode": {
@@ -2074,6 +2097,57 @@
         "ModifiedDateTime": "datetime null",
         "Order": "int not null",
         "Value": "nvarchar(250) not null"
+      }
+    },
+    "Device": {
+      "written": [
+        "CreatedDateTime",
+        "Description",
+        "DeviceTypeValueId",
+        "ForeignKey",
+        "Guid",
+        "HasCamera",
+        "IPAddress",
+        "IsActive",
+        "ModifiedDateTime",
+        "Name",
+        "PrintFrom",
+        "PrintToOverride",
+        "PrinterDeviceId"
+      ],
+      "rockColumns": {
+        "CameraBarcodeConfigurationType": "int null",
+        "CreatedByPersonAliasId": "int null",
+        "CreatedDateTime": "datetime null",
+        "Description": "nvarchar(max) null",
+        "DeviceTypeValueId": "int not null",
+        "ForeignGuid": "uniqueidentifier null",
+        "ForeignId": "int null",
+        "ForeignKey": "nvarchar(100) null",
+        "Guid": "uniqueidentifier not null",
+        "HasCamera": "bit not null",
+        "IPAddress": "nvarchar(45) null",
+        "Id": "int not null",
+        "IsActive": "bit not null",
+        "KioskType": "int null",
+        "LocationId": "int null",
+        "ModifiedByPersonAliasId": "int null",
+        "ModifiedDateTime": "datetime null",
+        "Name": "nvarchar(50) not null",
+        "PrintFrom": "int not null",
+        "PrintToOverride": "int not null",
+        "PrinterDeviceId": "int null",
+        "ProxyDeviceId": "int null"
+      }
+    },
+    "DeviceLocation": {
+      "written": [
+        "DeviceId",
+        "LocationId"
+      ],
+      "rockColumns": {
+        "DeviceId": "int not null",
+        "LocationId": "int not null"
       }
     },
     "EmailSection": {
@@ -5760,6 +5834,8 @@
       "written": [
         "AutoInactivateWhenComplete",
         "CategoryId",
+        "CheckInEndOffsetMinutes",
+        "CheckInStartOffsetMinutes",
         "CreatedDateTime",
         "Description",
         "EffectiveEndDate",
@@ -6993,6 +7069,7 @@
     "BinaryFileData",
     "CampusSchedule",
     "DefinedValue",
+    "DeviceLocation",
     "EventCalendarItem",
     "EventItemAudience",
     "EventItemOccurrence",
@@ -7226,6 +7303,7 @@
       "7950FF66-80EE-E8AB-4A77-4A13EDEB7513",
       "7D705CE7-7B11-4342-A58E-53617C5B4E69",
       "82614683-7FB4-4F16-9087-6F85945A7B16",
+      "8284B128-E73B-4863-9FC2-43E6827B65E6",
       "833EE2C7-F83A-4744-AD14-6907554DF8AE",
       "84E0360E-0828-E5A5-4BCC-F3113BE338A1",
       "8B086A19-405A-451F-8D44-174E92D6B402",
@@ -7242,6 +7320,7 @@
       "AD77CF28-E42B-44C2-8D5C-F6A0A6EE8022",
       "B29D7D89-357F-47F9-BE7B-52AFF3892007",
       "B91BA046-BC1E-400C-B85D-638C1F4E0CE2",
+      "BC809626-1389-4543-B8BB-6FAC79C27AFD",
       "BE7ECF50-52BC-4774-808D-574BA842DB98",
       "BF08EA03-C52A-4364-B142-12EBCA7CA14A",
       "BF64ADD3-E70A-44CE-9C4B-E76BBED37550",
@@ -7258,6 +7337,10 @@
       "F2BFF319-A109-4B42-BEC2-76590E11627B",
       "F3ADC889-1EE8-4EB6-B3FD-8C10F3C8AF93",
       "F3F66040-C50F-4D13-9652-780305FFFE23"
+    ],
+    "Device": [
+      "36EA94D3-9D2A-4BAD-AE15-116D0727CD9C",
+      "61111232-01D7-427D-9C1F-D45CF4D3F7CB"
     ],
     "EntityType": [
       "05D8CD17-E07D-4927-B9C4-5018F7C4B715",

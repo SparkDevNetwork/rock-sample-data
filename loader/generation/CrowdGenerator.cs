@@ -27,8 +27,8 @@ namespace RockSampleData.Loader.Generation
         households, so the people, attendance, and giving loaders treat both the same.
         Every choice is sampled from the resolved profile: family size, ages, gender,
         marital status, how many records show activity, attendance frequency, giving
-        cadence, and annual giving. Names and streets come from small spike-only lists;
-        the real Crowd will use the name lists and address pool from the spec.
+        cadence, and annual giving. Names come from the name tables in names/ (decision
+        357), and addresses from the address pool.
 
         Reason: Measure install speed at scale and give validation enough rows for real statistics.
     */
@@ -96,6 +96,23 @@ namespace RockSampleData.Loader.Generation
         /// </summary>
         private readonly HashSet<string> _emails;
 
+        /// <summary>
+        /// The last number each email name has had: 1 for the plain name, then 2, 3, and so on (decision 358).
+        /// </summary>
+        private readonly Dictionary<string, int> _emailNumbers = new Dictionary<string, int>( StringComparer.Ordinal );
+
+        private readonly NameTables _names;
+
+        /// <summary>
+        /// Every Cast full name, by first name and by nickname, which no generated person may have (decision 358).
+        /// </summary>
+        private readonly HashSet<string> _castNames;
+
+        /// <summary>
+        /// The chance a person whose first name has a usual nickname goes by it (decision 359).
+        /// </summary>
+        private const double NicknameShare = 0.4;
+
         public CrowdGenerator( ProfileTargets profile, SampleDataSource source, string seed, DateTime anchor )
         {
             _profile = profile;
@@ -106,6 +123,10 @@ namespace RockSampleData.Loader.Generation
             _addresses = AddressPool.Load( source.Files, seed, cast.Select( h => h.Address ) );
             _adultAges = PlanAdultAges();
             _emails = cast.SelectMany( h => h.Members ).Where( m => !string.IsNullOrEmpty( m.Email ) ).Select( m => m.Email.ToLowerInvariant() ).ToHashSet();
+            _names = source.Names;
+            _castNames = cast.SelectMany( h => h.Members )
+                .SelectMany( m => new[] { m.FirstName, m.NickName }.Where( n => !string.IsNullOrEmpty( n ) ).Select( n => FullName( n, m.LastName ) ) )
+                .ToHashSet( StringComparer.OrdinalIgnoreCase );
 
             var numbers = source.Communications?.PhoneNumbers;
             _churchNumbers = ( numbers?.Numbers.Select( n => n.Number ) ?? Enumerable.Empty<string>() )
@@ -190,7 +211,7 @@ namespace RockSampleData.Loader.Generation
             var size = SizeFromKey( random.Pick( sizeWeights ), random );
             var sizeKey = size >= 6 ? "6+" : size.ToString();
             var averageAdults = _profile.Number( $"people.familySizeMix.{sizeKey}.avgAdults", 1 );
-            var lastName = random.Pick( CrowdNames.LastNames );
+            var lastName = _names.Surname( random );
             var status = PickStatus( random );
 
             // Some one-person families are a child on their own.
@@ -260,17 +281,19 @@ namespace RockSampleData.Loader.Generation
         /// </summary>
         private CastPerson NewPerson( CastHousehold household, int position, SeededRandom random, string lastName, int age, bool isFemale, string role, string status, string marital )
         {
-            var firstName = random.Pick( isFemale ? CrowdNames.FemaleFirstNames : CrowdNames.MaleFirstNames );
+            var key = $"{household.Key}-{position}";
+            var (firstName, nickName) = NewName( key, random, lastName, _anchor.Year - age, isFemale );
             var isAdult = role == "adult";
             var hasEmail = isAdult && random.Chance( EmailShare );
             var hasMobile = isAdult ? random.Chance( MobileShare ) : age >= 13 && random.Chance( 0.4 );
 
             var person = new CastPerson
             {
-                Key = $"{household.Key}-{position}",
+                Key = key,
                 Guid = random.NextGuid(),
                 RecordType = "person",
                 FirstName = firstName,
+                NickName = nickName,
                 LastName = lastName,
                 Gender = isFemale ? "female" : "male",
                 FamilyRole = role,
@@ -279,7 +302,7 @@ namespace RockSampleData.Loader.Generation
                 MaritalStatus = marital,
                 RecordStatus = "active",
                 ConnectionStatus = status,
-                Email = hasEmail ? UniqueEmail( firstName, lastName, random.Between( 1, 999 ) ) : null,
+                Email = hasEmail ? UniqueEmail( nickName ?? firstName, lastName, random ) : null,
                 Phones = hasMobile ? new CastPhones { Mobile = PhoneNumber( random ) } : null
             };
 
@@ -306,32 +329,80 @@ namespace RockSampleData.Loader.Generation
         }
 
         /*
-            11/19/26 - CLAUDE
+            11/23/26 - CLAUDE
 
-            A generated email is the name and a number from 1 to 999, drawn from the household's stream. Two people with
-            the same name drew the same number about 20 times in Full 7, so two strangers shared one address, and Rock's
-            duplicate finder listed each pair with the Cast's real duplicates. Now an address already taken, by the Cast or
-            an earlier generated person, gets a new number from its own stream. The household's draw still happens, so
-            every other value stays where it was, and only the colliding addresses change.
+            A name drawn for a generated person never matches a Cast person's full name, by first name or nickname, so
+            a demo that names a Cast person finds one record. A clash draws the first name again from the person's own
+            stream. A share of the people whose first name has a usual nickname go by it, drawn from that stream too.
+            The household's stream takes the same draws as before, so ages, statuses, attendance, and giving stay where
+            they were.
 
-            Reason: Each generated email is one person's, so the Duplicate Finder lists only real look-alikes (decision 313).
+            Reason: Crowd names never shadow the Cast, and nicknames give Crowd duplicates their usual shape
+            (decisions 358 and 359).
         */
 
         /// <summary>
-        /// The generated person's email: first.last and the drawn number, or a new number from 1 to 9999 when that address is taken.
+        /// The person's first name, drawn from the household's stream by gender and birth year, and the nickname they go
+        /// by, or null.
         /// </summary>
-        private string UniqueEmail( string firstName, string lastName, int drawn )
+        private (string FirstName, string NickName) NewName( string key, SeededRandom random, string lastName, int birthYear, bool isFemale )
         {
-            var name = $"{firstName}.{lastName}".ToLowerInvariant();
-            var email = $"{name}{drawn}@example.org";
-            var redraw = new SeededRandom( $"{_seed}:crowd:unique-email:{email}" );
-            while ( !_emails.Add( email ) )
+            var firstName = _names.FirstName( isFemale, birthYear, random );
+            var own = new SeededRandom( $"{_seed}:crowd:name:{key}" );
+            while ( _castNames.Contains( FullName( firstName, lastName ) ) )
             {
-                email = $"{name}{redraw.Between( 1, 9999 )}@example.org";
+                firstName = _names.FirstName( isFemale, birthYear, own );
             }
 
+            var nicknames = _names.Nicknames( firstName );
+            if ( nicknames.Count == 0 || !own.Chance( NicknameShare ) )
+            {
+                return (firstName, null);
+            }
+
+            // The most common nickname is the likeliest: weights 1, 1/2, 1/3, and so on.
+            var nickName = own.Pick( nicknames.Select( ( n, i ) => (n, i) ).ToDictionary( x => x.n, x => 1.0 / ( x.i + 1 ) ) );
+            return (firstName, _castNames.Contains( FullName( nickName, lastName ) ) ? null : nickName);
+        }
+
+        private static string FullName( string firstName, string lastName ) => $"{firstName} {lastName}";
+
+        /*
+            11/23/26 - CLAUDE
+
+            A generated email was the name and a number from 1 to 999, drawn again when taken (decision 313). Now the
+            number comes from a sequence for each name: the first person with a name gets first.last@example.org, the
+            next first.last2, and so on, skipping any address the Cast already has. The name is the one the person goes
+            by, in letters only, so O'Brien gives obrien. The household's stream still takes its old number draw, so
+            every later draw stays where it was.
+
+            Reason: Each generated email is one person's, and reads like an address a person chose (decision 358).
+        */
+
+        /// <summary>
+        /// The generated person's email: first.last, with the next number in that name's sequence after the first.
+        /// </summary>
+        private string UniqueEmail( string firstName, string lastName, SeededRandom random )
+        {
+            _ = random.Between( 1, 999 );
+            var name = $"{EmailLetters( firstName )}.{EmailLetters( lastName )}";
+            _emailNumbers.TryGetValue( name, out var number );
+            string email;
+            do
+            {
+                number++;
+                email = number == 1 ? $"{name}@example.org" : $"{name}{number}@example.org";
+            }
+            while ( !_emails.Add( email ) );
+
+            _emailNumbers[name] = number;
             return email;
         }
+
+        /// <summary>
+        /// A name in lowercase letters only, for an email address.
+        /// </summary>
+        internal static string EmailLetters( string name ) => new string( name.ToLowerInvariant().Where( c => c >= 'a' && c <= 'z' ).ToArray() );
 
         /// <summary>
         /// The high school graduation of a generated adult aged 18 to 20, in late May of the year their age gives,

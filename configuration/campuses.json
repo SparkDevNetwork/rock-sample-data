@@ -35,6 +35,10 @@
         {
           "slot": "sun-1030",
           "type": "student"
+        },
+        {
+          "slot": "wed-1830",
+          "type": "student"
         }
       ]
     },
@@ -66,6 +70,10 @@
         },
         {
           "slot": "sun-1030",
+          "type": "student"
+        },
+        {
+          "slot": "wed-1830",
           "type": "student"
         }
       ]
@@ -99,6 +107,10 @@
         {
           "slot": "sun-1030",
           "type": "student"
+        },
+        {
+          "slot": "wed-1830",
+          "type": "student"
         }
       ]
     },
@@ -129,6 +141,10 @@
         },
         {
           "slot": "sun-1030",
+          "type": "student"
+        },
+        {
+          "slot": "wed-1830",
           "type": "student"
         }
       ]
@@ -165,6 +181,10 @@
         {
           "slot": "sun-1030",
           "type": "student"
+        },
+        {
+          "slot": "wed-1830",
+          "type": "student"
         }
       ]
     },
@@ -196,6 +216,10 @@
         {
           "slot": "sun-1030",
           "type": "student"
+        },
+        {
+          "slot": "wed-1830",
+          "type": "student"
         }
       ]
     },
@@ -226,6 +250,10 @@
         },
         {
           "slot": "sun-1030",
+          "type": "student"
+        },
+        {
+          "slot": "wed-1830",
           "type": "student"
         }
       ]

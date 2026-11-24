@@ -1,0 +1,45 @@
+{
+  "$comment": "Check-in kiosks and label printers at every campus (decision 360). Each campus has kids kiosks, one student kiosk, and one volunteer kiosk, and each kiosk has its own label printer beside it. A family always uses its usual kids kiosk, students the student kiosk, and volunteers the volunteer kiosk. Every address is in 192.0.2.0/24, a block reserved for documentation, so no label ever reaches a real printer.",
+  "network": "192.0.2.0/24",
+  "rock": {
+    "$comment": "Rock's shipped kiosk and label printer become the first kids kiosk at this campus and its printer. Rock's self-service kiosk stays as Rock ships it.",
+    "campus": "phoenix",
+    "kioskGuid": "61111232-01D7-427D-9C1F-D45CF4D3F7CB",
+    "printerGuid": "36EA94D3-9D2A-4BAD-AE15-116D0727CD9C"
+  },
+  "kinds": [
+    {
+      "key": "kids",
+      "name": "{campus} Kids {number}",
+      "printerName": "{campus} Kids Printer {number}",
+      "description": "Kids check-in at the Kids Entrance.",
+      "$roomsComment": "Check-in group keys from checkin.json. Kids kiosks offer the student rooms too, so a family checks in its kids and its teens together, on one security code.",
+      "rooms": [ "nursery", "crawlers-walkers", "preschool", "grades-k-1", "grades-2-3", "grades-4-6", "grades-7-8", "grades-9-12" ]
+    },
+    {
+      "key": "students",
+      "name": "{campus} Students",
+      "printerName": "{campus} Students Printer",
+      "description": "Student check-in in the student lobby.",
+      "rooms": [ "grades-7-8", "grades-9-12" ]
+    },
+    {
+      "key": "volunteers",
+      "name": "{campus} Volunteers",
+      "printerName": "{campus} Volunteers Printer",
+      "description": "Volunteer check-in at the Main Entrance.",
+      "$buildingComment": "The volunteer kiosk offers every room in the building, so each serving team checks in where it serves.",
+      "building": true
+    }
+  ],
+  "$campusesComment": "About one kids kiosk for every 30 kids at the campus's busiest service of the year in Full 7, usually Easter, and at least two. Phoenix peaks near 75 kids, and every other campus below 50. Each campus's devices take addresses from firstAddress up: a kiosk, then its printer, kids kiosks first.",
+  "campuses": [
+    { "campus": "phoenix", "kidsKiosks": 3, "firstAddress": 10 },
+    { "campus": "peoria", "kidsKiosks": 2, "firstAddress": 30 },
+    { "campus": "gilbert", "kidsKiosks": 2, "firstAddress": 50 },
+    { "campus": "scottsdale", "kidsKiosks": 2, "firstAddress": 70 },
+    { "campus": "chandler", "kidsKiosks": 2, "firstAddress": 90 },
+    { "campus": "goodyear", "kidsKiosks": 2, "firstAddress": 110 },
+    { "campus": "tempe", "kidsKiosks": 2, "firstAddress": 130 }
+  ]
+}

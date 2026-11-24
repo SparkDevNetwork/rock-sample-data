@@ -24,7 +24,7 @@
 const path = require( "path" );
 
 const { esc, html, repoUrl } = require( "../layout" );
-const { sectionHead } = require( "../components" );
+const { person } = require( "../components" );
 
 const doc = file => `${repoUrl}/blob/main/${file}`;
 
@@ -32,14 +32,6 @@ const doc = file => `${repoUrl}/blob/main/${file}`;
  * Names joined as a sentence list: "A and B", or "A, B, and C".
  */
 const messageList = items => items.length < 3 ? items.join( " and " ) : `${items.slice( 0, -1 ).join( ", " )}, and ${items[ items.length - 1 ]}`;
-
-/**
- * A Cast person's name, linked to their household page. The name is plain text when no Cast person has it.
- */
-function person( model, name ) {
-    const member = [ ...model.people.values() ].find( m => m.displayName === name );
-    return member ? html`<a href="cast/${esc( member.household.key )}.html">${esc( name )}</a>` : esc( name );
-}
 
 /**
  * One feature area: the words on the left, and where to look on the right.
@@ -58,129 +50,6 @@ function area( { id, eyebrow, title, text, checks, look, links, sand } ) {
     <div class="panel reveal">
       <p class="panel-title">Where to look</p>
       <ul class="link-list look-list">${look.map( l => html`<li>${l}</li>` )}</ul>
-    </div>
-  </div>
-</section>`;
-}
-
-/**
- * The roles a category's View rule allows, without Rock's "RSR - " prefix, or what its Edit rule allows.
- */
-function lockText( category ) {
-    const rules = category.security || [];
-    const view = rules.find( r => r.action === "View" );
-    const edit = rules.find( r => r.action === "Edit" );
-    const roles = rule => rule.allow.map( r => r.replace( /^RSR - /, "" ) ).join( ", " );
-    if ( view ) {
-        return `Locked to ${roles( view )}`;
-    }
-
-    return edit ? `${roles( edit )} can edit` : "";
-}
-
-/**
- * A category and its children, as a nested list, each with its lock.
- */
-function tree( categories, key ) {
-    const category = categories.find( c => c.key === key );
-    if ( !category ) {
-        return "";
-    }
-
-    const children = categories.filter( c => c.parent === key );
-    const lock = lockText( category );
-    return html`<li><span class="tree-name">${esc( category.name )}</span>${lock ? html` <span class="tag${category.security.some( r => r.action === "View" ) ? " tag-accent" : ""}">${esc( lock )}</span>` : ""}${children.length ? html`<ul>${children.map( c => tree( categories, c.key ) )}</ul>` : ""}</li>`;
-}
-
-/**
- * The name of what an access row asks about: a category, a data view, or a report.
- */
-function itemName( model, row ) {
-    if ( row.category ) {
-        const category = model.categories.find( c => c.key === row.category );
-        return category ? `${category.name} ${category.entityType === "Rock.Model.Report" ? "reports" : "data views"}` : row.category;
-    }
-
-    const views = model.reportingDataViews.concat( model.syncDataViews );
-    const found = row.dataView ? views.find( v => v.key === row.dataView ) : model.reports.find( r => r.key === row.report );
-    return found ? `the ${found.name} ${row.dataView ? "data view" : "report"}` : row.dataView || row.report;
-}
-
-// The security walkthrough rows the page shows, by person and item. Each must be a row in reporting.json.
-const walkthrough = [
-    [ "Pete Foster", "leadership-reports", "View" ],
-    [ "Priya Raman", "leadership-reports", "View" ],
-    [ "Rachel Brooks", "kids-with-an-allergy", "View" ],
-    [ "Jamal Pierce", "kids-with-an-allergy", "View" ],
-    [ "Priya Raman", "top-givers", "View" ],
-    [ "Cindy Decker", "top-givers", "View" ],
-    [ "Pete Foster", "first-time-givers-to-thank", "View" ],
-    [ "Jerry Wright", "church-reports", "View" ],
-    [ "Pete Foster", "staff-workspace-data-views", "Edit" ]
-];
-
-// The example reports the page shows, by key.
-const exampleReports = [ "path-movement-last-90-days", "guests-coming-back", "ready-to-serve", "drifting-adults", "kids-allergy-list", "top-givers" ];
-
-function reporting( model ) {
-    const rows = walkthrough
-        .map( ( [ name, item, action ] ) => model.reportingAccess.find( a => a.name === name && ( a.category || a.dataView || a.report ) === item && a.action === action ) )
-        .filter( Boolean );
-    const reports = exampleReports.map( key => model.reports.find( r => r.key === key ) ).filter( Boolean );
-    const categoryName = key => ( model.categories.find( c => c.key === key ) || {} ).name || key;
-    return html`
-<section class="section section-sand" id="data-views-and-reports">
-  <div class="wrap">
-    ${sectionHead( { eyebrow: "Data views and reports", title: "Built in layers, locked like a real church.", lede: html`${model.reportingDataViews.length} data views and ${model.reports.length} reports, filed by the Ministry by Design systems. A few foundations hold the shared rules, such as Active People and Adults. The stage views build on them from steps, and the next-step views, such as Ready to Serve, build on the stages. Every view and report has a run history, and one view has not run in over a year, so Rock's advice to remove unused data views has an example.` } )}
-    <div class="split split-top">
-      <div class="panel reveal">
-        <p class="panel-title">Data view categories</p>
-        <ul class="tree">${tree( model.categories, "church-data-views" )}</ul>
-      </div>
-      <div class="panel reveal">
-        <p class="panel-title">Report categories</p>
-        <ul class="tree">${tree( model.categories, "church-reports" )}</ul>
-        <p class="fine">Rock's own Foundational Views category is renamed Foundational Views (Shipped), so the church's views stand out.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section" id="ministry-path">
-  <div class="wrap">
-    ${sectionHead( { eyebrow: "The path", title: "Every stage, counted every week.", lede: html`Each Ministry by Design stage is a data view built from steps. A person can be in more than one. Every Monday, ${model.metrics.length} Rock Metrics count the stages at each campus, with a value for each week since the stage view was made, so a dashboard shows the trend on install day.` } )}
-    <div class="card-grid card-grid-four">
-      ${model.metrics.map( m => {
-        const stage = m.title.replace( / Stage$/, "" );
-        const steps = model.stepTypes.filter( t => t.stage === stage ).map( t => t.name );
-        return html`<div class="card reveal"><h3>${esc( m.title )}</h3><p>Reached by ${esc( steps.length > 2 ? `${steps.slice( 0, -1 ).join( ", " )}, or ${steps[steps.length - 1]}` : steps.join( " or " ) )}.</p></div>`;
-      } )}
-    </div>
-  </div>
-</section>
-
-<section class="section section-sand" id="example-reports">
-  <div class="wrap">
-    ${sectionHead( { eyebrow: "Reports", title: "Reports a church would really run." } )}
-    <div class="card-grid">
-      ${reports.map( r => html`<div class="card reveal"><h3>${esc( r.name )}</h3><p>${esc( r.description )}</p><div class="tags"><span class="tag">${esc( categoryName( r.category ) )}</span></div></div>` )}
-    </div>
-  </div>
-</section>
-
-<section class="section" id="who-can-see-what">
-  <div class="wrap split split-top">
-    <div class="split-text reveal">
-      <p class="eyebrow">Security</p>
-      <h2>Who can see what.</h2>
-      <p>The church's categories are locked to staff. Leadership is for the pastors, and Safety and Finance are for their own roles. A report runs with only the right to view it, so a report on a locked data view sits under the same lock. Rock's own security check answers every one of these, on every verified load.</p>
-      <p class="feature-links"><a class="link-arrow" href="${doc( "docs/reporting.md" )}">Data views and reports</a></p>
-    </div>
-    <div class="panel reveal">
-      <p class="panel-title">Ask the Cast</p>
-      <ul class="access-list">
-        ${rows.map( a => html`<li class="${a.allowed ? "can" : "cannot"}">${person( model, a.name )} <span>${a.allowed ? "can" : "cannot"} ${a.action === "Edit" ? "edit" : "see"} ${esc( itemName( model, a ) )}</span></li>` )}
-      </ul>
     </div>
   </div>
 </section>`;
@@ -216,7 +85,7 @@ module.exports = function features( { model } ) {
         {
             id: "people", eyebrow: "People and families", title: "A church you can get to know.",
             text: html`The Cast is ${model.counts.households} households and ${model.counts.people} people, written by hand, at the main campus. Full 7 adds the Crowd, about ${model.datasets["full-7"].people.toLocaleString( "en-US" )} people across ${model.campuses.length} campuses. Every family's phone numbers are its own, so a check-in search or a texted STOP finds only them.`,
-            checks: [ "Families, single parents, and children shared between two homes", html`Businesses at every campus, each with one or two contacts`, "Duplicates in Rock's Duplicate Finder on day one, with a waiting merge request, and an allergy that prints on check-in labels", "Employers, schools, visit information, and the day each engaged adult first joined a group, served, or gave", "Mapped addresses, each marked as checked, so none ever goes to an address service", "Every campus with its exterior photo on its Location, for Lava pages and the app" ],
+            checks: [ "Families, single parents, and children shared between two homes", "Crowd names from real name data for each birth decade, and nicknames such as Bob for Robert", html`Businesses at every campus, each with one or two contacts`, "Duplicates in Rock's Duplicate Finder on day one, with a waiting merge request, and an allergy that prints on check-in labels", "Employers, schools, visit information, and the day each engaged adult first joined a group, served, or gave", "Mapped addresses, each marked as checked, so none ever goes to an address service", "Every campus with its exterior photo on its Location, for Lava pages and the app" ],
             look: [ html`${person( model, "Jon Smith" )}, with two duplicate records and a merge request`, html`${person( model, "Sarah Simmons" )}'s History, where her old Sarah Jones record was merged`, html`The <a href="${castDecker}">Decker family</a>, the household most demos open first`, html`Every household on <a href="cast.html">The Cast</a>` ],
             links: [ { label: "Meet the Cast", href: "cast.html" }, { label: "How the Crowd is made", href: doc( "docs/crowd.md" ) }, { label: "Duplicates", href: doc( "docs/duplicates.md" ) } ]
         },
@@ -229,9 +98,9 @@ module.exports = function features( { model } ) {
         },
         {
             id: "attendance", eyebrow: "Attendance and check-in", title: "Years of Sundays.",
-            text: "Each household comes at its own rate, through holidays and summer. Kids check in to the room for their age or grade with a family security code, and students come on their own too. Every row has the check-in status Rock gives it, so check-in screens show who was in each room.",
-            checks: [ "Worship attendance for adults, and check-in for kids and students", "Allergies, pickup notes, and nursery ability levels that check-in reads", html`The Kids Check-in streak and its ${require( path.join( model.root, "configuration/achievements.json" ) ).achievementTypes.length} achievements, from High Five to Century Club`, "Volunteers who check in to serve", "eRA, Rock's regular attender status, with years of eRA steps and history, as its weekly job would leave it" ],
-            look: [ "Next-gen check-in, which shows each child's progress", "Rock's attendance analytics for the Service Attendance group type", html`The <a href="${castDecker}">Decker kids</a>, regulars on Sunday`, html`The eRA badge on the <a href="${castDecker}">Deckers</a>, eRAs for years` ],
+            text: "Each household comes at its own rate, through holidays and summer. Kids check in at their campus's kiosks to the room for their age or grade, with a family security code, and the adult who brought them checks them out after the service. Students come on their own too, on Sundays and at Wednesday Student Night. Every row has the check-in status Rock gives it, so check-in screens show who was in each room.",
+            checks: [ "Worship attendance for adults, and check-in for kids and students", "Allergies, pickup notes, and nursery ability levels that check-in reads", html`The Kids Check-in streak and its ${require( path.join( model.root, "configuration/achievements.json" ) ).achievementTypes.length} achievements, from High Five to Century Club`, "Volunteers who check in to serve", "Kids, student, and volunteer kiosks at every campus, each with a label printer at an address no real printer has", "A check-in session for every check-in, found by the last four digits of a phone", "Kids checked out after their service by the adult who brought them", "Wednesday Student Night for grades 7 to 12", "eRA, Rock's regular attender status, with years of eRA steps and history, as its weekly job would leave it" ],
+            look: [ "Next-gen check-in, which shows each child's progress", "Rock's attendance analytics for the Service Attendance group type", html`The <a href="${castDecker}">Decker kids</a>, regulars on Sunday, who always check in at Phoenix Kids 1`, html`${person( model, "Grace Fischer" )} at Student Night most Wednesdays`, html`The eRA badge on the <a href="${castDecker}">Deckers</a>, eRAs for years` ],
             links: [ { label: "How it works", href: doc( "docs/how-it-works.md" ) } ]
         },
         {
@@ -362,7 +231,7 @@ module.exports = function features( { model } ) {
         }
     ];
 
-    // The staff homepage follows the adaptive messages, so the sections keep alternating.
+    // The staff homepage follows tags, which are plain, so it is on sand and the sections keep alternating.
     const staffHomepage = require( path.join( model.root, "configuration/staff-homepage.json" ) );
     areas.push( {
         id: "staff-homepage", eyebrow: "Staff homepage", title: "A homepage staff really use.", sand: true,
@@ -372,39 +241,54 @@ module.exports = function features( { model } ) {
         links: [ { label: "Staff homepage", href: doc( "docs/staff-homepage.md" ) } ]
     } );
 
-    // Rock's shipped metrics follow the staff homepage, whose tiles are metrics too.
+    // Data views and reports follow the staff homepage, which is on sand. The whole story is on the Reporting page.
+    const lockedReportCategories = model.categories
+        .filter( c => c.parent === "church-reports" && ( c.security || [] ).some( r => r.action === "View" ) )
+        .map( c => c.name );
+    const unusedViews = model.reportingDataViews.filter( v => v.usage && v.usage.lastRunDaysAgo > 365 ).length;
+    const reportingArea = {
+        id: "data-views-and-reports", eyebrow: "Data views and reports", title: "Built in layers, locked like a real church.",
+        text: html`${model.reportingDataViews.length} data views and ${model.reports.length} reports, filed by the Ministry by Design systems. Foundations hold the shared rules, stage views build on them from steps, and next-step views such as Ready to Serve build on the stages. A Rock Metric counts each stage at each campus every week.`,
+        checks: [ "Foundations, stage views, and next-step views that build on each other", html`${esc( messageList( lockedReportCategories ) )}, each locked to its own roles`, "A weekly metric for each stage, with values back to when its view was made", `A run history on every view and report${unusedViews ? `, with ${unusedViews === 1 ? "one view" : `${unusedViews} views`} not run in over a year` : ""}` ],
+        look: [ "Rock's Data Views and Reports pages, under Tools", "The Ministry Path metrics on Rock's staff homepage", html`<a href="reporting.html#sign-in-as">The Cast people to sign in as</a>, and what each can see` ],
+        links: [ { label: "The Reporting page", href: "reporting.html" }, { label: "Data views and reports", href: doc( "docs/reporting.md" ) } ]
+    };
+
+    // Rock's shipped metrics follow the data views and reports, which are plain, so they are on sand.
     const rockMetrics = require( path.join( model.root, "configuration/rock-metrics.json" ) );
     const weeklyYears = Math.round( Math.max( ...rockMetrics.metrics.map( m => m.weeks ) ) / 52 );
     const tithingWeeks = rockMetrics.metrics.find( m => m.key === "tithing-percent" ).weeks;
-    areas.push( {
-        id: "metrics", eyebrow: "Metrics", title: "Charts with history on day one.",
+    const metricsArea = {
+        id: "metrics", eyebrow: "Metrics", title: "Charts with history on day one.", sand: true,
         text: html`Rock ships its own metrics for weekend attendance, giving, prayer, salvations, baptisms, eRA, tithing, and the people counts behind its Insights page. Each one has history on install day: ${weeklyYears} years of weekly values, ${tithingWeeks} weekly Tithing Overview runs, and ${rockMetrics.insights.months} monthly runs of every Insights metric, by campus and service where Rock splits them. Every value is the one Rock's Calculate Metrics job would have saved, counted from the people, check-ins, gifts, and prayers in the data.`,
         checks: [ "Every newest value matches Rock's own metric SQL, run as of that week", "Weekend adult counts and salvations, typed in each Sunday the way staff do", "The Ministry Path metrics, split by campus" ],
         look: [ "Tools > Reporting > Metrics, and any metric's chart", "Tools > Weekly Metrics, where staff type the weekend's numbers", "Baptisms, each month's count on the 1st of the next" ],
         links: [ { label: "Rock's metrics", href: doc( "loader/README.md#rocks-metrics" ) } ]
-    } );
+    };
 
-    // Assessments come after the data views and reports, which end on a plain section, so the page keeps alternating.
+    // Assessments come after the metrics, which are on sand, so the page keeps alternating.
     const assessments = require( path.join( model.root, "configuration/assessments.json" ) );
     const startingPoint = assessments.classes.find( c => c.stepType === "starting-point-class" );
     const assessmentsArea = {
-        id: "assessments", eyebrow: "Assessments", title: "Results with real answers behind them.", sand: true,
+        id: "assessments", eyebrow: "Assessments", title: "Results with real answers behind them.",
         text: html`Rock's ${assessments.types.length} assessments: DISC, Spiritual Gifts, Conflict Profile, Emotional Intelligence, and Motivators. Most staff took all of them, every leader took DISC and Conflict Profile before leading, and each Starting Point class asks for Spiritual Gifts, which ${startingPoint.percentFinished}% finish. Every result comes from a full set of answers, scored the way Rock scores them.`,
         checks: [ "Requests still pending from the current classes, with reminders where Rock's job would leave them", "Answers and results that always agree, checked against Rock's own scoring", "Results as person attributes, ready for data views" ],
         look: [ html`The Assessments badge on ${person( model, "Ted Decker" )}'s profile`, html`${person( model, "Bri Hall" )}'s Spiritual Gifts, which fit a greeter`, html`${person( model, "Ty McClintock" )} and ${person( model, "Paul Smith" )}'s DISC results, side by side` ],
         links: [ { label: "Assessments", href: doc( "docs/assessments.md" ) } ]
     };
 
-    // Reminders come after assessments, which are on sand, so the page keeps alternating.
+    // Reminders come after assessments, which are plain, so they are on sand and the page keeps alternating.
     const reminders = require( path.join( model.root, "configuration/reminders.json" ) );
     const shows = { due: "due now", upcoming: "coming up", complete: "complete" };
     const remindersArea = {
-        id: "reminders", eyebrow: "Reminders", title: "Follow-ups staff set for themselves.",
+        id: "reminders", eyebrow: "Reminders", title: "Follow-ups staff set for themselves.", sand: true,
         text: html`Staff set reminders about the people they wrote notes on, and small group leaders set them about their groups, in Rock's own Personal and Group reminder types. Each is dated from the install day, so some are due, some are coming up, some are complete, and a few repeat. The Cast has ${reminders.cast.length} of its own, tied to their stories. Rock's bell counts each person's reminders due, as Rock's Process Reminders job would.`,
         checks: [ "Reminders about people and about groups", "Due, upcoming, complete, and repeating reminders on any install day", "A bell count that Rock's own job leaves as it is" ],
         look: [ html`The bell in Rock's top bar, signed in as <code>tdecker</code>`, ...reminders.cast.map( r => html`${person( model, r.ownerName )}'s reminder about ${r.group ? `the ${esc( r.aboutName )}` : person( model, r.aboutName )}, ${esc( shows[r.expect] || r.expect )}` ) ],
         links: [ { label: "How reminders load", href: doc( "loader/README.md#how-reminders-load" ) } ]
     };
+
+    const sections = [ ...areas, reportingArea, metricsArea, assessmentsArea, remindersArea ];
 
     return {
         file: "features.html",
@@ -423,17 +307,11 @@ module.exports = function features( { model } ) {
 <section class="section section-tight">
   <div class="wrap">
     <nav class="feature-index" aria-label="Features on this page">
-      ${areas.map( a => html`<a href="#${a.id}">${esc( a.eyebrow )}</a>` )}
-      <a href="#data-views-and-reports">Data views and reports</a>
-      <a href="#${assessmentsArea.id}">${esc( assessmentsArea.eyebrow )}</a>
-      <a href="#${remindersArea.id}">${esc( remindersArea.eyebrow )}</a>
+      ${sections.map( a => html`<a href="#${a.id}">${esc( a.eyebrow )}</a>` )}
     </nav>
   </div>
 </section>
-${areas.map( area )}
-${reporting( model )}
-${area( assessmentsArea )}
-${area( remindersArea )}
+${sections.map( area )}
 `
     };
 };

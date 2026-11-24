@@ -58,12 +58,14 @@ namespace RockSampleData.Loader.Loading
         private readonly AnchorDates _dates;
         private readonly string _foreignKey;
         private readonly string _seed;
-        private readonly int? _kioskDeviceId;
+        private readonly CheckInDevices _devices;
         private readonly DateTime _historyStart;
         private int _reminderOffsetDays = 2;
         private int? _searchTypeId;
+        private CheckInSessions _sessions;
+        private Dictionary<int, List<LoadedPerson>> _membersByFamily;
 
-        public ServingLoader( RockDatabase db, ServingConfiguration config, ServingSetup setup, Dictionary<string, CampusPlan> campuses, AnchorDates dates, string foreignKey, string seed, int? kioskDeviceId, DateTime historyStart )
+        public ServingLoader( RockDatabase db, ServingConfiguration config, ServingSetup setup, Dictionary<string, CampusPlan> campuses, AnchorDates dates, string foreignKey, string seed, CheckInDevices devices, DateTime historyStart )
         {
             _db = db;
             _config = config;
@@ -72,7 +74,7 @@ namespace RockSampleData.Loader.Loading
             _dates = dates;
             _foreignKey = foreignKey;
             _seed = seed;
-            _kioskDeviceId = kioskDeviceId;
+            _devices = devices;
             _historyStart = historyStart;
         }
 
@@ -82,6 +84,8 @@ namespace RockSampleData.Loader.Loading
         public void Load( IReadOnlyList<ServingTeamPlan> plans, PeopleLoader people, Dictionary<int, HashSet<DateTime>> familySundays )
         {
             _searchTypeId = _db.IdByGuid( "DefinedValue", AttendanceLoader.PhoneSearchTypeGuid );
+            _sessions = new CheckInSessions( _db, _foreignKey );
+            _membersByFamily = people.Households.GroupBy( h => h.FamilyId ).ToDictionary( g => g.Key, g => g.First().Members );
             var templateIds = _db.Query( "SELECT [Id], [Name] FROM [GroupMemberScheduleTemplate]" ).ToDictionary( r => ( string ) r["Name"], r => Convert.ToInt32( r["Id"] ) );
             var declineReasonIds = _db.Query( "SELECT [dv].[Id] FROM [DefinedValue] AS [dv] INNER JOIN [DefinedType] AS [dt] ON [dt].[Id] = [dv].[DefinedTypeId] WHERE [dt].[Guid] = @Guid",
                 P( "@Guid", DeclineReasonTypeGuid ) ).Select( r => Convert.ToInt32( r["Id"] ) ).ToList();
@@ -152,11 +156,12 @@ namespace RockSampleData.Loader.Loading
 
                         var occurrenceId = tables.Occurrence( groupId, positions[position].LocationId, services[service].ScheduleId, sunday, _foreignKey );
                         var start = sunday.Add( services[service].Start );
-                        AddRequest( tables, random, occurrenceId, person, campus.CampusId, start, outcome, declineReasonIds, member.IsLeader ? null : leaderAliasId );
+                        AddRequest( tables, random, occurrenceId, person, campus.CampusId, _devices.Volunteers( campus.Key ), start, outcome, declineReasonIds, member.IsLeader ? null : leaderAliasId );
                     }
                 }
             }
 
+            _sessions.Write();
             tables.Write( _db );
             _db.Log.Write( $"  Serving: {plans.Sum( p => p.Members.Count ):N0} volunteers on {plans.Count:N0} teams, {tables.Assignments.Rows.Count:N0} preferences, {tables.Exclusions.Rows.Count:N0} blackout dates; "
                 + $"occurrences: {tables.Occurrences.Rows.Count:N0}, schedule requests: {tables.Attendance.Rows.Count:N0}" );
@@ -262,7 +267,7 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// Adds one request to serve, as it stands for its outcome.
         /// </summary>
-        private void AddRequest( Tables tables, SeededRandom random, int occurrenceId, LoadedPerson person, int campusId, DateTime start, Outcome outcome, List<int> declineReasonIds, int? scheduledByAliasId )
+        private void AddRequest( Tables tables, SeededRandom random, int occurrenceId, LoadedPerson person, int campusId, Kiosk kiosk, DateTime start, Outcome outcome, List<int> declineReasonIds, int? scheduledByAliasId )
         {
             var (rsvp, scheduled, didAttend) = outcome switch
             {
@@ -292,15 +297,19 @@ namespace RockSampleData.Loader.Loading
             var reminderSent = canEmail && ( rsvp == RsvpYes || start.Date.AddDays( -_reminderOffsetDays ) > now.Date );
             var declineReason = outcome == Outcome.Declined && declineReasonIds.Count > 0 ? random.Pick( declineReasonIds ) : ( object ) DBNull.Value;
 
-            // A volunteer who served usually checked in at the kiosk a few minutes before the service.
+            // A volunteer who served usually checked in at their campus's volunteer kiosk a few minutes before the
+            // service, in a session of their own, by their phone (decisions 360 and 361).
             var checkIn = _config.CheckIn;
-            var checkedIn = outcome == Outcome.Attended && _kioskDeviceId.HasValue && random.Chance( checkIn.CheckInPercent / 100.0 );
+            var checkedIn = outcome == Outcome.Attended && kiosk != null && random.Chance( checkIn.CheckInPercent / 100.0 );
             var present = checkedIn ? start.AddMinutes( -random.Between( ( int ) checkIn.ArrivesMinutesEarly.Min, ( int ) checkIn.ArrivesMinutesEarly.Max ) ) : ( object ) DBNull.Value;
+            var sessionId = checkedIn ? _sessions.Open( kiosk ) : null;
+            var search = checkedIn ? CheckInSessions.SearchValue( person, _membersByFamily.TryGetValue( person.FamilyId, out var family ) ? family : new List<LoadedPerson> { person } ) : null;
 
             tables.Attendance.Rows.Add( occurrenceId, person.AliasId, campusId, start, didAttend, rsvp, true, scheduled, confirmationSent, reminderSent, answered, declineReason,
                 scheduledByAliasId.HasValue ? scheduledByAliasId.Value : ( object ) DBNull.Value,
-                checkedIn ? _kioskDeviceId.Value : ( object ) DBNull.Value, checkedIn && _searchTypeId.HasValue ? _searchTypeId.Value : ( object ) DBNull.Value, checkedIn ? person.AliasId : ( object ) DBNull.Value, present, RockCheckInStatus.For( checkedIn ),
-                Guid.NewGuid(), _foreignKey, requested, modified );
+                checkedIn ? kiosk.Id : ( object ) DBNull.Value, checkedIn && _searchTypeId.HasValue ? _searchTypeId.Value : ( object ) DBNull.Value, checkedIn ? person.AliasId : ( object ) DBNull.Value, present, RockCheckInStatus.For( checkedIn ),
+                Guid.NewGuid(), _foreignKey, requested, modified,
+                ( object ) sessionId ?? DBNull.Value, ( object ) search ?? DBNull.Value, checkedIn ? person.FamilyId : ( object ) DBNull.Value );
         }
 
         private enum Outcome
@@ -344,7 +353,8 @@ namespace RockSampleData.Loader.Loading
             public DataTable Occurrences { get; } = TableFactory.Create( "Id:int", "GroupId:int", "LocationId:int", "ScheduleId:int", "OccurrenceDate:date", "SundayDate:date", "OccurrenceDateKey:int", "DidNotOccur:bool", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
 
             public DataTable Attendance { get; } = TableFactory.Create( "OccurrenceId:int", "PersonAliasId:int", "CampusId:int", "StartDateTime:date", "DidAttend:bool", "RSVP:int", "RequestedToAttend:bool", "ScheduledToAttend:bool",
-                "ScheduleConfirmationSent:bool", "ScheduleReminderSent:bool", "RSVPDateTime:date", "DeclineReasonValueId:int", "ScheduledByPersonAliasId:int", "DeviceId:int", "SearchTypeValueId:int", "CheckedInByPersonAliasId:int", "PresentDateTime:date", "CheckInStatus:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date" );
+                "ScheduleConfirmationSent:bool", "ScheduleReminderSent:bool", "RSVPDateTime:date", "DeclineReasonValueId:int", "ScheduledByPersonAliasId:int", "DeviceId:int", "SearchTypeValueId:int", "CheckedInByPersonAliasId:int", "PresentDateTime:date", "CheckInStatus:int", "Guid:guid", "ForeignKey:string", "CreatedDateTime:date", "ModifiedDateTime:date",
+                "AttendanceCheckInSessionId:int", "SearchValue:string", "SearchResultGroupId:int" );
 
             /// <summary>
             /// The team's occurrence for one room, service, and Sunday, added the first time it is needed.
