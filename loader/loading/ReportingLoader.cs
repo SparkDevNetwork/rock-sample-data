@@ -147,11 +147,33 @@ namespace RockSampleData.Loader.Loading
 
             var history = new UsageHistoryWriter( _db, _dates, _seed ).Write( InDependencyOrder( _source.Reporting.DataViews ), References, _source.Reporting.Reports );
             _db.Log.Write( $"  Run history: {history.Views} data views and {history.Reports} reports" );
+        }
+
+        /*
+            11/24/26 - CLAUDE
+
+            The church's metrics count the rows every other step wrote, and Second-Time Guests counts the Second Visit
+            dates Rock's Family Analytics procedure writes near the end of the load. So the metrics are written in the
+            Rock metrics step, with Rock's own, after every data step, instead of with the reports.
+
+            Reason: Each metric's history must see every row its SQL or view would see at the run.
+        */
+
+        /// <summary>
+        /// Writes the church's metrics, each with its history, now that every step that writes rows has run.
+        /// </summary>
+        public void WriteMetrics()
+        {
+            if ( !IsLoaded )
+            {
+                _db.Log.Write( "  Metrics: skipped (this package has no configuration/reporting.json)" );
+                return;
+            }
 
             var installed = _dates.Anchor.Date.Add( DateTime.Now.TimeOfDay );
             var schedules = _source.Reporting.NamedSchedules.ToDictionary( s => s.Key, s => (s, _scheduleIds[s.Key]) );
             var metrics = new MetricsWriter( _db, _source.Categories, installed, _foreignKey, _seed )
-                .Write( _source.Reporting.Metrics, _views, schedules, rule => (StepTypes( rule, null ).Select( t => t.Guid ).ToList(), Program( rule ).Statuses.Complete) );
+                .Write( _source.Reporting.Metrics, _views, schedules, rule => (StepTypes( rule, null ).Select( t => t.Guid ).ToList(), Program( rule ).Statuses.Complete), Selection );
             _db.Log.Write( $"  Metrics: {metrics.Metrics} with {metrics.Values:N0} weekly values" );
         }
 
@@ -254,16 +276,19 @@ WHERE [EntityTypeId] = @EntityTypeId AND [Key] = @Key AND ISNULL( [EntityTypeQua
             {
                 var time = TimeSpan.Parse( schedule.Time );
                 var weekday = schedule.Day;
+                var dayOfMonth = schedule.DayOfMonth;
+                bool IsRunDay( DateTime day ) => weekday == null && dayOfMonth == null || day.DayOfWeek == weekday || day.Day == dayOfMonth;
                 var categoryId = _db.RequireIdByGuid( "Category", schedule.ForMetrics ? MetricSchedulesCategory : PersistedDataViewSchedulesCategory );
 
-                // A weekly schedule starts on its own weekday: the first one on or after the day a daily one starts.
+                // A weekly or monthly schedule starts on its own day: the first one on or after the day a daily one starts.
                 var first = new DateTime( 2013, 5, 1 );
-                while ( weekday != null && first.DayOfWeek != weekday )
+                while ( !IsRunDay( first ) )
                 {
                     first = first.AddDays( 1 );
                 }
 
-                var rule = weekday == null ? "FREQ=DAILY" : $"FREQ=WEEKLY;BYDAY={weekday.ToString().Substring( 0, 2 ).ToUpperInvariant()}";
+                var rule = dayOfMonth != null ? $"FREQ=MONTHLY;BYMONTHDAY={dayOfMonth}"
+                    : weekday == null ? "FREQ=DAILY" : $"FREQ=WEEKLY;BYDAY={weekday.ToString().Substring( 0, 2 ).ToUpperInvariant()}";
                 var calendar = $"BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nDTEND:{first:yyyyMMdd}T{time.Add( TimeSpan.FromMinutes( 1 ) ):hhmm}00\r\nDTSTART:{first:yyyyMMdd}T{time:hhmm}00\r\nRRULE:{rule}\r\nEND:VEVENT\r\nEND:VCALENDAR";
                 var id = ( int ) _db.Scalar( @"
 INSERT INTO [Schedule] ( [Name], [Description], [iCalendarContent], [EffectiveStartDate], [CategoryId], [IsActive], [Order], [AutoInactivateWhenComplete], [IsPublic], [Guid], [ForeignKey], [CreatedDateTime], [ModifiedDateTime] )
@@ -279,7 +304,7 @@ VALUES ( @Name, @Description, @Calendar, @First, @CategoryId, 1, 0, 0, 0, @Guid,
                 for ( var day = today.AddYears( -2 ).AddDays( -1 ); day < today.AddYears( 2 ); day = day.AddDays( 1 ) )
                 {
                     var start = day.Add( time );
-                    if ( ( weekday == null || day.DayOfWeek == weekday ) && start < today.AddYears( 2 ) && start.AddMinutes( 1 ) > today.AddYears( -2 ) )
+                    if ( IsRunDay( day ) && start < today.AddYears( 2 ) && start.AddMinutes( 1 ) > today.AddYears( -2 ) )
                     {
                         scheduleDates.Rows.Add( id, start, start.AddMinutes( 1 ), int.Parse( start.ToString( "yyyyMMdd" ) ) );
                     }

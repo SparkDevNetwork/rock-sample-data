@@ -269,7 +269,7 @@ module.exports = function features( { model } ) {
     const metricsArea = {
         id: "metrics", eyebrow: "Metrics", title: "Charts with history on day one.", sand: true,
         text: html`Rock ships its own metrics for weekend attendance, giving, prayer, salvations, baptisms, eRA, tithing, and the people counts behind its Insights page. Each one has history on install day: ${weeklyYears} years of weekly values, ${tithingWeeks} weekly Tithing Overview runs, and ${rockMetrics.insights.months} monthly runs of every Insights metric, by campus and service where Rock splits them. Every value is the one Rock's Calculate Metrics job would have saved, counted from the people, check-ins, gifts, and prayers in the data.`,
-        checks: [ "Every newest value matches Rock's own metric SQL, run as of that week", "Weekend adult counts and salvations, typed in each Sunday the way staff do", "The Ministry Path metrics, split by campus" ],
+        checks: [ "Every newest value matches Rock's own metric SQL, run as of that week", "Weekend adult counts and salvations, typed in each Sunday the way staff do", `The Ministry Path metrics, split by campus, and ${model.ministryMetrics.length} Ministry by Design metrics beside them` ],
         look: [ "Tools > Reporting > Metrics, and any metric's chart", "Tools > Weekly Metrics, where staff type the weekend's numbers", "Baptisms, each month's count on the 1st of the next" ],
         links: [ { label: "Rock's metrics", href: doc( "loader/README.md#rocks-metrics" ) } ]
     };

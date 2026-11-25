@@ -189,7 +189,7 @@ Active People (F1)
 │   ├── Already Leading (N6)                            = F2 + leads an active group or team
 │   ├── Guests Coming Back (C1)
 │   ├── First Visit Last Week (C4)                      = F2 + F6 + first visit
-│   ├── Drifting Adults (C3)
+│   ├── Drifting Adults (C3)  [persisted nightly]
 │   │   └── Newly Missed (C5)                           = C3 + F6 + last visit 90 to 120 days ago
 │   ├── Unbaptized Regular Attenders (C7)               = F2 + F5 − Baptism step
 │   ├── Baptized Regular Attenders (C8)                 = F2 + F5 + Baptism step
@@ -282,6 +282,8 @@ Why the church has its own Church Family view instead of using Rock's shipped "M
 - **What stays.** Rock's other two shipped categories, Group Requirements (2 views, used by the background check requirement) and Communication Segments (4 views), are left as they are. Rock features use them, so they are not just examples.
 
 Why F5 is persisted: it counts attendance rows, and Full 7 has millions of them. Several views build on it. Who counts as a regular attender does not change within a day. Its consumers turn on the filter's "Use Persisted" option.
+
+Why C3 is persisted: it counts 18 months of worship attendance for every adult, which takes Rock close to its 30-second query limit on Full 7. The Drifting Adults metric runs Mondays at 3 AM, after the 2 AM refresh, so Rock's Calculate Metrics job reads the saved list. Newly Missed reads it too (decision 403).
 
 Why F10 uses Rock's Last Gave attribute and not a Finance data view: "gave in the last year" through Givers in the Last 12 Months (FN2) would make F10 a finance consumer, and it would have to live in Finance (design rule 4). Rock already shows Last Gave to Staff Workers and Staff Like Workers (its attribute security in the trusted base), so using it reveals nothing Rock does not already show staff.
 
@@ -722,6 +724,28 @@ The build follows the design, with these differences. Each was found by running 
 - **Views on tags (issue 44).** Staff Workspace holds two views that staff made for themselves, each on Rock's Person Tag filter, saved as Rock saves it: "2|" and the tag's Guid in lowercase for an organizational tag, and "1|" for a personal one. Homebound Adults, which Dee Navarro made 300 days before install, holds adults with the Homebound tag. My Possible Group Leaders, which Jamal Pierce made 200 days before install, holds the people on his personal tag. Each view was made after its tag. A view can name the Cast person who made it, and the loader stamps them on the view and its filters, as Rock's save does (decision 306).
 
 Verify checks each metric's newest values, campus by campus, against Rock's count of its stage view, less the people who reached the stage since. It also checks every report in Rock: each property is one of Rock's reportable fields, each attribute exists, each component builds its expression from the stored selection, and each Lava column renders through Rock's Lava engine.
+
+### 8.3 Ministry by Design metrics
+
+Each Ministry System has an owner at the center and one at each campus, and each needs three kinds of number: how many reached the stage, how many are ready for the next step, and whether the system works. The four path metrics count the stages. A Ministry by Design metric category holds the rest, each split by campus (decision 400).
+
+| System | Metric | Counts | Source |
+|---|---|---|---|
+| First Contact (Notice) | First-Time Guests | People whose first visit to a weekend service came that week | SQL |
+| First Contact (Notice) | Second-Time Guests | People whose Second Visit, from Rock's visit dates, came that week | SQL, Wednesday |
+| Connection (Belong) | Ready to Belong | Regular attenders not in a small group | Ready to Belong view |
+| Connection (Belong) | Group Connection Rate | The percent of regular attending adults in a small group | SQL |
+| Discipleship (Equip) | Ready to Grow | Adults who belong but have no Equip step | Ready to Grow view |
+| Engagement (Contribute) | Ready to Serve | Adults with an Equip step who do not serve | Ready to Serve view |
+| Engagement (Contribute) | Serving Rate | The percent of regular attending adults on a serving team | SQL |
+| Leadership (Lead) | Ready to Lead | Adults who are growing, serving, and in a group, but lead nothing | Ready to Lead view |
+| Retention (Re-engage) | Drifting Adults | Adults who came regularly and stopped | Drifting Adults view |
+| Retention (Re-engage) | Back in the Last 30 Days | Adults who came back after 90 or more days away | SQL |
+| Pastoral Care (Care) | Benevolence Requests | New requests for help in the month that just ended | SQL, monthly |
+
+Second-Time Guests reads the Second Visit that Rock's Family Analytics job sets on Tuesday night, so it runs on Wednesday morning (decision 404). A regular attender came to worship 4 or more times in the 12 weeks before the run. Each SQL metric keeps the church's SQL on the metric, so Rock's job runs it after install, and every active campus gets a value each run.
+
+Each metric has history on install day. A data view metric replays its view as it was at each run: attendance windows end on the run's day, steps count once completed, group membership comes from Rock's group member history, and a person's fields are today's. A SQL metric's past values are what its SQL gives at each run (decision 401). Verify replays each view today and holds it to Rock's own count, and runs each SQL metric's SQL as of past runs (decision 402).
 
 ## 9. Open questions
 

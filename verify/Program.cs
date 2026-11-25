@@ -236,7 +236,7 @@ try
             var (dataViews, counts) = DataViewsCheck( rock, sql, database, source );
             checks.Add( dataViews );
             stage = "metrics";
-            checks.Add( MetricsCheck( sql, database, source, counts ) );
+            checks.Add( MetricsCheck( sql, database, source, counts, anchor ) );
             stage = "flow-audiences";
             checks.Add( FlowAudienceCheck( rock, sql, database, connection, source, anchor, foreignKey, seed ) );
             stage = "access";
@@ -546,18 +546,83 @@ static (CheckResult Check, Dictionary<string, int> Counts) DataViewsCheck( RockR
 }
 
 /// <summary>
+/// A data view metric whose past weeks the loader replays (loader/loading/ViewHistory.cs). Replayed at its last run, the
+/// view gives each campus's newest value, and replayed today it gives Rock's own count of the view.
+/// </summary>
+static List<string> ReplayedMetricProblems( SqlServer sql, string database, SampleDataSource source, MetricDefinition metric, DataViewDefinition view,
+    Dictionary<string, int> counts, DateTime anchor )
+{
+    var lastRun = sql.Scalar( database, "SELECT [LastRunDateTime] FROM [Metric] WHERE [Guid] = @Guid", new SqlParameter( "@Guid", metric.Guid ) ) as DateTime?;
+    if ( lastRun == null || !counts.TryGetValue( metric.DataView, out var rockCount ) )
+    {
+        return new List<string> { $"{metric.Key}: no last run, or Rock did not run {metric.DataView}" };
+    }
+
+    var loaded = sql.Query( database, @"
+SELECT [vp].[EntityId] AS [Campus], [mv].[YValue]
+FROM [MetricValue] AS [mv]
+INNER JOIN [Metric] AS [m] ON [m].[Id] = [mv].[MetricId]
+INNER JOIN [MetricValuePartition] AS [vp] ON [vp].[MetricValueId] = [mv].[Id]
+WHERE [m].[Guid] = @Guid AND [mv].[MetricValueDateTime] = @Run", new SqlParameter( "@Guid", metric.Guid ), new SqlParameter( "@Run", lastRun.Value ) )
+        .ToDictionary( r => r["Campus"] as int? ?? -1, r => ( int ) ( decimal ) r["YValue"] );
+    var campuses = sql.Query( database, @"
+SELECT [p].[Id], COALESCE( [p].[PrimaryCampusId], [f].[CampusId] ) AS [Campus]
+FROM [Person] AS [p]
+LEFT JOIN [Group] AS [f] ON [f].[Id] = [p].[PrimaryFamilyId]" ).ToDictionary( r => ( int ) r["Id"], r => r["Campus"] as int? ?? -1 );
+
+    using var db = new RockDatabase( sql.ConnectionString( database ) );
+    var history = new ViewHistory( db, anchor, source.DataViews(), f => f.Steps != null ? ReportingLoader.StepsSelection( source.Steps, f.Steps ) : null );
+    var expected = history.PeopleAt( view, lastRun.Value ).GroupBy( id => campuses.GetValueOrDefault( id, -1 ) ).ToDictionary( g => g.Key, g => g.Count() );
+    var today = history.PeopleAt( view, anchor.Date.AddDays( 1 ).AddTicks( -1 ) ).Count;
+
+    var problems = new List<string>();
+    string Text( Dictionary<int, int> byCampus ) => string.Join( ", ", byCampus.OrderBy( c => c.Key ).Select( c => $"{( c.Key < 0 ? "none" : c.Key.ToString() )}: {c.Value}" ) );
+    if ( today != rockCount )
+    {
+        problems.Add( $"{metric.Key}: replayed today, {view.Key} holds {today:N0} people, but Rock's view holds {rockCount:N0}" );
+    }
+    else if ( expected.Count != loaded.Count || expected.Any( e => loaded.GetValueOrDefault( e.Key, -1 ) != e.Value ) )
+    {
+        problems.Add( $"{metric.Key}: its newest values on {lastRun:g} ({Text( loaded )}) should be the view replayed then ({Text( expected )})" );
+    }
+    else
+    {
+        Console.WriteLine( $"    {metric.Key}: {loaded.Values.Sum():N0} on {lastRun:g}, and {rockCount:N0} today" );
+    }
+
+    return problems;
+}
+
+/// <summary>
 /// Checks each path metric (decision 234) against Rock. Its stage view counts active people with a completed
 /// step of the stage, so the people whose first such step came after the newest value were not counted then. The newest
 /// values, one for each campus (decision 379), must add up to Rock's count of the view today less those people,
 /// and each campus's must be its own people less its own later ones, by the campus Rock's job counts a person under. The
 /// same rule read in SQL must also give Rock's count, so the subtraction uses the view's own rule.
 /// </summary>
-static CheckResult MetricsCheck( SqlServer sql, string database, SampleDataSource source, Dictionary<string, int> counts )
+static CheckResult MetricsCheck( SqlServer sql, string database, SampleDataSource source, Dictionary<string, int> counts, DateTime anchor )
 {
     var problems = new List<string>();
     var metrics = source.Reporting?.Metrics ?? new List<MetricDefinition>();
+    var (pathCount, replayedCount) = (0, 0);
     foreach ( var metric in metrics )
     {
+        // A metric with its own SQL is checked against that SQL in rock-metrics.
+        if ( metric.SourceSql != null )
+        {
+            continue;
+        }
+
+        var metricView = source.Reporting.DataViews.First( v => v.Key == metric.DataView );
+        if ( !MetricsWriter.IsStageView( metricView ) )
+        {
+            problems.AddRange( ReplayedMetricProblems( sql, database, source, metric, metricView, counts, anchor ) );
+            replayedCount++;
+            continue;
+        }
+
+        pathCount++;
+
         var newest = sql.Query( database, @"
 SELECT [mv].[YValue], [mv].[MetricValueDateTime], [vp].[EntityId] AS [Campus]
 FROM [MetricValue] AS [mv]
@@ -617,7 +682,9 @@ GROUP BY [Campus]", new SqlParameter( "@Taken", latest["MetricValueDateTime"] ) 
         }
     }
 
-    return CheckResult.From( "metrics", problems.Count == 0 ? $"Each of the {metrics.Count} path metrics' newest value matches Rock's count of its stage view" : "A path metric does not match its stage view", problems );
+    return CheckResult.From( "metrics", problems.Count == 0
+        ? $"Each of the {pathCount} path metrics' newest value matches Rock's count of its stage view, and each of the {replayedCount} other data view metrics' matches its view replayed"
+        : "A data view metric does not match Rock's count of its view", problems );
 
     static IEnumerable<DataViewFilterDefinition> Leaves( DataViewFilterDefinition filter ) =>
         filter.Component != null ? new[] { filter } : filter.Children.SelectMany( Leaves );
@@ -1248,12 +1315,19 @@ INNER JOIN [AttributeValue] AS [v] ON [v].[AttributeId] = [a].[Id] AND [v].[Enti
 WHERE [b].[Guid] = @Block", new SqlParameter( "@Block", homepage.Block ) ) as string ) ?? string.Empty;
     if ( homepage.PathMetrics )
     {
+        // The block lists the path metrics and no other church metric (decision 348).
         foreach ( var metric in source.Reporting?.Metrics ?? new List<MetricDefinition>() )
         {
             var isWritten = sql.Scalar( database, "SELECT 1 FROM [Metric] WHERE [Guid] = @Guid", new SqlParameter( "@Guid", metric.Guid ) ) != null;
-            if ( isWritten && !blockMetrics.Contains( metric.Guid.ToString(), StringComparison.OrdinalIgnoreCase ) )
+            var isListed = blockMetrics.Contains( metric.Guid.ToString(), StringComparison.OrdinalIgnoreCase );
+            var isPath = metric.Category == ReportingConfiguration.PathMetricsCategory;
+            if ( isWritten && isPath && !isListed )
             {
                 problems.Add( $"The homepage block does not list the {metric.Title} metric." );
+            }
+            else if ( !isPath && isListed )
+            {
+                problems.Add( $"The homepage block lists the {metric.Title} metric, which is not a Ministry Path metric." );
             }
         }
     }

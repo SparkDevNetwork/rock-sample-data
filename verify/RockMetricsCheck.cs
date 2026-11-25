@@ -102,7 +102,10 @@ DECLARE @EraEnd INT = ( SELECT [Id] FROM [Attribute] WHERE [Guid] = @EraEndGuid 
             }
 
             var problems = new List<string>();
-            var guids = configuration.Metrics.Select( m => $"'{m.Guid}'" ).ToList();
+            // The church's own SQL metrics in reporting.json are checked the same way.
+            var guids = configuration.Metrics.Select( m => m.Guid )
+                .Concat( ( source.Reporting?.Metrics ?? new List<Loader.Model.MetricDefinition>() ).Where( m => m.SourceSql != null ).Select( m => m.Guid ) )
+                .Select( g => $"'{g}'" ).ToList();
             var categories = ( configuration.Insights?.Categories ?? new List<Guid>() ).Select( g => $"'{g}'" ).DefaultIfEmpty( "NULL" );
             var metrics = sql.Query( database, $@"
 SELECT [m].[Id], [m].[Title], [m].[SourceSql], [m].[LastRunDateTime]
