@@ -112,7 +112,7 @@ namespace RockSampleData.Loader.Loading
             and a duplicate that must be set aside comes early enough to leave room for it.
 
             Reason: The Crowd's duplicates, decisions, and merges happen in the order Rock would see them (decision
-            D-crowd-names-5).
+            398).
         */
 
         /// <summary>

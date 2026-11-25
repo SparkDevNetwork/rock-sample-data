@@ -363,7 +363,7 @@ WHERE [pa].[PersonId] = @PersonId AND [pn].[LastName] = @LastName", P( "@PersonI
                 the Cast's is one, and Rock's finder pairs it with its person, who has the same last name: listed in the
                 Duplicate Finder while open, or set aside.
 
-                Reason: Each Crowd duplicate shows in Rock the way its decision says (decisions D-crowd-names-4 and D-crowd-names-5).
+                Reason: Each Crowd duplicate shows in Rock the way its decision says (decisions 397 and 398).
             */
             var cast = source.ReadHouseholds().SelectMany( h => h.Members ).Select( m => guids.Rock( m.Guid ) ).ToHashSet();
             var crowdRecords = db.Query( @"

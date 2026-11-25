@@ -35,7 +35,7 @@ namespace RockSampleData.Loader.Model
     }
 
     /// <summary>
-    /// How generated people get a second record (docs/duplicates.md, decision D-crowd-names-4).
+    /// How generated people get a second record (docs/duplicates.md, decision 397).
     /// </summary>
     internal sealed class CrowdDuplicateRules
     {

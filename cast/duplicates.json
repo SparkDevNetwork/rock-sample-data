@@ -101,7 +101,7 @@
     }
   ],
   "crowd": {
-    "$comment": "How generated people get a second record (decisions D-crowd-names-4 and D-crowd-names-5). About percentOfPeople of generated people have one, drawn from adults with an email or a mobile. decisions weighs the states: open stays in the Duplicate Finder, ignored was set aside, and merged was merged into the person. decidedBy sets pairs aside and merges records, on a weekday a number of days before install in the given range.",
+    "$comment": "How generated people get a second record (decisions 397 and 398). About percentOfPeople of generated people have one, drawn from adults with an email or a mobile. decisions weighs the states: open stays in the Duplicate Finder, ignored was set aside, and merged was merged into the person. decidedBy sets pairs aside and merges records, on a weekday a number of days before install in the given range.",
     "percentOfPeople": 1,
     "decisions": { "open": 50, "ignored": 15, "merged": 35 },
     "decidedBy": { "guid": "69DC0FDC-B451-4303-BD91-EF17C0015D23", "name": "Alisha Marble" },

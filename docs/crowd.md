@@ -19,7 +19,7 @@ The Cast is hand-designed. Everyone else is generated: the **Crowd** gives Full 
 13. Each campus pastor follows up with six generated adults on their campus who are Connected, Engaged, or Leading, one per household at most, as a Care Team Follow-up signal. One has no end, one ends in the next few weeks, and four ended in the last year, so most profiles show no flag. Each campus draws from its own stream (decision 282). See [How signals load](../loader/README.md#how-signals-load).
 14. Some generated people carry the church's tags, drawn by each tag's rules in `configuration/tags.json`, each person from their own seeded stream. A draw never picks a Cast person, so no Cast story gains a tag it does not tell. Homebound holds 20% of the generated adults 80 and older who live alone, at every campus (decision 304). See [Tags](../configuration/README.md#tags).
 15. In about 3% of attending families with a child 12 or younger, the children have one adult from another family who may check them in, a Known Relationship with Rock's Can check in role. That adult checks them in on about a third of the family's Sundays, and is in that service (decision 372).
-16. About 1% of generated people have a second record, the kind a connection card or a registration makes when it does not find someone: Pending, under the name they go by, with no birth date and the email or mobile they gave. Half stay open in Rock's Duplicate Finder, 15% were set aside, and 35% were merged. A duplicate record takes no part in church life (decisions D-crowd-names-4 to D-crowd-names-6). See [Duplicates](duplicates.md#the-crowds-duplicates).
+16. About 1% of generated people have a second record, the kind a connection card or a registration makes when it does not find someone: Pending, under the name they go by, with no birth date and the email or mobile they gave. Half stay open in Rock's Duplicate Finder, 15% were set aside, and 35% were merged. A duplicate record takes no part in church life (decisions 397 to 399). See [Duplicates](duplicates.md#the-crowds-duplicates).
 
 ## How big the Crowd is
 
@@ -36,7 +36,7 @@ Full 7's manifest (`datasets/full-7.json`) sets how many households each campus 
 | Tempe | 2,100 | 3,193 |
 | **All seven** | **16,800** | **25,445** |
 
-Phoenix, the original and largest campus, also holds most of the Cast. Each other campus holds its campus pastor's family (decision 199). People are counted by primary campus, at the default seed. They include 149 Pending duplicate records, each in a family of its own (decision D-crowd-names-4).
+Phoenix, the original and largest campus, also holds most of the Cast. Each other campus holds its campus pastor's family (decision 199). People are counted by primary campus, at the default seed. They include 149 Pending duplicate records, each in a family of its own (decision 397).
 
 ## Personas
 

@@ -947,7 +947,7 @@ ORDER BY [GroupId]", P( "@Id", AdminPersonId ), P( "@TypeId", relationshipTypeId
         /// <summary>
         /// False for businesses, the deceased, inactive records, and duplicate records. Only these people attend, and most
         /// later steps take only them. A duplicate record, such as one a form made for someone already in Rock, takes no
-        /// part (decision D-crowd-names-6).
+        /// part (decision 399).
         /// </summary>
         public bool CanAttend { get; set; }
 

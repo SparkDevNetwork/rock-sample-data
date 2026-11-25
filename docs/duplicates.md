@@ -1,6 +1,6 @@
 # Duplicates
 
-How duplicate person records work in the sample data, and why. The decisions are 310 to 312, 314, 313, and D-crowd-names-4 to D-crowd-names-6 in [Decisions](decisions.md). The Cast's duplicate stories, and the rules for the Crowd's, live in `cast/duplicates.json`.
+How duplicate person records work in the sample data, and why. The decisions are 310 to 312, 314, 313, and 397 to 399 in [Decisions](decisions.md). The Cast's duplicate stories, and the rules for the Crowd's, live in `cast/duplicates.json`.
 
 ## The idea
 
@@ -66,7 +66,7 @@ The merge also deletes the old record's phones and family memberships, so nothin
 
 ## The Crowd's duplicates
 
-About 1% of generated people have a second record (decisions D-crowd-names-4 and D-crowd-names-5). The rules are `crowd` in `cast/duplicates.json`.
+About 1% of generated people have a second record (decisions 397 and 398). The rules are `crowd` in `cast/duplicates.json`.
 
 A second record is what a connection card, a registration, or a kiosk makes when it does not find someone already in Rock:
 
@@ -75,7 +75,7 @@ A second record is what a connection card, a registration, or a kiosk makes when
 3. **No birth date,** address, or marital status.
 4. **The email or mobile they gave.** Someone with both gives both half the time, the email alone 30%, and the mobile alone 20%.
 
-Only adults with an email or a mobile get one. A duplicate record takes no part in church life: it never attends, gives, serves, or joins a group or list, and the load gives it no note, tag, step, text, photo, or login (decision D-crowd-names-6). Rock's own jobs and data views still see it.
+Only adults with an email or a mobile get one. A duplicate record takes no part in church life: it never attends, gives, serves, or joins a group or list, and the load gives it no note, tag, step, text, photo, or login (decision 399). Rock's own jobs and data views still see it.
 
 ### How Rock scores them
 
@@ -107,7 +107,7 @@ One shared contact and the name the person goes by score 12 or 13, a confidence 
 | Core 3 | 1 | 0 | 0 | 1 |
 | Full 7 | 248 | 110 | 39 | 99 |
 
-Each duplicate record was made on a day after its person's record, and each decision and merge after the records it follows (decision D-crowd-names-5). The Data Integrity step dates every record first, so the duplicates step reads those dates and fits these to them. Counts are at the default seed. Core 3's companions are about 225 people, so 1% is about 2, and the draw gave 1.
+Each duplicate record was made on a day after its person's record, and each decision and merge after the records it follows (decision 398). The Data Integrity step dates every record first, so the duplicates step reads those dates and fits these to them. Counts are at the default seed. Core 3's companions are about 225 people, so 1% is about 2, and the draw gave 1.
 
 ## How it is checked
 

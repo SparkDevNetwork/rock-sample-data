@@ -109,7 +109,7 @@ WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
         OR CHARINDEX( ',' + LEFT( [pn].[Number], 3 ) + ',', ',' + @AreaCodes + ',' ) = 0 );
 
 -- check: phones-are-not-shared-across-households
--- why: Content standard 2 and decisions 259 and 394. A number belongs to one family. Two people in different families share one only as an office's main line (both work phones), as duplicate records of one person (the same last name, and the same email or one of them a Pending record made from a form, decision D-crowd-names-6), or when one record is inactive: a number the phone company gave a new family after the old one dropped it. Rock turns off texting on every phone with a number that texts STOP, and check-in and the duplicate finder match on the number, so a shared number reaches strangers.
+-- why: Content standard 2 and decisions 259 and 394. A number belongs to one family. Two people in different families share one only as an office's main line (both work phones), as duplicate records of one person (the same last name, and the same email or one of them a Pending record made from a form, decision 399), or when one record is inactive: a number the phone company gave a new family after the old one dropped it. Rock turns off texting on every phone with a number that texts STOP, and check-in and the duplicate finder match on the number, so a shared number reaches strangers.
 SELECT COUNT( DISTINCT [a].[Number] )
 FROM [PhoneNumber] AS [a]
 INNER JOIN [Person] AS [pa] ON [pa].[Id] = [a].[PersonId]
@@ -130,7 +130,7 @@ WHERE ( [pa].[ForeignKey] = @ForeignKey OR [pa].[Id] = @AdminPersonId )
             AND [ga].[GroupTypeId] = ( SELECT [Id] FROM [GroupType] WHERE [Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' ) );
 
 -- check: emails-are-not-shared-across-households
--- why: Decision 313. An email belongs to one person. Two people in different families share one only as duplicate records of one person: the same last name, and a shared home or phone number, such as Jon Smith's records or Tom and Thomas Miller, or one of them a Pending record made from a form, such as a Crowd duplicate (decision D-crowd-names-6). Rock's duplicate finder scores a shared email highly, so two strangers with one name and one email filled the Duplicate Finder.
+-- why: Decision 313. An email belongs to one person. Two people in different families share one only as duplicate records of one person: the same last name, and a shared home or phone number, such as Jon Smith's records or Tom and Thomas Miller, or one of them a Pending record made from a form, such as a Crowd duplicate (decision 399). Rock's duplicate finder scores a shared email highly, so two strangers with one name and one email filled the Duplicate Finder.
 SELECT COUNT( DISTINCT [pa].[Email] )
 FROM [Person] AS [pa]
 INNER JOIN [Person] AS [pb] ON [pb].[Email] = [pa].[Email] AND [pb].[Id] > [pa].[Id]

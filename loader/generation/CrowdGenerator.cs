@@ -269,7 +269,7 @@ namespace RockSampleData.Loader.Generation
             about the Crowd changes.
 
             Reason: The Duplicate Finder and Rock's merge pages show the Crowd's duplicates, as in a real church
-            (decisions D-crowd-names-4 and D-crowd-names-5).
+            (decisions 397 and 398).
         */
 
         /// <summary>

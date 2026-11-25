@@ -304,7 +304,7 @@ WHERE [cr].[ForeignKey] = @ForeignKey AND [cr].[ConnectionState] = 0", P( "@Fore
 
             foreach ( var (household, person) in StepPerson.Of( people.Households ) )
             {
-                // A duplicate record takes no part, so it has no steps and no baptism (decision D-crowd-names-6).
+                // A duplicate record takes no part, so it has no steps and no baptism (decision 399).
                 if ( household.Cast.DuplicateOf != null )
                 {
                     continue;

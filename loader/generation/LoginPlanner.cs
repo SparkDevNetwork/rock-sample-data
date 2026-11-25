@@ -97,7 +97,7 @@ namespace RockSampleData.Loader.Generation
             }
 
             var pastors = inputs.CampusPastors.Values.Select( p => p.PersonId ).ToHashSet();
-            // A duplicate record takes no part, so it has no login of its own (decision D-crowd-names-6).
+            // A duplicate record takes no part, so it has no login of its own (decision 399).
             var generated = people.Where( x => !inputs.CastHouseholdKeys.Contains( x.Household.Cast.Key ) && x.Household.Cast.DuplicateOf == null )
                 .OrderBy( x => pastors.Contains( x.Person.PersonId ) ? 0 : 1 )
                 .ThenBy( x => x.Person.PersonId )

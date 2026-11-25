@@ -421,7 +421,7 @@ namespace RockSampleData.Loader
                     log.Write( $"  Generated: {businesses.Count:N0} businesses ({businessText})" );
 
                     // A share of generated people have a second record. They come after every plan above, so no group
-                    // or business sees them, and later steps leave Pending records out (decision D-crowd-names-4).
+                    // or business sees them, and later steps leave Pending records out (decision 397).
                     var crowdDuplicates = generator.GenerateDuplicates( generated, duplicates.Crowd );
                     households.AddRange( crowdDuplicates.Records );
                     duplicates.Pairs.AddRange( crowdDuplicates.Pairs );
