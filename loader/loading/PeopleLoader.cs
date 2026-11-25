@@ -134,7 +134,8 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// Builds every row in memory, then bulk-copies each table in foreign key order.
         /// </summary>
-        public void Load( List<CastHousehold> households )
+        /// <param name="merges">Records Rock already merged into loaded people: the Cast's and the Crowd's.</param>
+        public void Load( List<CastHousehold> households, IReadOnlyList<CastMerge> merges )
         {
             var familyTypeId = _db.RequireIdByGuid( "GroupType", FamilyGroupTypeGuid );
             var adultRoleId = _db.RequireIdByGuid( "GroupTypeRole", AdultRoleGuid );
@@ -171,7 +172,7 @@ namespace RockSampleData.Loader.Loading
 
             var homeLocationIds = new Dictionary<string, int>();
             var locationIds = new Dictionary<string, int>( StringComparer.OrdinalIgnoreCase );
-            var merges = _source.ReadCastDuplicates().Merges.ToLookup( m => m.Person.Guid );
+            var mergesByPerson = merges.ToLookup( m => m.Person.Guid );
             var familyRows = new Dictionary<int, DataRow>();
             var salutationMembers = new Dictionary<int, List<SalutationMember>>();
 
@@ -182,9 +183,11 @@ namespace RockSampleData.Loader.Loading
                 var campusId = _campusIds[CampusKeyFor( household )];
                 foreach ( var person in household.Members )
                 {
-                    // A record Rock merged into this person was made before them, so it had the Id just before theirs.
-                    // No Person row keeps it: it lives on only as the AliasPersonId of the record's alias (decision 312).
-                    foreach ( var merge in merges[person.Guid] )
+                    // A record Rock merged into this person was made before them, so it had the Id just before theirs, or,
+                    // for a generated duplicate, after them, so it had the Id just after. No Person row keeps it: it lives on
+                    // only as the AliasPersonId of the record's alias (decision 312). Either way the Id sits below the last
+                    // person's, so Rock never gives it to a new person.
+                    foreach ( var merge in mergesByPerson[person.Guid].Where( m => !m.RecordCameLater ) )
                     {
                         MergedRecordIds[merge.Record.Guid] = nextPersonId++;
                     }
@@ -192,6 +195,11 @@ namespace RockSampleData.Loader.Loading
                     People[person.Guid] = person.ReplacesAdmin && admin != null
                         ? new LoadedPerson { PersonId = AdminPersonId, AliasId = admin.AliasId, AliasGuid = admin.AliasGuid, KnownRelationshipGroupId = admin.KnownRelationshipGroupId, IsRockAdmin = true, FamilyId = FamilyIds[household.Key], CampusId = campusId, Cast = person }
                         : new LoadedPerson { PersonId = nextPersonId++, AliasId = nextAliasId++, AliasGuid = Guid.NewGuid(), FamilyId = FamilyIds[household.Key], CampusId = campusId, Cast = person };
+
+                    foreach ( var merge in mergesByPerson[person.Guid].Where( m => m.RecordCameLater ) )
+                    {
+                        MergedRecordIds[merge.Record.Guid] = nextPersonId++;
+                    }
                 }
             }
 
@@ -241,7 +249,7 @@ namespace RockSampleData.Loader.Loading
                     loaded.IsBirthDateRecorded = person.Birth?.IsUnrecorded != true;
                     loaded.GraduationYear = isAdult ? fileGraduationYear : grade.HasValue ? _dates.GraduationYear( grade.Value ) : fileGraduationYear;
                     loaded.IsAdult = isAdult;
-                    loaded.CanAttend = !isBusiness && !person.IsDeceased && person.RecordStatus != "inactive";
+                    loaded.CanAttend = !isBusiness && !person.IsDeceased && person.RecordStatus != "inactive" && household.DuplicateOf == null;
 
                     persons.Rows.Add(
                         loaded.PersonId, false,
@@ -937,7 +945,9 @@ ORDER BY [GroupId]", P( "@Id", AdminPersonId ), P( "@TypeId", relationshipTypeId
         public bool IsAdult { get; set; }
 
         /// <summary>
-        /// False for businesses, the deceased, and inactive records. Only these people attend.
+        /// False for businesses, the deceased, inactive records, and duplicate records. Only these people attend, and most
+        /// later steps take only them. A duplicate record, such as one a form made for someone already in Rock, takes no
+        /// part (decision 399).
         /// </summary>
         public bool CanAttend { get; set; }
 

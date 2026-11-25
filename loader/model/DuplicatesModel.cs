@@ -27,6 +27,42 @@ namespace RockSampleData.Loader.Model
         public List<CastMergeRequest> MergeRequests { get; set; } = new List<CastMergeRequest>();
 
         public List<CastMerge> Merges { get; set; } = new List<CastMerge>();
+
+        /// <summary>
+        /// How the Crowd's duplicate records are made, or null in a package built before they existed.
+        /// </summary>
+        public CrowdDuplicateRules Crowd { get; set; }
+    }
+
+    /// <summary>
+    /// How generated people get a second record (docs/duplicates.md, decision 397).
+    /// </summary>
+    internal sealed class CrowdDuplicateRules
+    {
+        /// <summary>
+        /// About this percent of generated people have a second record, open, set aside, or merged.
+        /// </summary>
+        public double PercentOfPeople { get; set; }
+
+        /// <summary>
+        /// The share of duplicate records in each state: "open", "ignored", and "merged", as weights.
+        /// </summary>
+        public Dictionary<string, double> Decisions { get; set; } = new Dictionary<string, double>();
+
+        /// <summary>
+        /// The staff member who sets pairs aside and merges records.
+        /// </summary>
+        public CastPersonReference DecidedBy { get; set; }
+
+        /// <summary>
+        /// A set-aside pair was decided this many days before install, from the first number to the second.
+        /// </summary>
+        public int[] DecidedDaysAgo { get; set; }
+
+        /// <summary>
+        /// A merge was made this many days before install, from the first number to the second.
+        /// </summary>
+        public int[] MergedDaysAgo { get; set; }
     }
 
     /// <summary>
@@ -80,6 +116,12 @@ namespace RockSampleData.Loader.Model
 
         public string Story { get; set; }
 
+        /// <summary>
+        /// True for a Crowd pair, whose duplicate record the load generated and whose decision is dated during the load.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonIgnore]
+        public bool IsGenerated { get; set; }
+
         public DuplicateDecision DecisionValue => Decision switch
         {
             "open" => DuplicateDecision.Open,
@@ -126,6 +168,13 @@ namespace RockSampleData.Loader.Model
         public CastPersonReference MergedBy { get; set; }
 
         public RelativeDate Merged { get; set; }
+
+        /// <summary>
+        /// True when the merged record was made after the person, as a generated duplicate is, so its Id came after
+        /// theirs. A Cast merge's record was made before.
+        /// </summary>
+        [System.Text.Json.Serialization.JsonIgnore]
+        public bool RecordCameLater { get; set; }
     }
 
     /// <summary>

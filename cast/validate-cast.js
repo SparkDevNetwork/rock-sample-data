@@ -2279,6 +2279,26 @@ if ( fs.existsSync( duplicatesFile ) ) {
         }
         checkDate( owner, merge.merged );
     }
+
+    // The Crowd's rules: a small share, weights for each state, a staff member who decides, and day ranges that run forward.
+    const crowd = duplicates.crowd;
+    if ( crowd ) {
+        const owner = "duplicates.json crowd";
+        if ( typeof crowd.percentOfPeople !== "number" || crowd.percentOfPeople < 0 || crowd.percentOfPeople > 5 ) {
+            errors.push( `${owner}: percentOfPeople is a number from 0 to 5.` );
+        }
+        const weights = [ "open", "ignored", "merged" ].map( k => crowd.decisions && crowd.decisions[k] );
+        if ( weights.some( w => typeof w !== "number" || w < 0 ) || weights.reduce( ( a, b ) => a + b, 0 ) <= 0 ) {
+            errors.push( `${owner}: decisions weighs open, ignored, and merged, each 0 or more, with a total above 0.` );
+        }
+        checkPerson( owner, crowd.decidedBy, true );
+        for ( const range of [ "decidedDaysAgo", "mergedDaysAgo" ] ) {
+            const days = crowd[range];
+            if ( !Array.isArray( days ) || days.length !== 2 || !days.every( d => Number.isInteger( d ) && d >= 1 ) || days[0] > days[1] ) {
+                errors.push( `${owner}: ${range} is [ first, last ] days before install, each 1 or more, first no later than last.` );
+            }
+        }
+    }
 }
 
 /*

@@ -74,9 +74,34 @@
           "story": { "type": "string" }
         }
       }
+    },
+    "crowd": {
+      "type": "object",
+      "description": "How generated people get a second record: a Pending record with no birth date, under the name they go by and with the email or mobile they gave. Each load generates them after every plan, runs Rock's duplicate finder, and writes each pair's decision.",
+      "required": [ "percentOfPeople", "decisions", "decidedBy", "decidedDaysAgo", "mergedDaysAgo" ],
+      "additionalProperties": false,
+      "properties": {
+        "$comment": { "type": "string" },
+        "percentOfPeople": { "type": "number", "minimum": 0, "maximum": 5, "description": "About this percent of generated people have a second record, in any state." },
+        "decisions": {
+          "type": "object",
+          "description": "Weights for each state. open: the Duplicate Finder lists the pair. ignored: decidedBy clicked Ignore. merged: decidedBy merged the record into the person, so only Rock's merge marks are left.",
+          "required": [ "open", "ignored", "merged" ],
+          "additionalProperties": false,
+          "properties": {
+            "open": { "type": "number", "minimum": 0 },
+            "ignored": { "type": "number", "minimum": 0 },
+            "merged": { "type": "number", "minimum": 0 }
+          }
+        },
+        "decidedBy": { "$ref": "#/$defs/person", "description": "The staff member who sets pairs aside and merges records." },
+        "decidedDaysAgo": { "$ref": "#/$defs/daysRange", "description": "When a pair was set aside, in days before install." },
+        "mergedDaysAgo": { "$ref": "#/$defs/daysRange", "description": "When a record was merged, in days before install." }
+      }
     }
   },
   "$defs": {
+    "daysRange": { "type": "array", "items": { "type": "integer", "minimum": 0 }, "minItems": 2, "maxItems": 2, "description": "The first and last number of days before install." },
     "guid": { "type": "string", "pattern": "^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$" },
     "key": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
     "person": {
