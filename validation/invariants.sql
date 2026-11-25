@@ -109,7 +109,7 @@ WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
         OR CHARINDEX( ',' + LEFT( [pn].[Number], 3 ) + ',', ',' + @AreaCodes + ',' ) = 0 );
 
 -- check: phones-are-not-shared-across-households
--- why: Content standard 2 and decision 259. A number belongs to one family. Two people in different families share one only as an office's main line (both work phones) or as duplicate records of one person (the same last name and email). Rock turns off texting on every phone with a number that texts STOP, and check-in and the duplicate finder match on the number, so a shared number reaches strangers.
+-- why: Content standard 2 and decisions 259 and 394. A number belongs to one family. Two people in different families share one only as an office's main line (both work phones), as duplicate records of one person (the same last name, and the same email or one of them a Pending record made from a form, decision 399), or when one record is inactive: a number the phone company gave a new family after the old one dropped it. Rock turns off texting on every phone with a number that texts STOP, and check-in and the duplicate finder match on the number, so a shared number reaches strangers.
 SELECT COUNT( DISTINCT [a].[Number] )
 FROM [PhoneNumber] AS [a]
 INNER JOIN [Person] AS [pa] ON [pa].[Id] = [a].[PersonId]
@@ -119,7 +119,9 @@ WHERE ( [pa].[ForeignKey] = @ForeignKey OR [pa].[Id] = @AdminPersonId )
     AND ( [pb].[ForeignKey] = @ForeignKey OR [pb].[Id] = @AdminPersonId )
     AND NOT ( [a].[NumberTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '2CC66D5A-F61C-4B74-9AF9-590A9847C13C' )
         AND [b].[NumberTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '2CC66D5A-F61C-4B74-9AF9-590A9847C13C' ) )
-    AND NOT ( [pa].[LastName] = [pb].[LastName] AND [pa].[Email] = [pb].[Email] )
+    AND NOT ( [pa].[LastName] = [pb].[LastName] AND ( [pa].[Email] = [pb].[Email]
+        OR ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '283999EC-7346-42E3-B807-BCE9B2BABB49' ) IN ( [pa].[RecordStatusValueId], [pb].[RecordStatusValueId] ) ) )
+    AND ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '1DAD99D5-41A9-4865-8366-F269902B80A4' ) NOT IN ( [pa].[RecordStatusValueId], [pb].[RecordStatusValueId] )
     AND NOT EXISTS (
         SELECT 1
         FROM [GroupMember] AS [ga]
@@ -128,7 +130,7 @@ WHERE ( [pa].[ForeignKey] = @ForeignKey OR [pa].[Id] = @AdminPersonId )
             AND [ga].[GroupTypeId] = ( SELECT [Id] FROM [GroupType] WHERE [Guid] = '790E3215-3B10-442B-AF69-616C0DCB998E' ) );
 
 -- check: emails-are-not-shared-across-households
--- why: Decision 313. An email belongs to one person. Two people in different families share one only as duplicate records of one person: the same last name, and a shared home or phone number, such as Jon Smith's records or Tom and Thomas Miller. Rock's duplicate finder scores a shared email highly, so two strangers with one name and one email filled the Duplicate Finder.
+-- why: Decision 313. An email belongs to one person. Two people in different families share one only as duplicate records of one person: the same last name, and a shared home or phone number, such as Jon Smith's records or Tom and Thomas Miller, or one of them a Pending record made from a form, such as a Crowd duplicate (decision 399). Rock's duplicate finder scores a shared email highly, so two strangers with one name and one email filled the Duplicate Finder.
 SELECT COUNT( DISTINCT [pa].[Email] )
 FROM [Person] AS [pa]
 INNER JOIN [Person] AS [pb] ON [pb].[Email] = [pa].[Email] AND [pb].[Id] > [pa].[Id]
@@ -136,7 +138,8 @@ WHERE ( [pa].[ForeignKey] = @ForeignKey OR [pa].[Id] = @AdminPersonId )
     AND ( [pb].[ForeignKey] = @ForeignKey OR [pb].[Id] = @AdminPersonId )
     AND ISNULL( [pa].[Email], '' ) <> ''
     AND NOT ( [pa].[LastName] = [pb].[LastName] AND (
-        EXISTS ( SELECT 1 FROM [PhoneNumber] AS [na] INNER JOIN [PhoneNumber] AS [nb] ON [nb].[Number] = [na].[Number] WHERE [na].[PersonId] = [pa].[Id] AND [nb].[PersonId] = [pb].[Id] )
+        ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '283999EC-7346-42E3-B807-BCE9B2BABB49' ) IN ( [pa].[RecordStatusValueId], [pb].[RecordStatusValueId] )
+        OR EXISTS ( SELECT 1 FROM [PhoneNumber] AS [na] INNER JOIN [PhoneNumber] AS [nb] ON [nb].[Number] = [na].[Number] WHERE [na].[PersonId] = [pa].[Id] AND [nb].[PersonId] = [pb].[Id] )
         OR EXISTS (
             SELECT 1
             FROM [GroupMember] AS [ma]
@@ -170,7 +173,7 @@ WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
     AND ( [p].[RaceValueId] IS NOT NULL OR [p].[EthnicityValueId] IS NOT NULL );
 
 -- check: home-addresses-are-mapped
--- why: Group Finder, campus distance, and maps need a point for every home address.
+-- why: Group Finder, campus distance, and maps need a point for every home address. The one exception is a home Rock's address service could not match, which staff locked so Rock never sends it again (decision 386). Rock's Location Editor lists it under Not Geocoded until someone places its pin.
 SELECT COUNT(*)
 FROM [GroupLocation] AS [gl]
 INNER JOIN [Group] AS [g] ON [g].[Id] = [gl].[GroupId]
@@ -178,17 +181,21 @@ INNER JOIN [Location] AS [l] ON [l].[Id] = [gl].[LocationId]
 INNER JOIN [DefinedValue] AS [t] ON [t].[Id] = [gl].[GroupLocationTypeValueId]
 WHERE [g].[ForeignKey] = @ForeignKey
     AND [t].[Guid] = '8C52E53C-2A66-435A-AE6E-5EE307D9A0DC'
-    AND [l].[GeoPoint] IS NULL;
+    AND [l].[GeoPoint] IS NULL
+    AND NOT ( [l].[IsGeoPointLocked] = 1 AND [l].[GeocodedDateTime] IS NULL AND [l].[GeocodeAttemptedResult] IS NOT NULL );
 
 -- check: loaded-addresses-are-checked
--- why: Decision 315. Sample addresses never go to an address service. Every home, business, and campus Location the load wrote carries the marks Rock leaves after its address service standardized and geocoded an address, so Rock's Location Services Verify job finds no work. A campus has only a map point today, so verify's address-services check cannot see it; this rule keeps it marked for the day it gets a street. A geocoded address has its map point.
+-- why: Decision 315. Sample addresses never go to an address service. Every home, business, and campus Location the load wrote carries the marks Rock leaves after its address service standardized and geocoded an address, so Rock's Location Services Verify job finds no work. A campus has only a map point today, so verify's address-services check cannot see it; this rule keeps it marked for the day it gets a street. A geocoded address has its map point. The one exception is an address the service could not match (decision 386): both attempts and their result, no success dates and no map point, and Location Locked, which Rock's job never sends.
 SELECT COUNT(*)
 FROM [Location] AS [l]
 WHERE ( [l].[ForeignKey] = @ForeignKey OR EXISTS ( SELECT 1 FROM [Campus] AS [c] WHERE [c].[LocationId] = [l].[Id] ) )
     AND ( ISNULL( [l].[Street1], '' ) <> '' OR [l].[GeoPoint] IS NOT NULL )
     AND ( [l].[StandardizeAttemptedDateTime] IS NULL OR [l].[StandardizedDateTime] IS NULL OR [l].[StandardizeAttemptedServiceType] IS NULL
         OR [l].[GeocodeAttemptedDateTime] IS NULL OR [l].[GeocodedDateTime] IS NULL OR [l].[GeocodeAttemptedServiceType] IS NULL
-        OR [l].[GeoPoint] IS NULL );
+        OR [l].[GeoPoint] IS NULL )
+    AND NOT ( [l].[IsGeoPointLocked] = 1 AND [l].[StandardizeAttemptedDateTime] IS NOT NULL AND [l].[StandardizeAttemptedServiceType] IS NOT NULL AND [l].[StandardizeAttemptedResult] IS NOT NULL
+        AND [l].[GeocodeAttemptedDateTime] IS NOT NULL AND [l].[GeocodeAttemptedServiceType] IS NOT NULL AND [l].[GeocodeAttemptedResult] IS NOT NULL
+        AND [l].[StandardizedDateTime] IS NULL AND [l].[GeocodedDateTime] IS NULL AND [l].[GeoPoint] IS NULL );
 
 -- check: staff-updates-are-complete
 -- why: Decision 345. Rock's staff homepage shows an update's feature title, text, link, and image, then its one to three articles, each with a title and content, and Rock's save hook gives every item a global key and a slug. An update missing any of them shows a blank part of the homepage.
@@ -885,7 +892,7 @@ WHERE [a].[ForeignKey] = @ForeignKey
     END;
 
 -- check: young-kid-checks-in-with-the-family
--- why: Kids from the nursery through 6th grade come only with their family (decision 146). Each of their check-ins is made by an adult of one of their families who was in the worship service that Sunday. A child whose families have no living, active adult checks in on their own, as before.
+-- why: Kids from the nursery through 6th grade come only with their family (decision 146), or with an adult from another family who may check them in, such as a grandparent (decisions 366 and 372). Each of their check-ins is made by an adult of one of their families, or by an adult whose Known Relationships hold the child in a role Rock lets check in (Can check in or Grandchild), who was in the worship service that Sunday. A child whose families have no living, active adult checks in on their own, as before.
 SELECT COUNT(*)
 FROM [Attendance] AS [a]
 INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
@@ -908,14 +915,122 @@ WHERE [a].[ForeignKey] = @ForeignKey AND [a].[DidAttend] = 1 AND [a].[Attendance
         INNER JOIN [GroupMember] AS [byMember] ON [byMember].[PersonId] = [byAlias].[PersonId]
         INNER JOIN [GroupTypeRole] AS [byRole] ON [byRole].[Id] = [byMember].[GroupRoleId]
         INNER JOIN [GroupMember] AS [kid] ON [kid].[GroupId] = [byMember].[GroupId] AND [kid].[PersonId] = [pa].[PersonId]
+        INNER JOIN [GroupTypeRole] AS [kidRole] ON [kidRole].[Id] = [kid].[GroupRoleId]
         INNER JOIN [PersonAlias] AS [wpa] ON [wpa].[PersonId] = [byAlias].[PersonId]
         INNER JOIN [Attendance] AS [w] ON [w].[PersonAliasId] = [wpa].[Id] AND [w].[DidAttend] = 1
         INNER JOIN [AttendanceOccurrence] AS [wo] ON [wo].[Id] = [w].[OccurrenceId] AND [wo].[SundayDate] = [o].[SundayDate]
         INNER JOIN [Group] AS [wg] ON [wg].[Id] = [wo].[GroupId]
         INNER JOIN [GroupType] AS [wgt] ON [wgt].[Id] = [wg].[GroupTypeId]
         WHERE [byAlias].[Id] = [a].[CheckedInByPersonAliasId]
-            AND [byRole].[Guid] = '2639F9A5-2AAE-4E48-A8C3-4FFE86681E42'
+            AND ( [byRole].[Guid] = '2639F9A5-2AAE-4E48-A8C3-4FFE86681E42'
+                OR ( [byRole].[Guid] = '7BC6C12E-0CD1-4DFD-8D5B-1B35AE714C42' AND [kidRole].[Guid] IN ( 'DC8E5C35-F37C-4B49-A5C6-DF3D94FC808F', 'C1A393B2-519D-4E46-A551-E48C36BCAC06' ) ) )
             AND [wg].[Name] = 'Weekend Service' AND [wgt].[Guid] = '235BAE2B-5760-4763-AADF-3938F34BA100' );
+
+-- check: known-relationship-has-its-other-half
+-- why: Decision 365. Rock writes a known relationship as two rows: the other person in the owner's Known Relationships group with the role, and the owner in theirs with the role's inverse, which the role's InverseRelationship attribute names. Profiles on both sides show it, and a kiosk search finds a child only from the side that may check in.
+SELECT COUNT(*)
+FROM [GroupMember] AS [m]
+INNER JOIN [GroupTypeRole] AS [r] ON [r].[Id] = [m].[GroupRoleId]
+INNER JOIN [GroupMember] AS [own] ON [own].[GroupId] = [m].[GroupId] AND [own].[GroupRoleId] = ( SELECT [Id] FROM [GroupTypeRole] WHERE [Guid] = '7BC6C12E-0CD1-4DFD-8D5B-1B35AE714C42' )
+INNER JOIN [AttributeValue] AS [inverse] ON [inverse].[EntityId] = [r].[Id]
+    AND [inverse].[AttributeId] = ( SELECT [a].[Id] FROM [Attribute] AS [a] INNER JOIN [EntityType] AS [et] ON [et].[Id] = [a].[EntityTypeId] WHERE [et].[Name] = 'Rock.Model.GroupTypeRole' AND [a].[Key] = 'InverseRelationship' )
+WHERE [m].[ForeignKey] = @ForeignKey AND [m].[PersonId] <> [own].[PersonId]
+    AND [m].[GroupTypeId] = ( SELECT [Id] FROM [GroupType] WHERE [Guid] = 'E0C5A0E2-B7B3-4EF4-820D-BBF7F9A374EF' )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [GroupMember] AS [theirs]
+        INNER JOIN [GroupMember] AS [back] ON [back].[GroupId] = [theirs].[GroupId] AND [back].[PersonId] = [own].[PersonId]
+        INNER JOIN [GroupTypeRole] AS [backRole] ON [backRole].[Id] = [back].[GroupRoleId]
+        WHERE [theirs].[PersonId] = [m].[PersonId] AND [theirs].[GroupRoleId] = [own].[GroupRoleId]
+            AND [backRole].[Guid] = TRY_CAST( [inverse].[Value] AS UNIQUEIDENTIFIER ) );
+
+-- check: test-schedules-have-no-attendance
+-- why: Decision 370. Rock's two test schedules, 4:30 (test) and 6:00 (test), run every day so check-in can be tested at any time. The load records no attendance and no occurrence on them, so a tester's check-ins are the only ones there.
+SELECT ( SELECT COUNT(*) FROM [AttendanceOccurrence] AS [o] WHERE [o].[ForeignKey] = @ForeignKey AND [o].[ScheduleId] IN ( SELECT [Id] FROM [Schedule] WHERE [Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' ) ) )
+    + ( SELECT COUNT(*)
+        FROM [Attendance] AS [a]
+        INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]
+        WHERE [a].[ForeignKey] = @ForeignKey AND [o].[ScheduleId] IN ( SELECT [Id] FROM [Schedule] WHERE [Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' ) ) );
+
+-- check: test-group-in-every-kids-and-student-room
+-- why: Decision 370. Rock's Check-in Test Area has one Test Group. Every room at every campus that holds a kids or student group of the Weekly Service Check-in template holds the Test Group too, on both test schedules, so a kiosk at any campus can test check-in any day, at any time.
+SELECT COUNT(*)
+FROM ( SELECT DISTINCT [gl].[LocationId]
+    FROM [GroupLocation] AS [gl]
+    INNER JOIN [Group] AS [g] ON [g].[Id] = [gl].[GroupId]
+    INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+    WHERE [gt].[Guid] IN ( 'CADB2D12-7836-44BC-8EEA-3C6AB22FD5E8', 'E3C8F7D6-5CEB-43BB-802F-66C3E734049E', '7A17235B-69AD-439B-BAB0-1A0A472DB96F', '9A88743B-F336-4404-B877-2A623689195D' ) ) AS [room]
+WHERE ( SELECT COUNT( DISTINCT [gls].[ScheduleId] )
+    FROM [GroupLocation] AS [tgl]
+    INNER JOIN [Group] AS [tg] ON [tg].[Id] = [tgl].[GroupId]
+    INNER JOIN [GroupLocationSchedule] AS [gls] ON [gls].[GroupLocationId] = [tgl].[Id]
+    INNER JOIN [Schedule] AS [s] ON [s].[Id] = [gls].[ScheduleId]
+    WHERE [tgl].[LocationId] = [room].[LocationId] AND [tg].[Guid] = 'CBBBEEE0-DE95-4876-9FEF-5EB68FA67853'
+        AND [s].[Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' ) ) < 2;
+
+-- check: every-kiosk-offers-the-test-group
+-- why: Decision 370. A check-in kiosk offers the groups in the locations it is assigned, and in their rooms. Every campus's kiosks reach a room that holds the Test Group on both test schedules, so any kiosk can test check-in any day, at any time.
+WITH [reach] AS (
+    SELECT [dl].[DeviceId], [dl].[LocationId]
+    FROM [DeviceLocation] AS [dl]
+    UNION ALL
+    SELECT [reach].[DeviceId], [l].[Id]
+    FROM [reach]
+    INNER JOIN [Location] AS [l] ON [l].[ParentLocationId] = [reach].[LocationId] )
+SELECT COUNT(*)
+FROM [Device] AS [d]
+WHERE [d].[DeviceTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = 'BC809626-1389-4543-B8BB-6FAC79C27AFD' )
+    AND EXISTS ( SELECT 1 FROM [DeviceLocation] AS [dl] WHERE [dl].[DeviceId] = [d].[Id] )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM [reach]
+        INNER JOIN [GroupLocation] AS [tgl] ON [tgl].[LocationId] = [reach].[LocationId]
+        INNER JOIN [Group] AS [tg] ON [tg].[Id] = [tgl].[GroupId]
+        WHERE [reach].[DeviceId] = [d].[Id] AND [tg].[Guid] = 'CBBBEEE0-DE95-4876-9FEF-5EB68FA67853'
+            AND ( SELECT COUNT( DISTINCT [gls].[ScheduleId] )
+                FROM [GroupLocationSchedule] AS [gls]
+                INNER JOIN [Schedule] AS [s] ON [s].[Id] = [gls].[ScheduleId]
+                WHERE [gls].[GroupLocationId] = [tgl].[Id] AND [s].[Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' ) ) = 2 )
+    OPTION ( MAXRECURSION 10 );
+
+-- check: volunteer-test-area-is-in-the-volunteer-template
+-- why: Decision 371. The Volunteer Test Area sits under Rock's Volunteer Check-in template, so a volunteer kiosk can offer its test groups, the way Rock's Check-in Test Area sits under Weekly Service Check-in.
+SELECT CASE WHEN EXISTS (
+    SELECT 1
+    FROM [GroupTypeAssociation] AS [a]
+    INNER JOIN [GroupType] AS [template] ON [template].[Id] = [a].[GroupTypeId]
+    INNER JOIN [GroupType] AS [area] ON [area].[Id] = [a].[ChildGroupTypeId]
+    WHERE [template].[Guid] = '92435F1D-E525-4FD2-BEC7-4956DC056A2B' AND [area].[Guid] = 'E3A4419E-62CD-4280-81D4-801078974735' ) THEN 0 ELSE 1 END;
+
+-- check: volunteer-test-group-in-every-serving-room
+-- why: Decision 371. Every room a serving team serves in holds its campus's volunteer test group on both test schedules, so volunteer check-in can be tested in any room, any day, at any time.
+SELECT COUNT(*)
+FROM ( SELECT DISTINCT [gl].[LocationId], [g].[CampusId]
+    FROM [GroupLocation] AS [gl]
+    INNER JOIN [Group] AS [g] ON [g].[Id] = [gl].[GroupId]
+    INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+    WHERE [gt].[Guid] = '2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4' ) AS [room]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [GroupLocation] AS [tgl]
+    INNER JOIN [Group] AS [tg] ON [tg].[Id] = [tgl].[GroupId]
+    INNER JOIN [GroupType] AS [tgt] ON [tgt].[Id] = [tg].[GroupTypeId]
+    WHERE [tgl].[LocationId] = [room].[LocationId] AND [tg].[CampusId] = [room].[CampusId] AND [tgt].[Guid] = 'E3A4419E-62CD-4280-81D4-801078974735'
+        AND ( SELECT COUNT( DISTINCT [gls].[ScheduleId] )
+            FROM [GroupLocationSchedule] AS [gls]
+            INNER JOIN [Schedule] AS [s] ON [s].[Id] = [gls].[ScheduleId]
+            WHERE [gls].[GroupLocationId] = [tgl].[Id] AND [s].[Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' ) ) = 2 );
+
+-- check: no-serving-team-room-has-a-test-schedule
+-- why: Decision 371. Rock's Group Scheduler, Schedule Toolbox, and auto-schedule read every schedule on a team's rooms, so a test schedule there would show a slot every day and let volunteers be scheduled to it. Real teams keep only their real services, and volunteer tests use the Volunteer Test Area.
+SELECT COUNT(*)
+FROM [GroupLocationSchedule] AS [gls]
+INNER JOIN [GroupLocation] AS [gl] ON [gl].[Id] = [gls].[GroupLocationId]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [gl].[GroupId]
+INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+INNER JOIN [Schedule] AS [s] ON [s].[Id] = [gls].[ScheduleId]
+WHERE [gt].[Guid] = '2C42B2D4-1C5F-4AD5-A9AD-08631B872AC4'
+    AND [s].[Guid] IN ( 'A5C81078-EB8C-46AA-BB91-1E2BA8BA76AE', 'C8B7BEB4-54E2-4473-822F-F5D0F8CE19D7' );
 
 -- check: onsite-gift-on-a-family-sunday
 -- why: Checks and cash go in the offering only on a Sunday the family came (decision 146). A student who comes on their own does not make it a family Sunday, so every gift in a Sunday Offering batch falls on a Sunday when an adult of the giver's family attended.
@@ -1447,10 +1562,11 @@ WHERE [i].[ForeignKey] = @ForeignKey
             AND [w].[Status] = 'Completed' AND CAST( [w].[CompletedDateTime] AS DATE ) = [i].[StartDate] );
 
 -- check: workflow-is-finished-as-rock-leaves-it
--- why: Decision 235. Each sample workflow a person started from a form is persisted and Completed, by the person who started it, with one completed activity, every action of that activity completed, and the person in its Person attribute, as Rock leaves a finished form workflow. A workflow a step started has its own rules (issue 18).
+-- why: Decision 235. Each sample workflow a person started from a form is persisted and Completed, by the person who started it, with one completed activity, every action of that activity completed, and the person in its Person attribute, as Rock leaves a finished form workflow. A workflow a step started (issue 18), or staff started from a person's profile (decisions 387 and 388), has its own rules.
 SELECT COUNT(*)
 FROM [Workflow] AS [w]
 WHERE [w].[ForeignKey] = @ForeignKey AND NOT EXISTS ( SELECT 1 FROM [StepWorkflow] AS [sw] WHERE [sw].[WorkflowId] = [w].[Id] )
+    AND ISNULL( [w].[EntityTypeId], 0 ) <> ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
     AND ( [w].[Status] <> 'Completed' OR [w].[CompletedDateTime] IS NULL OR [w].[InitiatorPersonAliasId] IS NULL OR [w].[CompletedDateTime] > GETDATE()
         OR ( SELECT COUNT(*) FROM [WorkflowActivity] AS [act] WHERE [act].[WorkflowId] = [w].[Id] AND [act].[CompletedDateTime] IS NOT NULL ) <> 1
         OR EXISTS ( SELECT 1 FROM [WorkflowActivity] AS [act]
@@ -1462,6 +1578,124 @@ WHERE [w].[ForeignKey] = @ForeignKey AND NOT EXISTS ( SELECT 1 FROM [StepWorkflo
             INNER JOIN [PersonAlias] AS [pa] ON [pa].[Guid] = TRY_CAST( CASE WHEN LEN( [av].[Value] ) = 36 THEN [av].[Value] END AS UNIQUEIDENTIFIER )
             WHERE [av].[EntityId] = [w].[Id] AND [a].[Key] = 'Person' AND [a].[EntityTypeQualifierColumn] = 'WorkflowTypeId' AND [a].[EntityTypeQualifierValue] = CAST( [w].[WorkflowTypeId] AS NVARCHAR( 50 ) )
                 AND [pa].[Id] = [w].[InitiatorPersonAliasId] ) );
+
+-- check: profile-workflow-is-as-rock-leaves-it
+-- why: Decisions 387 and 388. A workflow staff start from a person's profile, such as Rock's Person Data Error or Photo Request, has that person as its entity and in its Person attribute, and the staff member as its initiator. A completed one has every activity completed when it completed, as Rock's MarkComplete leaves it. An open one waits on exactly one activity, assigned to a person, so it shows in their My Workflows list.
+SELECT COUNT(*)
+FROM [Workflow] AS [w]
+WHERE [w].[ForeignKey] = @ForeignKey AND [w].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+    AND ( [w].[InitiatorPersonAliasId] IS NULL
+        OR NOT EXISTS ( SELECT 1 FROM [AttributeValue] AS [av]
+            INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
+            INNER JOIN [PersonAlias] AS [pa] ON [pa].[Guid] = TRY_CAST( CASE WHEN LEN( [av].[Value] ) = 36 THEN [av].[Value] END AS UNIQUEIDENTIFIER )
+            WHERE [av].[EntityId] = [w].[Id] AND [a].[Key] = 'Person' AND [a].[EntityTypeQualifierColumn] = 'WorkflowTypeId' AND [a].[EntityTypeQualifierValue] = CAST( [w].[WorkflowTypeId] AS NVARCHAR( 50 ) )
+                AND [pa].[PersonId] = [w].[EntityId] )
+        OR ( [w].[Status] = 'Completed' AND ( [w].[CompletedDateTime] IS NULL OR [w].[CompletedDateTime] > GETDATE()
+            OR EXISTS ( SELECT 1 FROM [WorkflowActivity] AS [act] WHERE [act].[WorkflowId] = [w].[Id] AND ISNULL( [act].[CompletedDateTime], '1900-01-01' ) <> [w].[CompletedDateTime] ) ) )
+        OR ( [w].[Status] = 'Active' AND ( [w].[CompletedDateTime] IS NOT NULL
+            OR ( SELECT COUNT(*) FROM [WorkflowActivity] AS [act] WHERE [act].[WorkflowId] = [w].[Id] AND [act].[CompletedDateTime] IS NULL AND [act].[AssignedPersonAliasId] IS NOT NULL ) <> 1
+            OR ( SELECT COUNT(*) FROM [WorkflowActivity] AS [act] WHERE [act].[WorkflowId] = [w].[Id] AND [act].[CompletedDateTime] IS NULL ) <> 1 ) )
+        OR [w].[Status] NOT IN ( 'Active', 'Completed' ) );
+
+-- check: photo-request-reply-has-a-photo
+-- why: Decision 388. Rock's Photo Upload page sets the person's photo and puts them in the Photo Request group as Pending, and Verify Photos makes them Active. Verify Photos shows each Pending or Active member's photo, and its reject button deletes it, so a reply with no photo would show a broken image.
+SELECT COUNT(*)
+FROM [GroupMember] AS [gm]
+INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId] AND [g].[Guid] = '2108EF9C-10DC-4466-973D-D25AAB7818BE'
+INNER JOIN [Person] AS [p] ON [p].[Id] = [gm].[PersonId]
+WHERE [gm].[ForeignKey] = @ForeignKey AND [gm].[GroupMemberStatus] IN ( 1, 2 ) AND [p].[PhotoId] IS NULL;
+
+-- check: self-inactivated-record-has-its-note
+-- why: Decision 385. Rock's Email Preferences page inactivates a person who says they are no longer involved, with their reason and note, and marks the record Self Inactivated, and Rock's save hook stamps when the status changed. Rock's Self Inactivated Individuals report shows the reason and the notes.
+SELECT COUNT(*)
+FROM [Person] AS [p]
+WHERE ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId )
+    AND [p].[ReviewReasonValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = 'D539C356-6856-4E94-80B4-8FEA869AF38B' )
+    AND ( [p].[RecordStatusValueId] <> ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '1DAD99D5-41A9-4865-8366-F269902B80A4' )
+        OR [p].[RecordStatusReasonValueId] IS NULL OR ISNULL( [p].[InactiveReasonNote], '' ) = '' OR ISNULL( [p].[ReviewReasonNote], '' ) = ''
+        OR [p].[RecordStatusLastModifiedDateTime] IS NULL );
+
+-- check: data-automation-rules-are-off
+-- why: Decision 389. Each Data Automation rule the load saves is configured and off, so Rock's Data Automation job, which runs every Tuesday at 4 AM, inactivates, moves, and relabels nobody.
+SELECT COUNT(*)
+FROM [Attribute] AS [a]
+WHERE [a].[ForeignKey] = @ForeignKey AND [a].[EntityTypeId] IS NULL AND [a].[EntityTypeQualifierColumn] = 'SystemSetting' AND [a].[Key] LIKE 'core[_]DataAutomation%'
+    AND ISNULL( [a].[DefaultValue], '' ) NOT LIKE '{"IsEnabled":false,%';
+
+-- check: person-has-a-record-source
+-- why: Decision 392. Every record shows where it came from: the form of a first visit, a first record, or a Pending record, or a mix for records made earlier. Rock's admin person keeps the record Rock made (decision 177).
+SELECT COUNT(*)
+FROM [Person] AS [p]
+WHERE [p].[ForeignKey] = @ForeignKey AND [p].[RecordSourceValueId] IS NULL;
+
+-- check: person-is-made-before-their-first-record
+-- why: Decisions 383 and 392. Rock writes a check-in, group membership, gift, request, registration, note, login, workflow, or demographic History line for a person only once their record exists, so no record is made after the first of these.
+SELECT COUNT(*)
+FROM [Person] AS [p]
+CROSS APPLY (
+    SELECT MIN( [r].[At] ) AS [At]
+    FROM (
+        SELECT [a].[StartDateTime] AS [At] FROM [Attendance] AS [a] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [a].[PersonAliasId] WHERE [pa].[PersonId] = [p].[Id]
+        UNION ALL SELECT [gm].[DateTimeAdded] FROM [GroupMember] AS [gm] INNER JOIN [Group] AS [g] ON [g].[Id] = [gm].[GroupId] INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+            WHERE [gm].[PersonId] = [p].[Id] AND [g].[IsSecurityRole] = 0 AND [gt].[Guid] NOT IN ( '790E3215-3B10-442B-AF69-616C0DCB998E', 'E0C5A0E2-B7B3-4EF4-820D-BBF7F9A374EF', 'D1D95777-FFA3-CBB3-4A6D-658706DAED33' )
+        UNION ALL SELECT [t].[TransactionDateTime] FROM [FinancialTransaction] AS [t] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [t].[AuthorizedPersonAliasId] WHERE [pa].[PersonId] = [p].[Id]
+        UNION ALL SELECT [r].[CreatedDateTime] FROM [ConnectionRequest] AS [r] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[PersonAliasId] WHERE [pa].[PersonId] = [p].[Id]
+        UNION ALL SELECT [r].[CreatedDateTime] FROM [RegistrationRegistrant] AS [r] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[PersonAliasId] WHERE [pa].[PersonId] = [p].[Id]
+        UNION ALL SELECT [r].[RequestDateTime] FROM [BenevolenceRequest] AS [r] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[RequestedByPersonAliasId] WHERE [pa].[PersonId] = [p].[Id]
+        UNION ALL SELECT [n].[CreatedDateTime] FROM [Note] AS [n] INNER JOIN [NoteType] AS [nt] ON [nt].[Id] = [n].[NoteTypeId] WHERE [n].[EntityId] = [p].[Id] AND [nt].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+        UNION ALL SELECT [u].[CreatedDateTime] FROM [UserLogin] AS [u] WHERE [u].[PersonId] = [p].[Id]
+        UNION ALL SELECT [w].[ActivatedDateTime] FROM [Workflow] AS [w] WHERE [w].[EntityId] = [p].[Id] AND [w].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+        UNION ALL SELECT [h].[CreatedDateTime] FROM [History] AS [h] WHERE [h].[EntityId] = [p].[Id] AND [h].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
+            AND [h].[CategoryId] = ( SELECT [Id] FROM [Category] WHERE [Guid] = '51D3EC5A-D079-45ED-909E-B0AB2FD06835' )
+    ) AS [r]
+) AS [first]
+WHERE [p].[ForeignKey] = @ForeignKey AND [first].[At] < [p].[CreatedDateTime];
+
+-- check: ncoa-move-is-processed-as-rock-does
+-- why: Decision 395. Rock's NCOA processing gives a family that moved a new Home, the mailing address, at the address in the NCOA row, and keeps the old one as Previous. A move Rock left for a staff member changes nothing, and every row is Complete or waits for a staff member, as Rock's import leaves it.
+SELECT COUNT(*)
+FROM [NcoaHistory] AS [n]
+WHERE [n].[ForeignKey] = @ForeignKey
+    AND ( [n].[Processed] NOT IN ( 1, 2 )
+        OR ( [n].[Processed] = 2 AND ( [n].[NcoaType] <> 3 OR NOT EXISTS ( SELECT 1 FROM [GroupLocation] AS [gl] WHERE [gl].[GroupId] = [n].[FamilyId] AND [gl].[LocationId] = [n].[LocationId]
+            AND [gl].[GroupLocationTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '8C52E53C-2A66-435A-AE6E-5EE307D9A0DC' ) ) ) )
+        OR ( [n].[Processed] = 1 AND [n].[NcoaType] = 3 AND (
+            NOT EXISTS ( SELECT 1 FROM [GroupLocation] AS [gl] WHERE [gl].[GroupId] = [n].[FamilyId] AND [gl].[LocationId] = [n].[LocationId]
+                AND [gl].[GroupLocationTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '853D98F1-6E08-4321-861B-520B4106CFE0' ) )
+            OR NOT EXISTS ( SELECT 1 FROM [GroupLocation] AS [gl] INNER JOIN [Location] AS [l] ON [l].[Id] = [gl].[LocationId]
+                WHERE [gl].[GroupId] = [n].[FamilyId] AND [l].[Street1] = [n].[UpdatedStreet1] AND [l].[PostalCode] = [n].[UpdatedPostalCode] AND [gl].[IsMailingLocation] = 1
+                    AND [gl].[GroupLocationTypeValueId] = ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '8C52E53C-2A66-435A-AE6E-5EE307D9A0DC' ) ) ) ) );
+
+-- check: ncoa-move-away-is-inactivated
+-- why: Decision 395. A family Rock's NCOA processing moved at least the minimum distance saved with the run is inactivated with the run's reason and Rock's note, and has nothing Rock's person save hook would have inactivated: no active group membership whose group type follows the person, no open connection request, and no active communication flow.
+SELECT COUNT(*)
+FROM [NcoaHistory] AS [n]
+INNER JOIN [GroupMember] AS [fm] ON [fm].[GroupId] = [n].[FamilyId]
+INNER JOIN [Person] AS [p] ON [p].[Id] = [fm].[PersonId]
+CROSS APPLY ( SELECT TRY_CONVERT( DECIMAL( 18, 2 ), JSON_VALUE( [a].[DefaultValue], '$.NcoaSettings.MinimumMoveDistance' ) ) AS [Minimum], TRY_CONVERT( INT, JSON_VALUE( [a].[DefaultValue], '$.NcoaSettings.InactiveRecordReasonId' ) ) AS [ReasonId]
+    FROM [Attribute] AS [a] WHERE [a].[EntityTypeId] IS NULL AND [a].[EntityTypeQualifierColumn] = 'SystemSetting' AND [a].[Key] = 'core_SparkData' ) AS [s]
+WHERE [n].[ForeignKey] = @ForeignKey AND [n].[NcoaType] = 3 AND [n].[Processed] = 1 AND [n].[MoveDistance] >= [s].[Minimum]
+    AND ( [p].[RecordStatusValueId] <> ( SELECT [Id] FROM [DefinedValue] WHERE [Guid] = '1DAD99D5-41A9-4865-8366-F269902B80A4' )
+        OR ISNULL( [p].[RecordStatusReasonValueId], 0 ) <> [s].[ReasonId]
+        OR ISNULL( [p].[InactiveReasonNote], '' ) <> CONCAT( 'Received a Change of Address (NCOA) notice that was for more than ', FORMAT( [s].[Minimum], '0.##' ), ' miles away.' )
+        OR EXISTS ( SELECT 1 FROM [GroupMember] AS [m] INNER JOIN [Group] AS [g] ON [g].[Id] = [m].[GroupId] INNER JOIN [GroupType] AS [gt] ON [gt].[Id] = [g].[GroupTypeId]
+            WHERE [m].[PersonId] = [p].[Id] AND [m].[GroupMemberStatus] <> 0 AND [gt].[IgnorePersonInactivated] = 0 )
+        OR EXISTS ( SELECT 1 FROM [ConnectionRequest] AS [r] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[PersonAliasId] WHERE [pa].[PersonId] = [p].[Id] AND [r].[ConnectionState] NOT IN ( 1, 3 ) )
+        OR EXISTS ( SELECT 1 FROM [CommunicationFlowInstanceRecipient] AS [r] INNER JOIN [PersonAlias] AS [pa] ON [pa].[Id] = [r].[RecipientPersonAliasId] WHERE [pa].[PersonId] = [p].[Id] AND [r].[Status] = 1 ) );
+
+-- check: visit-dates-are-as-rock-writes-them
+-- why: Decision 393. Rock's Family Analytics job writes First Visit and Second Visit as system values with the date in Value and ValueAsDateTime, and writes a Second Visit only after a First Visit. The empty First Visit it writes for an adult whose family has no child's check-in is gone, as Rock Cleanup deletes every empty attribute value each night. Verify replays the job to show it would change none of them.
+SELECT COUNT(*)
+FROM [AttributeValue] AS [av]
+INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId] AND [a].[Guid] IN ( '655D6FBA-F8C0-4919-9E31-C1C936653555', 'D7EA578F-0132-473E-8338-4A48DDB8BF66' )
+INNER JOIN [Person] AS [p] ON [p].[Id] = [av].[EntityId]
+WHERE [p].[ForeignKey] = @ForeignKey
+    AND ( [av].[IsSystem] = 0
+        OR ISNULL( [av].[Value], '' ) = ''
+        OR ISNULL( TRY_CONVERT( DATETIME, [av].[Value], 126 ), '1900-01-01' ) <> ISNULL( [av].[ValueAsDateTime], '1900-01-02' )
+        OR ( [a].[Guid] = 'D7EA578F-0132-473E-8338-4A48DDB8BF66' AND NOT EXISTS ( SELECT 1 FROM [AttributeValue] AS [fv]
+            INNER JOIN [Attribute] AS [fa] ON [fa].[Id] = [fv].[AttributeId] AND [fa].[Guid] = '655D6FBA-F8C0-4919-9E31-C1C936653555'
+            WHERE [fv].[EntityId] = [av].[EntityId] ) ) );
 
 -- check: sent-text-is-delivered-with-its-text
 -- why: SMS Conversations shows an outbound text only when its recipient is Delivered, and reads its words only from SentMessage (decision 93). A text Rock could not send failed with Rock's note and has no send time.
@@ -1537,12 +1771,12 @@ WHERE [n].[ForeignKey] = @ForeignKey AND [nt].[Guid] = 'A480E95A-F941-473E-B200-
         OR EXISTS ( SELECT 1 FROM [Note] AS [other] WHERE [other].[NoteTypeId] = [n].[NoteTypeId] AND [other].[EntityId] = [n].[EntityId] AND [other].[Id] < [n].[Id] ) );
 
 -- check: background-check-requirement-agrees-with-check
--- why: Decision 333. Rock's scheduler, group screens, and leader toolbox read the stored requirement result, not the rule, so each Background Check Required result must agree with the person's check on the night it was last checked: Meets when Rock's still-valid view holds (under 18, or Background Checked, a Pass, and a check in the last 1,095 days), Meets With Warning when the person is also an adult whose Pass is older than 1,035 days, and Not Met otherwise. A met result has its met date, a warned one its warning date, and a failed one its fail date and no met date, as Rock's job leaves them.
+-- why: Decision 333. Rock's scheduler, group screens, and leader toolbox read the stored requirement result, not the rule, so each Background Check Required result must agree with the person's check on the night it was last checked: Meets when Rock's still-valid view holds (under 18, or Background Checked, a Pass, and a check in the last 1,095 days), Meets With Warning when the person is also 18 or older by the birth date Rock has and their Pass is older than 1,035 days, and Not Met otherwise. Rock's views test age against the birth date Rock has, so a person with none is neither under 18 nor warned (decision 396). A met result has its met date, a warned one its warning date, and a failed one its fail date and no met date, as Rock's job leaves them.
 SELECT COUNT(*)
 FROM (
     SELECT [gmr].[GroupMemberRequirementState] AS [State], [gmr].[RequirementMetDateTime] AS [Met], [gmr].[RequirementWarningDateTime] AS [Warned], [gmr].[RequirementFailDateTime] AS [Failed],
         CASE
-            WHEN [rule].[IsMinor] = 1 OR [rule].[IsValid] = 1 THEN CASE WHEN [rule].[IsValid] = 1 AND [rule].[IsMinor] = 0 AND [rule].[IsOld] = 1 THEN 2 ELSE 0 END
+            WHEN [rule].[IsMinor] = 1 OR [rule].[IsValid] = 1 THEN CASE WHEN [rule].[IsValid] = 1 AND [rule].[IsAdult] = 1 AND [rule].[IsOld] = 1 THEN 2 ELSE 0 END
             ELSE 1
         END AS [Expected]
     FROM [GroupMemberRequirement] AS [gmr]
@@ -1562,6 +1796,7 @@ FROM (
     CROSS APPLY (
         SELECT
             CASE WHEN [p].[BirthDate] IS NOT NULL AND DATEADD( YEAR, 18, [p].[BirthDate] ) > [n].[Night] THEN 1 ELSE 0 END AS [IsMinor],
+            CASE WHEN [p].[BirthDate] IS NOT NULL AND DATEADD( YEAR, 18, [p].[BirthDate] ) <= [n].[Night] THEN 1 ELSE 0 END AS [IsAdult],
             CASE WHEN [c].[Checked] = 'True' AND [c].[Result] = 'Pass' AND CAST( [c].[CheckDate] AS DATE ) >= DATEADD( DAY, -1095, [n].[Night] ) THEN 1 ELSE 0 END AS [IsValid],
             CASE WHEN [c].[Checked] = 'True' AND [c].[Result] = 'Pass' AND CAST( [c].[CheckDate] AS DATE ) < DATEADD( DAY, -1035, [n].[Night] ) THEN 1 ELSE 0 END AS [IsOld] ) AS [rule]
     WHERE [gmr].[ForeignKey] = @ForeignKey AND [grt].[Guid] = '1C21C346-A861-4A9A-BD6D-BAA7D92419D5'
@@ -1750,13 +1985,15 @@ WHERE [e].[PhotoId] IS NOT NULL
 SELECT CASE WHEN EXISTS ( SELECT 1 FROM [UserLogin] WHERE [ForeignKey] = @ForeignKey ) THEN 0 ELSE 1 END;
 
 -- check: login-is-a-database-login-rock-can-check
--- why: Decision 180. Rock's Database login reads a BCrypt hash ($2a$, $2b$, or $2y$), and a demo person must sign in on the first try: not locked out, and not sent to change their password.
+-- why: Decision 180. Rock's Database login reads a BCrypt hash ($2a$, $2b$, or $2y$), and a demo person must sign in on the first try: not locked out, and not sent to change their password. The one other kind is a check-in supervisor's PIN Authentication login, whose user name is the PIN, in digits, with no password (decision 367).
 SELECT COUNT(*)
 FROM [UserLogin] AS [u]
 LEFT JOIN [EntityType] AS [et] ON [et].[Id] = [u].[EntityTypeId]
 WHERE [u].[ForeignKey] = @ForeignKey
-    AND ( [et].[Name] IS NULL OR [et].[Name] <> 'Rock.Security.Authentication.Database'
-        OR [u].[Password] IS NULL OR LEFT( [u].[Password], 4 ) NOT IN ( '$2a$', '$2b$', '$2y$' ) OR LEN( [u].[Password] ) <> 60
+    AND ( [et].[Name] IS NULL OR [et].[Name] NOT IN ( 'Rock.Security.Authentication.Database', 'Rock.Security.Authentication.PINAuthentication' )
+        OR ( [et].[Name] = 'Rock.Security.Authentication.PINAuthentication' AND ( [u].[Password] IS NOT NULL OR [u].[UserName] LIKE '%[^0-9]%' ) )
+        OR ( [et].[Name] = 'Rock.Security.Authentication.Database'
+            AND ( [u].[Password] IS NULL OR LEFT( [u].[Password], 4 ) NOT IN ( '$2a$', '$2b$', '$2y$' ) OR LEN( [u].[Password] ) <> 60 ) )
         OR [u].[PersonId] IS NULL OR [u].[IsPasswordChangeRequired] = 1 OR [u].[IsLockedOut] = 1 OR [u].[IsConfirmed] IS NULL
         OR ( [u].[LastLoginDateTime] IS NOT NULL AND ( [u].[LastLoginDateTime] < [u].[CreatedDateTime] OR [u].[IsConfirmed] = 0 ) ) );
 
@@ -2355,13 +2592,13 @@ WHERE [av].[ForeignKey] = @ForeignKey
     AND NOT EXISTS ( SELECT 1 FROM [Person] AS [p] WHERE [p].[Id] = [av].[EntityId] AND ( [p].[ForeignKey] = @ForeignKey OR [p].[Id] = @AdminPersonId ) );
 
 -- check: excluded-person-attributes-stay-empty
--- why: Decision 250. Nothing writes Membership Date, social media, a driver's license number, First Visit, Second Visit, Last DISC Request Date, or Special Needs: a link or a number could reach a real person, Rock's Family Analytics job writes the visits once its Set Visit Dates setting is on, which the load leaves off (decision 325), and no assessment goes through Rock's DISC request workflow. Assessment results come only from the assessments step, and the assessment checks cover them (decision 265).
+-- why: Decision 250. Nothing writes Membership Date, social media, a driver's license number, Last DISC Request Date, or Special Needs: a link or a number could reach a real person, and no assessment goes through Rock's DISC request workflow. Assessment results come only from the assessments step, and the assessment checks cover them (decision 265). First Visit and Second Visit come only from the visit dates step (decision 393).
 SELECT COUNT(*)
 FROM [AttributeValue] AS [av]
 INNER JOIN [Attribute] AS [a] ON [a].[Id] = [av].[AttributeId]
 WHERE [av].[ForeignKey] = @ForeignKey
     AND [a].[EntityTypeId] = ( SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person' )
-    AND [a].[Key] IN ( 'MembershipDate', 'Facebook', 'Twitter', 'Instagram', 'Snapchat', 'com.sparkdevnetwork.DLNumber', 'FirstVisit', 'SecondVisit', 'core_SpecialNeeds', 'LastDiscRequestDate' );
+    AND [a].[Key] IN ( 'MembershipDate', 'Facebook', 'Twitter', 'Instagram', 'Snapchat', 'com.sparkdevnetwork.DLNumber', 'core_SpecialNeeds', 'LastDiscRequestDate' );
 
 -- check: adult-attributes-are-on-adults
 -- why: Decisions 253, 256, 257, and 258. Employer, Position, Source of Visit, Previous Church, Date Engaged, Envelope Number, and Do Not Send Giving Statement describe an adult person, never a child or a business.

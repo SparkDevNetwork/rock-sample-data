@@ -1,5 +1,5 @@
 {
-  "$comment": "Real streets with house numbers that do not exist, placed with the profile's distance-to-campus pattern. Built by build-pool.js from Census TIGER/Line ranges and county address points. State is always AZ.",
+  "$comment": "Real streets with house numbers that do not exist, placed with the profile's distance-to-campus pattern. Built by build-pool.js from Census TIGER/Line ranges and county address points. State is always AZ. far holds homes at least 30 miles from every campus, for families an NCOA run finds moved away.",
   "columns": [ "street1", "city", "postalCode", "latitude", "longitude" ],
   "campuses": {
     "phoenix": [
@@ -18016,5 +18016,53 @@
       ["2022 N 1st Ave","Phoenix","85003",33.469736,-112.075966],
       ["1859 N Horne","Mesa","85203",33.449032,-111.81358]
     ]
-  }
+  },
+  "far": [
+    ["2265 W Highridge Rd","Wickenburg","85390",33.968968,-112.778609],
+    ["30364 W Villa Cassandra Way","Wittmann","85361",33.800263,-112.722669],
+    ["662 N Atchison Cir","Wickenburg","85390",33.974734,-112.749385],
+    ["481 N Adams St","Wickenburg","85390",33.970568,-112.738429],
+    ["509 Scott Ave","Gila Bend","85337",32.95113,-112.720968],
+    ["2038 Condor Rd","Wickenburg","85390",33.940085,-112.774107],
+    ["32892 Homestead Dr","Wickenburg","85390",33.945495,-112.767266],
+    ["55962 N 329th Dr","Wickenburg","85390",33.989825,-112.76848],
+    ["853 Palo Verde Dr","Wickenburg","85390",33.959775,-112.747682],
+    ["327 E Fremont St","Gila Bend","85337",32.942822,-112.713093],
+    ["8075 S 538th Ave","Tonopah","85354",33.374317,-113.209805],
+    ["51671 W Van Buren St","Tonopah","85354",33.449942,-113.16445],
+    ["54 Dawn Dr","Wickenburg","85390",33.961062,-112.78056],
+    ["52404 304th Dr","Wickenburg","85390",33.959403,-112.714637],
+    ["90 Wilshire Dr","Wickenburg","85390",33.960781,-112.785717],
+    ["51449 N Mockingbird Rd","Wickenburg","85390",33.949297,-112.700453],
+    ["56133 N Vulture Mine Rd","Wickenburg","85390",33.992479,-112.771827],
+    ["551 Atchison Ln","Wickenburg","85390",33.972275,-112.749425],
+    ["145 Ironwood Pl","Wickenburg","85390",33.964652,-112.782285],
+    ["34820 W Broadway Rd","Tonopah","85354",33.406342,-113.231201],
+    ["36 395th Ave","Tonopah","85354",33.485086,-112.902471],
+    ["51078 439th Ave","Wickenburg","85390",33.946173,-113.011348],
+    ["1356 County Line Rd","Wickenburg","85390",33.948924,-112.757803],
+    ["51502 W Donald Rd","Aguila","85320",33.921302,-113.179069],
+    ["958 W Palo Verde Dr","Wickenburg","85390",33.959997,-112.763473],
+    ["258 N Scott Ave","Gila Bend","85337",32.948289,-112.720571],
+    ["194 S Mesquite St","Wickenburg","85390",33.964822,-112.731777],
+    ["51978 N 295th Ave","Wickenburg","85390",33.95435,-112.694136],
+    ["34171 W County Line Rd","Wickenburg","85390",33.999806,-112.795119],
+    ["415 W Navajo St","Wickenburg","85390",33.969135,-112.740024],
+    ["33016 Homestead Dr","Wickenburg","85390",33.945494,-112.769921],
+    ["6675 N 418th Ave","Tonopah","85354",33.533395,-112.952342],
+    ["2181 W Highridge Rd","Wickenburg","85390",33.968882,-112.776283],
+    ["50657 N 292nd Ave","Wickenburg","85390",33.940982,-112.689542],
+    ["146 Fisher St","Wickenburg","85390",33.964894,-112.730141],
+    ["574 Atchison Ln","Wickenburg","85390",33.9727,-112.749651],
+    ["245 Monte Cristo","Wickenburg","85390",33.961545,-112.734185],
+    ["278 Monte Cristo","Wickenburg","85390",33.960991,-112.735084],
+    ["480 El Recreo Ct","Wickenburg","85390",33.974309,-112.72186],
+    ["8957 S 538th Ave","Tonopah","85354",33.364873,-113.209804],
+    ["980 America St","Wickenburg","85390",33.964791,-112.743445],
+    ["6117 N 418th Ave","Tonopah","85354",33.524506,-112.952335],
+    ["50990 N 292nd Ave","Wickenburg","85390",33.945796,-112.687606],
+    ["45 Dawn Dr","Wickenburg","85390",33.961026,-112.78078],
+    ["9120 S 538th Ave","Tonopah","85354",33.363629,-113.210032],
+    ["834 Washington","Gila Bend","85337",32.936355,-112.708282]
+  ]
 }

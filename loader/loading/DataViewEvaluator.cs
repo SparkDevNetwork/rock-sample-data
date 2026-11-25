@@ -58,7 +58,7 @@ namespace RockSampleData.Loader.Loading
         /// <summary>
         /// Rock's ComparisonType values a count can use.
         /// </summary>
-        private static readonly Dictionary<int, Func<int, int, bool>> Comparisons = new Dictionary<int, Func<int, int, bool>>
+        internal static readonly Dictionary<int, Func<int, int, bool>> Comparisons = new Dictionary<int, Func<int, int, bool>>
         {
             [0x1] = ( count, value ) => count == value,
             [0x2] = ( count, value ) => count != value,
@@ -673,7 +673,7 @@ WHERE [p].[IsDeceased] = 0 AND ( [p].[RecordTypeValueId] IS NULL OR [p].[RecordT
         /// <summary>
         /// The selection both group type attendance filters share: group types|comparison|count|sliding date range|include child group types.
         /// </summary>
-        private sealed class AttendanceSelection
+        internal sealed class AttendanceSelection
         {
             public List<Guid> GroupTypes { get; private set; }
 

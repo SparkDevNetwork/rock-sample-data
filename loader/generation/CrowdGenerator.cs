@@ -45,14 +45,14 @@ namespace RockSampleData.Loader.Generation
         private static readonly string[] AreaCodes = { "602", "480", "623" };
 
         /// <summary>
-        /// The share of generated adults with an email.
+        /// The share of generated adults with an email: the measured share of adults who have one (decision 396).
         /// </summary>
-        private const double EmailShare = 0.8;
+        private double EmailShare => _profile.Number( "people.completeness.adult.pctEmail", 80 ) / 100;
 
         /// <summary>
-        /// The share of generated adults with a mobile phone.
+        /// The share of generated adults with a mobile phone: the measured share (decision 396).
         /// </summary>
-        private const double MobileShare = 0.75;
+        private double MobileShare => _profile.Number( "people.completeness.adult.pctMobilePhone", 75 ) / 100;
 
         /// <summary>
         /// Status weights, and the chance a record with that status shows any activity.
@@ -158,6 +158,7 @@ namespace RockSampleData.Loader.Generation
                 households.Add( NewActiveHousehold( i, random, campusKey, campuses[campusKey], sizeWeights, historyYears ) );
             }
 
+            LeaveDetailsUnrecorded( households );
             return households;
         }
 
@@ -180,7 +181,68 @@ namespace RockSampleData.Loader.Generation
                 }
             }
 
+            LeaveDetailsUnrecorded( households );
             return households;
+        }
+
+        /*
+            11/23/26 - CLAUDE
+
+            A real church's records have gaps. Source-1 has an email for 74.5% of its active adults, a mobile phone for
+            67.8%, a birth date for 74.6%, a marital status for 59.1%, and a home address for 74.4%. Generated adults
+            now have the same gaps. Emails and mobiles are drawn with each person, so nothing plans an email or a text
+            to someone the church cannot reach. A birth date, a marital status, and a home are facts the person has
+            that the church never recorded: planning still reads them, such as an age for a class or a spouse to give
+            with, but Rock gets none. Rock checks an event's age limits against the birth date it has, so a person
+            with none does not register for an age-limited event, and a home Rock does not have is never a small
+            group's meeting place. Single adults already went without a marital status at the measured share, so
+            couples and the singles who have one lose it at the rate that brings all adults to the measured share,
+            and the mix of known statuses holds. A married couple shares theirs. The Cast stays complete. Each
+            household draws from its own stream, so nothing else changes.
+
+            Reason: Rock's reports, data views, and Data Integrity pages show the gaps a real church has (issue 2
+            slice 5, decision 396).
+        */
+
+        /// <summary>
+        /// Marks the birth dates, marital statuses, and homes the church never recorded, at the measured shares of adults.
+        /// </summary>
+        private void LeaveDetailsUnrecorded( List<CastHousehold> households )
+        {
+            var adults = households.SelectMany( h => h.Members ).Where( m => m.FamilyRole == "adult" ).ToList();
+            if ( adults.Count == 0 )
+            {
+                return;
+            }
+
+            var birthLoss = 1 - _profile.Number( "people.completeness.adult.pctBirthDate", 100 ) / 100;
+            var homeLoss = 1 - _profile.Number( "people.completeness.adult.pctHomeAddress", 100 ) / 100;
+            var known = adults.Count( m => m.MaritalStatus != null );
+            var maritalLoss = known == 0 ? 0 : Math.Max( 0, 1 - ( _profile.Number( "people.completeness.adult.pctMaritalStatus", 100 ) / 100 * adults.Count / known ) );
+            foreach ( var household in households )
+            {
+                var random = new SeededRandom( $"{_seed}:crowd:completeness:{household.Guid}" );
+                if ( household.Address != null && random.Chance( homeLoss ) )
+                {
+                    household.Address.IsUnrecorded = true;
+                }
+
+                var householdAdults = household.Members.Where( m => m.FamilyRole == "adult" ).ToList();
+                var isCouple = householdAdults.Count( m => string.Equals( m.MaritalStatus, "married", StringComparison.OrdinalIgnoreCase ) ) == 2;
+                var isCoupleUnrecorded = random.Chance( maritalLoss );
+                foreach ( var person in householdAdults )
+                {
+                    if ( person.Birth != null && random.Chance( birthLoss ) )
+                    {
+                        person.Birth.IsUnrecorded = true;
+                    }
+
+                    if ( person.MaritalStatus != null )
+                    {
+                        person.IsMaritalStatusUnrecorded = isCouple ? isCoupleUnrecorded : random.Chance( maritalLoss );
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -190,6 +252,119 @@ namespace RockSampleData.Loader.Generation
         public List<CastHousehold> GenerateBusinesses( IReadOnlyList<CastHousehold> generated, IReadOnlyList<string> campusKeys, string mainCampusKey, int castMainCampusBusinesses )
         {
             return new BusinessGenerator( _profile, _seed, _addresses, AnnualTotal, PhoneNumber ).Generate( generated, campusKeys, mainCampusKey, castMainCampusBusinesses );
+        }
+
+        /*
+            11/23/26 - CLAUDE
+
+            About 1% of a real church's people have a second record: a connection card, a registration, or a kiosk made
+            one when the person was not found. The second record is Pending, has no birth date, and carries what a form
+            asks for: the name the person goes by and the email or mobile they gave. Rock's duplicate finder scores a
+            pair like this at 12 or more out of 29, a confidence of at least 64, so the Duplicate Finder lists it until
+            staff decide. A person who goes by their first name but whose name has a usual nickname sometimes writes
+            the nickname, which Rock does not match as a first name, so that record shares both the email and the mobile
+            and still scores 13. Staff have merged some records, set some aside with Ignore, and left the rest open. The
+            duplicates step dates each record, decision, and merge once every record has its date.
+            Each person's draws come from their own stream, and the records come after every plan, so nothing else
+            about the Crowd changes.
+
+            Reason: The Duplicate Finder and Rock's merge pages show the Crowd's duplicates, as in a real church
+            (decisions 397 and 398).
+        */
+
+        /// <summary>
+        /// Gives about the rules' percent of generated people a second record: a Pending record in a family of its own,
+        /// or, for a merged one, only what Rock's merge left. Only adults with an email or a mobile get one.
+        /// </summary>
+        public CrowdDuplicates GenerateDuplicates( IReadOnlyList<CastHousehold> generated, CrowdDuplicateRules rules )
+        {
+            var duplicates = new CrowdDuplicates();
+            if ( rules == null || rules.PercentOfPeople <= 0 )
+            {
+                return duplicates;
+            }
+
+            var people = generated.Where( h => h.Kind != "business" ).SelectMany( h => h.Members.Select( m => (Household: h, Person: m) ) ).ToList();
+            var eligible = people.Where( x => x.Person.FamilyRole == "adult" && x.Person.RecordStatus == "active" && ( x.Person.Email != null || x.Person.Phones?.Mobile != null ) ).ToList();
+            var chance = eligible.Count == 0 ? 0 : Math.Min( 1, rules.PercentOfPeople / 100 * people.Count / eligible.Count );
+            foreach ( var (household, person) in eligible )
+            {
+                var random = new SeededRandom( $"{_seed}:crowd:duplicate:{person.Key}" );
+                if ( !random.Chance( chance ) )
+                {
+                    continue;
+                }
+
+                var decision = random.Pick( rules.Decisions );
+
+                // A form asks for an email and a phone. Someone with both gives both half the time.
+                var sharesEmail = person.Email != null;
+                var sharesMobile = person.Phones?.Mobile != null;
+                if ( sharesEmail && sharesMobile )
+                {
+                    var roll = random.Between( 0.0, 1.0 );
+                    sharesEmail = roll < 0.8;
+                    sharesMobile = roll < 0.5 || roll >= 0.8;
+                }
+
+                var goesBy = person.NickName ?? person.FirstName;
+                var nickname = _names.Nicknames( person.FirstName ).FirstOrDefault();
+                var writesNickname = person.NickName == null && nickname != null && sharesEmail && sharesMobile && random.Chance( 0.5 ) && !_castNames.Contains( FullName( nickname, person.LastName ) );
+                var key = $"{person.Key}-duplicate";
+                var record = new CastPerson
+                {
+                    Key = $"{key}-0",
+                    Guid = random.NextGuid(),
+                    RecordType = "person",
+                    FirstName = writesNickname ? nickname : goesBy,
+                    LastName = person.LastName,
+                    Gender = person.Gender,
+                    FamilyRole = "adult",
+                    RecordStatus = "pending",
+                    ConnectionStatus = "Prospect",
+                    Email = sharesEmail ? person.Email : null,
+                    EmailIsActive = person.EmailIsActive,
+                    Phones = sharesMobile ? new CastPhones { Mobile = person.Phones.Mobile } : null
+                };
+
+                var original = new CastPersonReference { Guid = person.Guid, Name = FullName( goesBy, person.LastName ) };
+                if ( decision == "merged" )
+                {
+                    duplicates.Merges.Add( new CastMerge
+                    {
+                        Key = key,
+                        Person = original,
+                        Record = new CastMergedRecord { Guid = record.Guid, FirstName = record.FirstName, LastName = record.LastName },
+                        MergedBy = rules.DecidedBy,
+                        RecordCameLater = true
+                    } );
+                    continue;
+                }
+
+                duplicates.Records.Add( new CastHousehold
+                {
+                    Key = key,
+                    Guid = random.NextGuid(),
+                    Name = $"{person.LastName} Family",
+                    Kind = "family",
+                    CampusSlot = household.CampusSlot,
+                    DuplicateOf = household.Key,
+                    Attendance = new CastAttendance { PercentAttended = 0 },
+                    Members = { record }
+                } );
+
+                var isIgnored = decision == "ignored";
+                duplicates.Pairs.Add( new CastDuplicatePair
+                {
+                    Key = key,
+                    People = new List<CastPersonReference> { original, new CastPersonReference { Guid = record.Guid, Name = FullName( record.FirstName, record.LastName ) } },
+                    Decision = isIgnored ? "ignored" : "open",
+                    DecidedBy = isIgnored ? rules.DecidedBy : null,
+                    IsGenerated = true
+                } );
+            }
+
+            return duplicates;
         }
 
         /// <summary>
@@ -923,5 +1098,17 @@ namespace RockSampleData.Loader.Generation
                 _ => 1.0
             };
         }
+    }
+
+    /// <summary>
+    /// The Crowd's duplicate records: the Pending records that load as people, each pair's decision, and the merges.
+    /// </summary>
+    internal sealed class CrowdDuplicates
+    {
+        public List<CastHousehold> Records { get; } = new List<CastHousehold>();
+
+        public List<CastDuplicatePair> Pairs { get; } = new List<CastDuplicatePair>();
+
+        public List<CastMerge> Merges { get; } = new List<CastMerge>();
     }
 }

@@ -145,9 +145,7 @@
       "name": "Ashley Kelly",
       "role": "Member",
       "joined": {
-        "yearsAgo": 1,
-        "month": 7,
-        "day": 30
+        "daysAgo": 482
       },
       "attendancePercent": 58
     },

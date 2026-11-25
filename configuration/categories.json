@@ -366,6 +366,14 @@
       "guid": "CC4E884B-CA6B-4B89-BCCE-792945B39904"
     },
     {
+      "key": "ministry-by-design-metrics",
+      "entityType": "Rock.Model.MetricCategory",
+      "name": "Ministry by Design",
+      "description": "How each Ministry System is doing: who is ready for their next step, and whether the system works, week by week and campus by campus.",
+      "iconCssClass": "ti ti-compass",
+      "guid": "367788A5-C2EA-4C72-B493-D55AAAF4BE46"
+    },
+    {
       "key": "care-lists",
       "entityType": "Rock.Model.Group",
       "qualifierGroupType": "D1D95777-FFA3-CBB3-4A6D-658706DAED33",

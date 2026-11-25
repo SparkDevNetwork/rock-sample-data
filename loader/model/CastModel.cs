@@ -169,6 +169,13 @@ namespace RockSampleData.Loader.Model
     {
         public string Type { get; set; }
 
+        /// <summary>
+        /// True when the family lives here but the church never recorded it, so Rock has no home address for them.
+        /// Generated households only (decision 396).
+        /// </summary>
+        [JsonIgnore]
+        public bool IsUnrecorded { get; set; }
+
         public string Street1 { get; set; }
 
         public string Street2 { get; set; }
@@ -401,9 +408,21 @@ namespace RockSampleData.Loader.Model
 
         public string MaritalStatus { get; set; }
 
+        /// <summary>
+        /// True when the church never recorded the marital status, so Rock has none. The person's status still shapes
+        /// their life, such as giving with a spouse. Generated people only (decision 396).
+        /// </summary>
+        [JsonIgnore]
+        public bool IsMaritalStatusUnrecorded { get; set; }
+
         public RelativeDate Anniversary { get; set; }
 
         public string RecordStatus { get; set; }
+
+        /// <summary>
+        /// The name of an inactive record's Record Status Reason value, such as Moved, or null.
+        /// </summary>
+        public string RecordStatusReason { get; set; }
 
         public bool IsDeceased { get; set; }
 
@@ -553,6 +572,12 @@ namespace RockSampleData.Loader.Model
         /// The Guid of the other person or business.
         /// </summary>
         public Guid With { get; set; }
+
+        /// <summary>
+        /// On this share of the Sundays this person came and the child's family did not, this person brings the
+        /// child and checks them in (decision 366). Null for none.
+        /// </summary>
+        public int? BringsPercent { get; set; }
     }
 
     /// <summary>
@@ -730,6 +755,13 @@ namespace RockSampleData.Loader.Model
     internal sealed class CastBirth
     {
         public int Age { get; set; }
+
+        /// <summary>
+        /// True when the church never recorded the birth date, so Rock has none. The person still has an age.
+        /// Generated people only (decision 396).
+        /// </summary>
+        [JsonIgnore]
+        public bool IsUnrecorded { get; set; }
 
         public int Month { get; set; }
 

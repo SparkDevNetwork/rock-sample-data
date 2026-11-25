@@ -81,7 +81,8 @@ namespace RockSampleData.Loader.Loading
             if ( generatedHouseholdPercent > 0 )
             {
                 var pool = manifest.Images.Where( i => i.Set == PoolSet ).OrderBy( i => i.File, StringComparer.Ordinal ).ToList();
-                var generated = households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) );
+                // A duplicate record came from a form, so it has no photo, like the Cast's.
+                var generated = households.Where( h => !castHouseholdKeys.Contains( h.Cast.Key ) && h.Cast.DuplicateOf == null );
                 foreach ( var campus in generated.GroupBy( h => h.CampusKey ).OrderBy( g => g.Key, StringComparer.Ordinal ) )
                 {
                     var (photographed, people) = PickPoolPhotos( campus.Key, campus.OrderBy( h => h.Cast.Key, StringComparer.Ordinal ).ToList(), pool, generatedHouseholdPercent, picks );

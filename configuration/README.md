@@ -9,7 +9,7 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `campuses.json` | Campuses, the datasets each appears in, and which service time slots each offers. |
 | `schedules.json` | The shared service time slots, Sunday mornings and Wednesday Student Night, and the campus schedule types (Weekend Service, Student Service). |
 | `accounts.json` | Funds. The General Fund and the Built on the Rock campaign fund have one child account per campus. |
-| `checkin.json` | Check-in areas, groups, rooms, and which services each group meets at. |
+| `checkin.json` | Check-in areas, groups, rooms, and which services each group meets at, with the template's settings, each area's labels, room limits, test check-in at every campus, supervisor PINs, and the Crowd's check-in adults. |
 | `connection-statuses.json` | The six connection statuses. |
 | `giving-alert-types.json` | The giving alert types: Large Gift, Smaller Than Usual, and Late Gift. Rock ships none. |
 | `refunds.json` | The refunds staff make on generated households' gifts: who refunds them, the rate when the profile has none, and four kinds, each with a Rock refund reason, a share, a delay, and the summaries staff type. See [Refunds](../docs/refunds.md). |
@@ -44,6 +44,8 @@ Configuration is the church setup the data depends on: campuses, connection stat
 | `tags.json` | The church's tags on people: organizational tags in their tag categories, staff members' personal tags, and Rock's own Staff tag, with the Cast people each story tags, the rules that draw generated people, and the access questions verify asks Rock. See [Tags](#tags). |
 | `background-checks.json` | Rock's background check requirement on small group leaders, the mix of generated leaders' checks, the Cast people with no check, the Cast's check stories that every load checks, the Background Check request status, and the Checkr package and report searches (decisions 333 to 336). |
 | `benevolence.json` | The benevolence types and the security each gets, the case worker, the Cast's requests with their dates and amounts, the rate and mix of generated requests, their text, the assistance agreement, the Request Started workflow, and the access walkthrough's benevolence questions (decisions 350 to 355). |
+| `data-integrity.json` | Every designed problem on Rock's Data Integrity pages: when Cast records were made, the forms behind Pending records with their Record Source, two self-inactivations with notes, the Cast's connection status changes, Person Data Error reports, photo requests, couples who share an email, Cast homes that failed address verification, and the six Data Automation rules, configured and off (decisions 383 to 391). `validate-cast.js` checks its people. See [Data Integrity](../docs/data-integrity.md). |
+| `rock-metrics.json` | The metrics Rock ships that get history: each weekly and Tithing Overview metric with how many weeks it gets, Rock's Insights categories with how many monthly runs, and how staff type the weekend's adult counts and salvations into Rock's Service Metrics Entry block. Rock's homepage metrics are in `staff-homepage.json`, and the path metrics are in `reporting.json`. See [How it works](../docs/how-it-works.md). |
 | `staff-homepage.json` | Rock's staff homepage: who posts the weekly staff updates and when, the link every feature carries, Rock's three homepage metrics and their schedules, the Ministry Path metrics on the block, and the church's Quick Links. The updates' text is in `content/internal-news`. See [Staff homepage](../docs/staff-homepage.md). |
 | `group-syncs.json` | The church's group sync data views, with their filters in Rock's own data filter terms, and the group syncs that keep a list or security role in step with them, with each sync's interval, emails, and create login setting, and the Cast people each synced group must hold. See [Group sync](../docs/communications.md#group-sync). |
 
@@ -162,6 +164,20 @@ Each entry in `cast` is one Cast reminder, with its own key and Guid. `owner` is
 ## Check-in
 
 Check-in uses Rock's built-in Weekly Service Check-in template, its areas, its groups, and their age and grade rules, unchanged. Every campus gets the same building and room names. Kids groups meet at every Sunday service their campus offers. Jr High and High School check in at the Sunday 10:30am student service. Adult worship attendance uses Rock's Service Attendance template, located at each campus with its weekend services.
+
+The rest of `checkin.json` is set on purpose, the way a church sets up check-in (decisions 367 to 372):
+
+| Part | What it sets |
+|---|---|
+| `templateSettings` | The template's own settings, by Rock attribute key: supervisor mode on, checkout at the kiosk and in the Check-in Manager, and duplicate check-in prevented. |
+| `labels` | Rock's next-gen labels by key. Each area's `labels` lists what it prints: Child, Parent, and Note labels for kids, and a Name Tag for students. `serving.json` gives the Serving Team area a Name Tag too. |
+| `roomSoftThreshold`, `roomFirmThreshold` | Each room's limits, by group, at every campus. Only the two nursery rooms have a firm limit, which no supervisor can override. |
+| A group's `secondRoom` | A second room for a large group. Grades 4-6 meets in the Outpost Room and the Basecamp Room, and its area uses Rock's Balance strategy. A Kids Ministry position serves each room. |
+| `testCheckIn` | Rock's Check-in Test Area, its Test Group, and its two all-day test schedules. The load puts the Test Group in every kids and student room at every campus, on both schedules, so check-in can be tested any day, at any time. Its `volunteerArea` does the same for volunteers: a Volunteer Test Area under Rock's Volunteer Check-in template, open to anyone, with one test group per campus in every room a serving team serves in, printing a Name Tag. No real serving team gets a test schedule. |
+| `supervisors`, `supervisorTeam` | Each campus's kids check-in supervisor and PIN. A campus with no Cast kids director uses its Kids Ministry team leader. PINs load only when a login password is given. |
+| `relationships` | The Crowd's check-in adults: about 3% of attending families with a child 12 or younger get one adult from another family who checks the children in on about a third of their Sundays. |
+
+To test check-in, open a kiosk at any campus with the Weekly Service Check-in template and its Check-in Test Area, and search for a family. The Test Group is offered all day, every day. To test volunteer check-in, choose the Volunteer Check-in template and its Volunteer Test Area instead, and any person can check in to serve in any serving room. To open the supervisor screen, enter the campus's PIN: 1001 at Phoenix, 1002 at Peoria, 1003 at Gilbert, 1004 at Scottsdale, 1005 at Chandler, 1006 at Goodyear, and 1007 at Tempe.
 
 ## Kids achievements
 

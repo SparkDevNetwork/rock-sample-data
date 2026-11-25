@@ -189,7 +189,7 @@ Active People (F1)
 │   ├── Already Leading (N6)                            = F2 + leads an active group or team
 │   ├── Guests Coming Back (C1)
 │   ├── First Visit Last Week (C4)                      = F2 + F6 + first visit
-│   ├── Drifting Adults (C3)
+│   ├── Drifting Adults (C3)  [persisted nightly]
 │   │   └── Newly Missed (C5)                           = C3 + F6 + last visit 90 to 120 days ago
 │   ├── Unbaptized Regular Attenders (C7)               = F2 + F5 − Baptism step
 │   ├── Baptized Regular Attenders (C8)                 = F2 + F5 + Baptism step
@@ -282,6 +282,8 @@ Why the church has its own Church Family view instead of using Rock's shipped "M
 - **What stays.** Rock's other two shipped categories, Group Requirements (2 views, used by the background check requirement) and Communication Segments (4 views), are left as they are. Rock features use them, so they are not just examples.
 
 Why F5 is persisted: it counts attendance rows, and Full 7 has millions of them. Several views build on it. Who counts as a regular attender does not change within a day. Its consumers turn on the filter's "Use Persisted" option.
+
+Why C3 is persisted: it counts 18 months of worship attendance for every adult, which takes Rock close to its 30-second query limit on Full 7. The Drifting Adults metric runs Mondays at 3 AM, after the 2 AM refresh, so Rock's Calculate Metrics job reads the saved list. Newly Missed reads it too (decision 403).
 
 Why F10 uses Rock's Last Gave attribute and not a Finance data view: "gave in the last year" through Givers in the Last 12 Months (FN2) would make F10 a finance consumer, and it would have to live in Finance (design rule 4). Rock already shows Last Gave to Staff Workers and Staff Like Workers (its attribute security in the trusted base), so using it reveals nothing Rock does not already show staff.
 
@@ -717,11 +719,33 @@ The build follows the design, with these differences. Each was found by running 
   - **Prayer Team** reads one group, the Prayer Team list, and needs only an email address.
   - **The three registration views** use their own windows and grades. The mission trip eligibility rule is replayed on every registration day (decision 215), and Students Attending (K3) counts a different window.
 - **Run history (slice 7).** A view that points at no other view was made 700 to 1,095 days before install, and a view or report built on others 1 to 120 days after the newest of them. Each ran 0.2 to 3 times a week since then, and last ran in the two weeks before install, in office hours. Run time stays empty until Rock first runs the view. Men's Retreat Invites, in Staff Workspace, was made 450 days ago, ran 5 times, and last ran 420 days ago, so it is the one view not run in over a year (decision 233).
-- **Path metrics (slice 8).** Belong Stage, Equip Stage, Contribute Stage, and Lead Stage are Rock Metrics in a new Ministry Path metric category. Each counts its stage view on a named schedule, "Weekly on Monday at 3 AM", in Rock's Metrics schedule category. Values start the week the stage view was made, not at the start of the history window, because a church cannot count a view before it exists. Each week's value is the active people with a completed step of the stage by then. Record status is today's, because Rock keeps no history of it (decision 234).
+- **Path metrics (slice 8).** Belong Stage, Equip Stage, Contribute Stage, and Lead Stage are Rock Metrics in a new Ministry Path metric category. Each counts its stage view on a named schedule, "Weekly on Monday at 3 AM", in Rock's Metrics schedule category. Values start the week the stage view was made, not at the start of the history window, because a church cannot count a view before it exists. Each week's value is the active people with a completed step of the stage by then. Record status is today's, because Rock keeps no history of it (decision 234). Each metric splits by campus, as Rock's metric editor saves Auto Partition on Primary Campus, so each campus owner sees their own campus's count (decision 379).
 - **Personalization segments (issue 6).** A segment is a consumer too, under rule 4 in section 1.8. Rock secures a segment by its own rules only, never by a category, so each segment on a Finance view carries Finance's View rule. Rock's segment Results page lists any segment's people and checks no segment, so it carries the same rule (decision 273). The Giving segments use seven new Finance views, FN12 to FN18. See [Adaptive messages](adaptive-messages.md).
 - **Views on tags (issue 44).** Staff Workspace holds two views that staff made for themselves, each on Rock's Person Tag filter, saved as Rock saves it: "2|" and the tag's Guid in lowercase for an organizational tag, and "1|" for a personal one. Homebound Adults, which Dee Navarro made 300 days before install, holds adults with the Homebound tag. My Possible Group Leaders, which Jamal Pierce made 200 days before install, holds the people on his personal tag. Each view was made after its tag. A view can name the Cast person who made it, and the loader stamps them on the view and its filters, as Rock's save does (decision 306).
 
-Verify checks each metric's newest value against Rock's count of its stage view, less the people who reached the stage since. It also checks every report in Rock: each property is one of Rock's reportable fields, each attribute exists, each component builds its expression from the stored selection, and each Lava column renders through Rock's Lava engine.
+Verify checks each metric's newest values, campus by campus, against Rock's count of its stage view, less the people who reached the stage since. It also checks every report in Rock: each property is one of Rock's reportable fields, each attribute exists, each component builds its expression from the stored selection, and each Lava column renders through Rock's Lava engine.
+
+### 8.3 Ministry by Design metrics
+
+Each Ministry System has an owner at the center and one at each campus, and each needs three kinds of number: how many reached the stage, how many are ready for the next step, and whether the system works. The four path metrics count the stages. A Ministry by Design metric category holds the rest, each split by campus (decision 400).
+
+| System | Metric | Counts | Source |
+|---|---|---|---|
+| First Contact (Notice) | First-Time Guests | People whose first visit to a weekend service came that week | SQL |
+| First Contact (Notice) | Second-Time Guests | People whose Second Visit, from Rock's visit dates, came that week | SQL, Wednesday |
+| Connection (Belong) | Ready to Belong | Regular attenders not in a small group | Ready to Belong view |
+| Connection (Belong) | Group Connection Rate | The percent of regular attending adults in a small group | SQL |
+| Discipleship (Equip) | Ready to Grow | Adults who belong but have no Equip step | Ready to Grow view |
+| Engagement (Contribute) | Ready to Serve | Adults with an Equip step who do not serve | Ready to Serve view |
+| Engagement (Contribute) | Serving Rate | The percent of regular attending adults on a serving team | SQL |
+| Leadership (Lead) | Ready to Lead | Adults who are growing, serving, and in a group, but lead nothing | Ready to Lead view |
+| Retention (Re-engage) | Drifting Adults | Adults who came regularly and stopped | Drifting Adults view |
+| Retention (Re-engage) | Back in the Last 30 Days | Adults who came back after 90 or more days away | SQL |
+| Pastoral Care (Care) | Benevolence Requests | New requests for help in the month that just ended | SQL, monthly |
+
+Second-Time Guests reads the Second Visit that Rock's Family Analytics job sets on Tuesday night, so it runs on Wednesday morning (decision 404). A regular attender came to worship 4 or more times in the 12 weeks before the run. Each SQL metric keeps the church's SQL on the metric, so Rock's job runs it after install, and every active campus gets a value each run.
+
+Each metric has history on install day. A data view metric replays its view as it was at each run: attendance windows end on the run's day, steps count once completed, group membership comes from Rock's group member history, and a person's fields are today's. A SQL metric's past values are what its SQL gives at each run (decision 401). Verify replays each view today and holds it to Rock's own count, and runs each SQL metric's SQL as of past runs (decision 402).
 
 ## 9. Open questions
 
