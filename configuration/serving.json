@@ -63,7 +63,7 @@
     "blackoutPercent": 6,
     "blackoutTitles": [ "Out of town", "Family vacation", "Work trip", "Visiting family" ]
   },
-  "$teamsComment": "The main campus teams take their Guids from the Cast rosters in cast/groups/serving-*.json. Every other team's Guid comes from its campus and key, so it is the same on every install. services is all (every service at the campus) or student (the student services: the Sunday student service and Wednesday Student Night, decision D-student-volunteers-1). capacity is minimum, desired, and maximum people for each position at each service, for a campus that can staff it; a smaller campus scales it down to the volunteers it has.",
+  "$teamsComment": "The main campus teams take their Guids from the Cast rosters in cast/groups/serving-*.json. Every other team's Guid comes from its campus and key, so it is the same on every install. services is all (every service at the campus) or student (the student services: the Sunday student service and Wednesday Student Night, decision 405). capacity is minimum, desired, and maximum people for each position at each service, for a campus that can staff it; a smaller campus scales it down to the volunteers it has.",
   "teams": [
     {
       "key": "greeters",
@@ -123,7 +123,7 @@
       "name": "Student Ministry",
       "description": "Student leaders build friendships with 7th through 12th graders and lead their small group conversations.",
       "services": "student",
-      "$minimumAgeComment": "Student leaders are at least two years out of high school, so college students can lead (decision D-student-volunteers-2).",
+      "$minimumAgeComment": "Student leaders are at least two years out of high school, so college students can lead (decision 406).",
       "minimumAge": 20,
       "requiresBackgroundCheck": true,
       "positions": [

@@ -192,7 +192,7 @@ WHERE [fa].[GivingId] = @GivingId", P( "@GivingId", person["GivingId"] ) )
             // Signing in as admin shows Alisha Marble's open requests (decision 178).
             checks += parts.Contains( SampleDataPart.Serving ) ? CheckStaffConnectors( db, source, guids, failures ) : 0;
 
-            // A Cast volunteer whose roster names their day serves only then, such as Drew Kim at Student Night (decision D-student-volunteers-2).
+            // A Cast volunteer whose roster names their day serves only then, such as Drew Kim at Student Night (decision 406).
             checks += parts.Contains( SampleDataPart.Serving ) ? CastServingDayExpectations.Check( db, source, guids, anchor ?? db.ServerToday(), failures ) : 0;
 
             // Rock shows the Cast's celebrations on their requests and in the Celebrations Report (decision 219).

@@ -212,7 +212,7 @@ namespace RockSampleData.Loader.Generation
             asked to help on Wednesday nights. The planner still makes every draw first, so no other volunteer changes, and
             the join date never comes before the volunteer was old enough for the team.
 
-            Reason: A Cast story can say when and where someone serves (decision D-student-volunteers-2).
+            Reason: A Cast story can say when and where someone serves (decision 406).
         */
 
         /// <summary>

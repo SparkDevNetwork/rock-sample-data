@@ -930,7 +930,7 @@ function checkServingTeam( file, g ) {
         if ( entry && ( entry.person.birth?.age ?? 0 ) < minimumAge ) {
             errors.push( `${file}: ${m.name} is under ${minimumAge}, the team's minimum age.` );
         }
-        // A roster can name when someone joined, their rotation, and the day they serve (decision D-student-volunteers-2).
+        // A roster can name when someone joined, their rotation, and the day they serve (decision 406).
         if ( m.rotation !== undefined && !Object.keys( serving.volunteers.rotations ).includes( m.rotation ) ) {
             errors.push( `${file}: ${m.name}'s rotation "${m.rotation}" is not one of Rock's schedule templates in serving.json.` );
         }

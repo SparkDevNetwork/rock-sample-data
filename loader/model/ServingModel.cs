@@ -184,7 +184,7 @@ namespace RockSampleData.Loader.Model
         public string Role { get; set; }
 
         /// <summary>
-        /// When the volunteer joined, or null to draw it (decision D-student-volunteers-2).
+        /// When the volunteer joined, or null to draw it (decision 406).
         /// </summary>
         public RelativeDate Joined { get; set; }
 

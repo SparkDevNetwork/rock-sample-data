@@ -25,7 +25,7 @@ namespace RockSampleData.Loader.Validation
     /// <summary>
     /// Checks each Cast volunteer whose roster names the day they serve or when they joined, such as Drew Kim on Wednesday
     /// nights: they joined the team that day, every request to serve is on that weekday and after they joined, and they
-    /// served at least once (decision D-student-volunteers-2).
+    /// served at least once (decision 406).
     /// </summary>
     internal static class CastServingDayExpectations
     {

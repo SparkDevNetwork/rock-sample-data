@@ -161,7 +161,7 @@ namespace RockSampleData.Loader.Loading
 
                         // A weekday service, Student Night, meets on its day in the week that ends on this Sunday, and not in a
                         // week the student services do not meet. Its week ends by install day or is still ahead, as Student Night's
-                        // check-ins do, and never before the volunteer joined (decision D-student-volunteers-1).
+                        // check-ins do, and never before the volunteer joined (decision 405).
                         var date = services[service].DateInWeek( sunday );
                         if ( date != sunday && ( !StudentServiceRuns( sunday ) || ( date <= today && sunday > today ) || date < member.Joined ) )
                         {

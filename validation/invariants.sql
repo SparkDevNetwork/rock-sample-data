@@ -861,7 +861,7 @@ WHERE [a].[ForeignKey] = @ForeignKey AND [a].[AttendanceCodeId] IS NOT NULL AND 
         OR [o].[SundayDate] > CAST( GETDATE() AS DATE ) );
 
 -- check: weekday-serving-is-student-night
--- why: Decision D-student-volunteers-1. The only weekday a team serves is Wednesday Student Night: the Student Ministry team, in the student rooms, on the Student Night schedule. Its volunteers check in at the volunteer kiosk, as on Sunday.
+-- why: Decision 405. The only weekday a team serves is Wednesday Student Night: the Student Ministry team, in the student rooms, on the Student Night schedule. Its volunteers check in at the volunteer kiosk, as on Sunday.
 SELECT COUNT(*)
 FROM [Attendance] AS [a]
 INNER JOIN [AttendanceOccurrence] AS [o] ON [o].[Id] = [a].[OccurrenceId]

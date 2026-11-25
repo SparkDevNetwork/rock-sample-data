@@ -111,7 +111,7 @@ namespace RockSampleData.Loader.Loading
 
         /// <summary>
         /// The services a team serves at its campus: every Sunday service, or the student services, the Sunday student
-        /// service and Wednesday Student Night (decision D-student-volunteers-1).
+        /// service and Wednesday Student Night (decision 405).
         /// </summary>
         internal static List<ServicePlan> TeamServices( ServingTeamDefinition team, CampusPlan plan ) =>
             team.Services == "student" ? new[] { plan.StudentService, plan.MidweekStudentService }.Where( s => s != null ).ToList() : plan.Services;
