@@ -106,7 +106,7 @@ WHERE [Visit] = 1", P( "@ServingArea", ServingAreaPurposeGuid ) )
             run. Every second visit in that window came before the Tuesday job, and a date never changes once written, so
             each run's value is the people whose Second Visit the load wrote in its window.
 
-            Reason: The count matches what staff see on each profile (decision D-mbd-5).
+            Reason: The count matches what staff see on each profile (decision 404).
         */
 
         /// <summary>

@@ -283,7 +283,7 @@ Why the church has its own Church Family view instead of using Rock's shipped "M
 
 Why F5 is persisted: it counts attendance rows, and Full 7 has millions of them. Several views build on it. Who counts as a regular attender does not change within a day. Its consumers turn on the filter's "Use Persisted" option.
 
-Why C3 is persisted: it counts 18 months of worship attendance for every adult, which takes Rock close to its 30-second query limit on Full 7. The Drifting Adults metric runs Mondays at 3 AM, after the 2 AM refresh, so Rock's Calculate Metrics job reads the saved list. Newly Missed reads it too (decision D-mbd-4).
+Why C3 is persisted: it counts 18 months of worship attendance for every adult, which takes Rock close to its 30-second query limit on Full 7. The Drifting Adults metric runs Mondays at 3 AM, after the 2 AM refresh, so Rock's Calculate Metrics job reads the saved list. Newly Missed reads it too (decision 403).
 
 Why F10 uses Rock's Last Gave attribute and not a Finance data view: "gave in the last year" through Givers in the Last 12 Months (FN2) would make F10 a finance consumer, and it would have to live in Finance (design rule 4). Rock already shows Last Gave to Staff Workers and Staff Like Workers (its attribute security in the trusted base), so using it reveals nothing Rock does not already show staff.
 
@@ -727,7 +727,7 @@ Verify checks each metric's newest values, campus by campus, against Rock's coun
 
 ### 8.3 Ministry by Design metrics
 
-Each Ministry System has an owner at the center and one at each campus, and each needs three kinds of number: how many reached the stage, how many are ready for the next step, and whether the system works. The four path metrics count the stages. A Ministry by Design metric category holds the rest, each split by campus (decision D-mbd-1).
+Each Ministry System has an owner at the center and one at each campus, and each needs three kinds of number: how many reached the stage, how many are ready for the next step, and whether the system works. The four path metrics count the stages. A Ministry by Design metric category holds the rest, each split by campus (decision 400).
 
 | System | Metric | Counts | Source |
 |---|---|---|---|
@@ -743,9 +743,9 @@ Each Ministry System has an owner at the center and one at each campus, and each
 | Retention (Re-engage) | Back in the Last 30 Days | Adults who came back after 90 or more days away | SQL |
 | Pastoral Care (Care) | Benevolence Requests | New requests for help in the month that just ended | SQL, monthly |
 
-Second-Time Guests reads the Second Visit that Rock's Family Analytics job sets on Tuesday night, so it runs on Wednesday morning (decision D-mbd-5). A regular attender came to worship 4 or more times in the 12 weeks before the run. Each SQL metric keeps the church's SQL on the metric, so Rock's job runs it after install, and every active campus gets a value each run.
+Second-Time Guests reads the Second Visit that Rock's Family Analytics job sets on Tuesday night, so it runs on Wednesday morning (decision 404). A regular attender came to worship 4 or more times in the 12 weeks before the run. Each SQL metric keeps the church's SQL on the metric, so Rock's job runs it after install, and every active campus gets a value each run.
 
-Each metric has history on install day. A data view metric replays its view as it was at each run: attendance windows end on the run's day, steps count once completed, group membership comes from Rock's group member history, and a person's fields are today's. A SQL metric's past values are what its SQL gives at each run (decision D-mbd-2). Verify replays each view today and holds it to Rock's own count, and runs each SQL metric's SQL as of past runs (decision D-mbd-3).
+Each metric has history on install day. A data view metric replays its view as it was at each run: attendance windows end on the run's day, steps count once completed, group membership comes from Rock's group member history, and a person's fields are today's. A SQL metric's past values are what its SQL gives at each run (decision 401). Verify replays each view today and holds it to Rock's own count, and runs each SQL metric's SQL as of past runs (decision 402).
 
 ## 9. Open questions
 

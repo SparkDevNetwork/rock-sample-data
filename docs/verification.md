@@ -509,7 +509,7 @@ To add a rule, add a `-- check:` block with a `-- why:` line that returns how ma
 
 **Why it's there.** Rock counts a view only as it is today, so the loader reads each week's value back from the steps. Tying the newest values to Rock's own count proves the loader used the view's rule and Rock's campus split (decisions 234 and 379).
 
-A Ministry by Design metric on any other view is replayed instead: at its last run the replay must give each campus's newest value, and replayed today it must hold Rock's own count of the view (decision D-mbd-3).
+A Ministry by Design metric on any other view is replayed instead: at its last run the replay must give each campus's newest value, and replayed today it must hold Rock's own count of the view (decision 402).
 
 ### Access
 
