@@ -604,6 +604,7 @@ static CheckResult MetricsCheck( SqlServer sql, string database, SampleDataSourc
 {
     var problems = new List<string>();
     var metrics = source.Reporting?.Metrics ?? new List<MetricDefinition>();
+    var (pathCount, replayedCount) = (0, 0);
     foreach ( var metric in metrics )
     {
         // A metric with its own SQL is checked against that SQL in rock-metrics.
@@ -616,8 +617,11 @@ static CheckResult MetricsCheck( SqlServer sql, string database, SampleDataSourc
         if ( !MetricsWriter.IsStageView( metricView ) )
         {
             problems.AddRange( ReplayedMetricProblems( sql, database, source, metric, metricView, counts, anchor ) );
+            replayedCount++;
             continue;
         }
+
+        pathCount++;
 
         var newest = sql.Query( database, @"
 SELECT [mv].[YValue], [mv].[MetricValueDateTime], [vp].[EntityId] AS [Campus]
@@ -678,7 +682,9 @@ GROUP BY [Campus]", new SqlParameter( "@Taken", latest["MetricValueDateTime"] ) 
         }
     }
 
-    return CheckResult.From( "metrics", problems.Count == 0 ? $"Each of the {metrics.Count} path metrics' newest value matches Rock's count of its stage view" : "A path metric does not match its stage view", problems );
+    return CheckResult.From( "metrics", problems.Count == 0
+        ? $"Each of the {pathCount} path metrics' newest value matches Rock's count of its stage view, and each of the {replayedCount} other data view metrics' matches its view replayed"
+        : "A data view metric does not match Rock's count of its view", problems );
 
     static IEnumerable<DataViewFilterDefinition> Leaves( DataViewFilterDefinition filter ) =>
         filter.Component != null ? new[] { filter } : filter.Children.SelectMany( Leaves );
