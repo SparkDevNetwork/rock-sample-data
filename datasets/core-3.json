@@ -12,7 +12,7 @@
   "people": 439,
   "households": 254,
   "campuses": 3,
-  "typicalInstallSeconds": 17,
+  "typicalInstallSeconds": 42,
   "databaseSpaceMegabytes": 1700,
   "checkImages": {
     "$comment": "Every check gets images; Core 3 is still small.",

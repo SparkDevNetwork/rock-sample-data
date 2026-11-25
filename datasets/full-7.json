@@ -12,8 +12,8 @@
   "people": 25445,
   "households": 17134,
   "campuses": 7,
-  "typicalInstallSeconds": 173,
-  "databaseSpaceMegabytes": 15100,
+  "typicalInstallSeconds": 304,
+  "databaseSpaceMegabytes": 14500,
   "checkImages": {
     "$comment": "Only the last 12 months of checks get images, to keep the database a reasonable size.",
     "months": 12

@@ -13,8 +13,8 @@
   "people": 208,
   "households": 97,
   "campuses": 1,
-  "typicalInstallSeconds": 13,
-  "databaseSpaceMegabytes": 1300,
+  "typicalInstallSeconds": 32,
+  "databaseSpaceMegabytes": 1400,
   "checkImages": {
     "$comment": "Every check in the Cast gets images.",
     "months": 0
