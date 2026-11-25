@@ -232,7 +232,7 @@ namespace RockSampleData.Loader.Loading
                 PlanStudentsOnTheirOwn( household );
             }
 
-            var studentNights = StudentNights();
+            var studentNights = StudentNights( _configuration.CampusPlans.Values.Select( p => p.MidweekStudentService ).FirstOrDefault( s => s != null )?.Day ?? DayOfWeek.Wednesday );
             foreach ( var household in households )
             {
                 PlanStudentNights( household, castHouseholdKeys.Contains( household.Cast.Key ), studentNights );
@@ -263,12 +263,12 @@ namespace RockSampleData.Loader.Loading
         /// The Wednesdays Student Night met: every one in the history whose week ended by the install day, in a week the
         /// student service ran.
         /// </summary>
-        private List<DateTime> StudentNights()
+        private List<DateTime> StudentNights( DayOfWeek day )
         {
             var nights = new List<DateTime>();
             for ( var night = _calendar.HistoryStart.Date; SundayCalendar.SundayOnOrAfter( night ) <= _calendar.HistoryEnd; night = night.AddDays( 1 ) )
             {
-                if ( night.DayOfWeek == DayOfWeek.Wednesday && StudentServiceRuns( SundayCalendar.SundayOnOrAfter( night ) ) )
+                if ( night.DayOfWeek == day && StudentServiceRuns( SundayCalendar.SundayOnOrAfter( night ) ) )
                 {
                     nights.Add( night );
                 }
@@ -1004,9 +1004,10 @@ namespace RockSampleData.Loader.Loading
         */
 
         /// <summary>
-        /// Whether the student service runs on a Sunday: every week the church calendar has kids' ministry.
+        /// Whether the student services run in the week that ends on a Sunday: every week the church calendar has kids'
+        /// ministry. Student Night and its volunteers meet in the same weeks.
         /// </summary>
-        private bool StudentServiceRuns( DateTime sunday ) => _calendar.Multiplier( sunday, "kids" ) >= StudentRules.MinimumKidsMultiplier;
+        internal bool StudentServiceRuns( DateTime sunday ) => _calendar.Multiplier( sunday, "kids" ) >= StudentRules.MinimumKidsMultiplier;
 
         private static class StudentRules
         {

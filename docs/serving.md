@@ -13,18 +13,19 @@ Every campus has the same eight teams. Each one is a Rock Serving Team group, so
 | Kids Ministry | The six kids check-in rooms | All | Yes |
 | Worship Team | Worship Center | All | No |
 | Production Team | Production Booth | All | No |
-| Student Ministry | The Warehouse and the Garage | The student service | Yes |
+| Student Ministry | The Warehouse and the Garage | The Sunday student service and Wednesday Student Night | Yes |
 | Prayer Team | Prayer Room | All | No |
 | First Aid Team | First Aid Station | All | No |
 
 - **Structure.** Each team sits under its campus's parent ("Phoenix Serving Teams"), under Rock's own Serving Teams group. Names are plain, with the campus set on the group. Rock's shipped Greeters, Ushers, and Children's groups become Phoenix's Greeters, Ushers, and Kids Ministry, and the old A/V Team becomes Phoenix's Production Team.
 - **Positions are rooms.** A team's rooms are its scheduling positions. The kids and student rooms are the check-in rooms; the other rooms are added to each campus building. Each room has a minimum, desired, and maximum number of people at each service.
 - **Staffing fits the campus.** The configured numbers are for a campus that can staff them. A small campus asks for about the people it usually has, so its scheduler is mostly staffed with some open spots. Phoenix in Core 1 is a church of about 180 people running six kids rooms at three services, so many kids rooms still show an open spot. That is realistic, and it gives the scheduler work to show.
+- **Student Night.** The Student Ministry team serves at both student services, each with its own staffing, so it gets about twice the Sunday need of generated volunteers. A Student Night request falls on the Wednesday of its week, only in weeks Student Night meets, and its volunteer checks in at the volunteer kiosk. Student leaders are at least 20, two years out of high school, so college students can lead (decisions 405 and 406).
 - **Requirements.** Kids Ministry and Student Ministry require Rock's Background Check Required, and only volunteers who meet it can be scheduled. Every adult on those teams has a passing check from the last few years, with its report, and the requirement results Rock's job would have saved. Volunteers under 18 meet Rock's rule by age. The Background checks part writes them (decision 333), and small group leaders have the same requirement (decision 334).
 
 ## The volunteers
 
-- **The Cast.** Phoenix's 47 Cast volunteers are hand-picked in `cast/groups/serving-*.json`, one file per team, so tests can rely on them. Their stories hold: the Bells greet, Ted Decker leads the Production Team, Gabriel Hernandez plays on the Worship Team, the Fosters and Cindy Decker pray, and Michelle Nguyen leads First Aid. Natalie Silva serves on two teams.
+- **The Cast.** Phoenix's 48 Cast volunteers are hand-picked in `cast/groups/serving-*.json`, one file per team, so tests can rely on them. A roster can name when someone joined, their rotation, and the day they serve. Their stories hold: the Bells greet, Ted Decker leads the Production Team, Gabriel Hernandez plays on the Worship Team, the Fosters and Cindy Decker pray, and Michelle Nguyen leads First Aid. Natalie Silva serves on two teams. Drew Kim, a college student, has led every Wednesday night since the summer, a week after he texted Isaac Silva to ask.
 - **Generated households.** Adults in households that still attend serve at the profile's share of active adults (22.6%). They come from Engaged and Leading adults first, then Connected and Known adults when a campus needs them, who become Engaged. Every team gets a leader and at least two people. Couples often serve together. Volunteers are out of high school, and nobody joined a team before then (decision 169).
 - **Leaders.** Every team has a leader, who is Leading. A large team also has co-leaders at the measured share of leaders (8.5%), the way a big team has a coordinator for each service.
 - **Small group leaders from Ready to Lead.** A small group leader who launched from Ready to Lead serves on a team the volunteer's own seed picks, by the teams' need, and joined it by half a year before the day they were Ready to Lead. They are never a team leader, so their Lead step starts with their group (decision 322, and see [Small groups](small-groups.md#new-groups-and-new-leaders)).
@@ -94,6 +95,3 @@ Three measures are skipped on purpose, and [tolerances.json](../validation/toler
 
 Still outside tolerance, by a few points: two holiday multipliers for adults (fall kickoff and Labor Day) and four months of the connection month pattern.
 
-## Later
-
-- Wednesday Student Night volunteer positions for the Student Ministry team (issue 39). Students check in on Wednesdays, but the team serves only on Sundays.

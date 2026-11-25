@@ -920,10 +920,22 @@ function checkServingTeam( file, g ) {
     if ( teamLeaders.length !== 1 ) {
         errors.push( `${file}: has ${teamLeaders.length} leaders; a serving team has exactly one.` );
     }
+    // The weekdays the team serves at the main campus: Sunday, and Student Night's day for the student services.
+    const campusSchedules = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "campuses.json" ), "utf8" ) ).campuses.find( c => c.rockDefault ).schedules;
+    const slots = JSON.parse( fs.readFileSync( path.join( castDir, "..", "configuration", "schedules.json" ), "utf8" ) ).slots;
+    const serviceDays = new Set( campusSchedules.filter( s => s.type === ( team.services === "student" ? "student" : "weekend" ) ).map( s => slots.find( x => x.key === s.slot ).day ) );
+    const minimumAge = team.minimumAge ?? serving.volunteers.minimumAge;
     for ( const m of g.members || [] ) {
         const entry = people.get( m.guid );
-        if ( entry && ( entry.person.birth?.age ?? 0 ) < 18 ) {
-            errors.push( `${file}: ${m.name} is under 18; serving team members are adults.` );
+        if ( entry && ( entry.person.birth?.age ?? 0 ) < minimumAge ) {
+            errors.push( `${file}: ${m.name} is under ${minimumAge}, the team's minimum age.` );
+        }
+        // A roster can name when someone joined, their rotation, and the day they serve (decision 406).
+        if ( m.rotation !== undefined && !Object.keys( serving.volunteers.rotations ).includes( m.rotation ) ) {
+            errors.push( `${file}: ${m.name}'s rotation "${m.rotation}" is not one of Rock's schedule templates in serving.json.` );
+        }
+        if ( m.serviceDay !== undefined && !serviceDays.has( m.serviceDay ) ) {
+            errors.push( `${file}: ${m.name} serves on ${m.serviceDay}, but the team serves only on ${[ ...serviceDays ].join( " and " )}.` );
         }
     }
 }

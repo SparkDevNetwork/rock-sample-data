@@ -161,7 +161,10 @@
             "properties": {
               "guid": { "$ref": "household.schema.json#/$defs/guid" },
               "name": { "type": "string", "description": "For readability only." },
-              "role": { "enum": [ "Leader", "Member" ] }
+              "role": { "enum": [ "Leader", "Member" ] },
+              "joined": { "$ref": "household.schema.json#/$defs/relativeDate", "description": "When they joined the team. Left out, the loader draws it. Never before they were old enough for the team." },
+              "rotation": { "enum": [ "Every Week", "Every Other Week", "1st and 3rd Week", "2nd and 4th Week" ], "description": "One of Rock's schedule templates. Left out, the loader draws it; a leader serves every week." },
+              "serviceDay": { "enum": [ "Sunday", "Wednesday" ], "description": "The day of the team's service they serve at, such as Wednesday for Student Night. Left out, the loader draws a preferred service or none." }
             }
           }
         }

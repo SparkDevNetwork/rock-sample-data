@@ -5,7 +5,6 @@ What we plan to add to Rock Sample Data but have not built yet. If something you
 ## People and attendance
 
 - **More Cast families** whenever a test or demo needs a case the Cast does not cover yet.
-- **Student Night volunteers,** so the Student Ministry team serves at Wednesday Student Night as it does on Sundays.
 
 
 ## Other Rock features

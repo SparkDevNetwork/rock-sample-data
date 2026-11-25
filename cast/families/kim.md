@@ -24,7 +24,7 @@ David and Susan Kim's son Andrew is 20 and in college. He moved into an apartmen
 
 ### Drew (Andrew) Kim
 
-- Age 20 · single · Sonoran Valley University · no email · groups: Foster Group
+- Age 20 · single · Sonoran Valley University · no email · groups: Foster Group, Student Ministry
 - Person Guid `3A0B5DA0-9CB1-40C7-8A16-FCBDF24F8A33`
 
 ## What this family tests

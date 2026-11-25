@@ -182,6 +182,21 @@ namespace RockSampleData.Loader.Model
         /// Leader or Member.
         /// </summary>
         public string Role { get; set; }
+
+        /// <summary>
+        /// When the volunteer joined, or null to draw it (decision 406).
+        /// </summary>
+        public RelativeDate Joined { get; set; }
+
+        /// <summary>
+        /// One of Rock's schedule templates, such as Every Week, or null to draw it.
+        /// </summary>
+        public string Rotation { get; set; }
+
+        /// <summary>
+        /// The weekday of the team's service they serve at, such as Wednesday for Student Night, or null to draw it.
+        /// </summary>
+        public string ServiceDay { get; set; }
     }
 
     internal sealed class GuidReference

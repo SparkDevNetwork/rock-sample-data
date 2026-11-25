@@ -110,10 +110,11 @@ namespace RockSampleData.Loader.Loading
         }
 
         /// <summary>
-        /// The services a team serves at its campus: every Sunday service, or only the student service.
+        /// The services a team serves at its campus: every Sunday service, or the student services, the Sunday student
+        /// service and Wednesday Student Night (decision 405).
         /// </summary>
         internal static List<ServicePlan> TeamServices( ServingTeamDefinition team, CampusPlan plan ) =>
-            team.Services == "student" ? new List<ServicePlan> { plan.StudentService } : plan.Services;
+            team.Services == "student" ? new[] { plan.StudentService, plan.MidweekStudentService }.Where( s => s != null ).ToList() : plan.Services;
 
         /// <summary>
         /// The Guid of a team that has no fixed Guid. It depends only on the campus and team, so it is
