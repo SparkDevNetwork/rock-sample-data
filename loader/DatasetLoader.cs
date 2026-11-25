@@ -378,6 +378,10 @@ namespace RockSampleData.Loader
             var groupLaunches = new GroupLaunchCalendar( source.Communications?.Events );
             var generator = new CrowdGenerator( profile, source, seed, dates.Anchor );
             List<CastHousehold> generated = null;
+
+            // The Cast's duplicates, and the Crowd's once they are generated: merges load with people, and pairs after
+            // Rock's duplicate finder runs.
+            var duplicates = source.ReadCastDuplicates();
             using ( log.TimePart( "Generate the Crowd" ) )
             {
                 if ( options.CrowdHouseholds is { } crowd )
@@ -415,6 +419,14 @@ namespace RockSampleData.Loader
                     households.AddRange( businesses );
                     var businessText = string.Join( ", ", businesses.GroupBy( h => h.CampusSlot ).Select( g => $"{g.Key} {g.Count():N0}" ) );
                     log.Write( $"  Generated: {businesses.Count:N0} businesses ({businessText})" );
+
+                    // A share of generated people have a second record. They come after every plan above, so no group
+                    // or business sees them, and later steps leave Pending records out (decision 397).
+                    var crowdDuplicates = generator.GenerateDuplicates( generated, duplicates.Crowd );
+                    households.AddRange( crowdDuplicates.Records );
+                    duplicates.Pairs.AddRange( crowdDuplicates.Pairs );
+                    duplicates.Merges.AddRange( crowdDuplicates.Merges );
+                    log.Write( $"  Generated: {crowdDuplicates.Pairs.Count + crowdDuplicates.Merges.Count:N0} duplicate records ({crowdDuplicates.Pairs.Count( p => p.DecisionValue == DuplicateDecision.Open ):N0} open, {crowdDuplicates.Pairs.Count( p => p.DecisionValue == DuplicateDecision.Ignored ):N0} set aside, {crowdDuplicates.Merges.Count:N0} merged)" );
                 }
             }
 
@@ -432,7 +444,7 @@ namespace RockSampleData.Loader
             CheckInRelatives relatives;
             using ( log.TimePart( "Write people" ) )
             {
-                people.Load( households );
+                people.Load( households, duplicates.Merges );
 
                 // Known relationships, both halves: the Cast's lines and the Crowd's check-in adults, who the attendance
                 // plan follows (decisions 365, 366, and 372).
@@ -892,7 +904,7 @@ namespace RockSampleData.Loader
             // Rock's duplicate finder runs last, after every person, phone, and address, so the Calculate Person Duplicates
             // job finds nothing new on its first night. The Cast's merges, decisions, and merge requests come with it.
             steps.Begin( "Duplicates" );
-            new DuplicatesLoader( db, source, dates, foreignKey ).Load( people );
+            new DuplicatesLoader( db, dates, foreignKey ).Load( people, duplicates );
 
             // The history of the church's metrics and of Rock's own. Each value reads the rows the load wrote, the duplicate
             // records, Rock's visit dates, and the attribute values Rock's save hook filled among them, so it comes after

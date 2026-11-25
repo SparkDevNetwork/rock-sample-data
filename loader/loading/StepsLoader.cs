@@ -304,6 +304,12 @@ WHERE [cr].[ForeignKey] = @ForeignKey AND [cr].[ConnectionState] = 0", P( "@Fore
 
             foreach ( var (household, person) in StepPerson.Of( people.Households ) )
             {
+                // A duplicate record takes no part, so it has no steps and no baptism (decision 399).
+                if ( household.Cast.DuplicateOf != null )
+                {
+                    continue;
+                }
+
                 var isCast = castHouseholdKeys.Contains( household.Cast.Key );
                 var attended = attendance.FamilySundays.TryGetValue( household.FamilyId, out var sundays ) && sundays.Any( s => s >= yearAgo );
                 var gave = person.GivingId != null && gifts.Now.TryGetValue( person.GivingId, out var unitGifts ) && unitGifts.Any( g => g.When >= yearAgo );
